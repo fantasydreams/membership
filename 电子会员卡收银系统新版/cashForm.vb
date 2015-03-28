@@ -96,9 +96,6 @@ Public Class cash
         balance.Show()
     End Sub
 
-    Private Sub Label2_Click(sender As Object, e As EventArgs) Handles F5.Click
-
-    End Sub
 
     Private Sub F4_Click(sender As Object, e As EventArgs) Handles F4.Click
         background.Show()
@@ -341,20 +338,20 @@ Public Class cash
     End Sub
 
     'form keypress detect
-    Private Sub form_keypress(sender As Object, e As KeyPressEventArgs) Handles Me.KeyPress
-        If e.KeyChar = ChrW(27) Then
+    Private Sub form_keypress(sender As Object, e As KeyEventArgs) Handles Me.KeyDown
+        If e.keycode = Keys.Escape Then
             Dim messge As New MSG
             messge.head.Text = "即将退出系统"
             messge.msgP.Text = "按下enter退出系统，esc返回..."
             messge.Show()
         End If
-        If e.KeyChar = Chr(115) Then
+        If e.KeyCode = Keys.F4 Then
             Dim messge As New MSG
             messge.head.Text = "F4"
             messge.msgP.Text = "你按下了F4"
             messge.Show()
         End If
-        If e.KeyChar = Chr(116) Then
+        If e.KeyCode = Keys.F5 Then
             Dim messge As New MSG
             messge.head.Text = "F5"
             messge.msgP.Text = "你按下了F5"
