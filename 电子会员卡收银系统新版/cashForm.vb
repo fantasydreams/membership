@@ -2,7 +2,7 @@
 Imports MySql.Data.MySqlClient
 Public Class cash
 
-
+    'Public score As Double = 0  'shop goods score
     Public lineNum As Integer = 1
     Private Sub cash_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         'System.Windows.Forms.Control.CheckForIllegalCrossThreadCalls = False
@@ -229,7 +229,7 @@ Public Class cash
     Private Sub selectFromBaseData()
         If ID_P_A_I.Text = "" Then
         Else
-            Dim str As String = "select name ,shop_id,price from goods where id = " + ID_P_A_I.Text.ToString()
+            Dim str As String = "select name ,shop_id,price,score from goods where id = " + ID_P_A_I.Text.ToString()
             Dim Dr As MySqlCommand = New MySqlCommand(str, Login.conn)
             Dr.CommandType = CommandType.Text
             Dim MR As MySqlDataReader
@@ -247,6 +247,7 @@ Public Class cash
                 Data.Rows(lineNum - 1).Cells(4).Value = 1
                 Data.Rows(lineNum - 1).Cells(5).Value = MR.Item(2)
                 Data.Rows(lineNum - 1).Cells(6).Value = MR.Item(2)
+                balance.score += Double.Parse(MR.Item(3).ToString())   'calculate goods scores
                 'p_id_p.Text = Data.Rows(lineNum - 1).Cells(1).Value
                 'P_Name.Text = Data.Rows(lineNum - 1).Cells(2).Value
                 'P_NUM.Text = Data.Rows(lineNum - 1).Cells(4).Value

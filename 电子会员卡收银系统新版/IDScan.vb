@@ -85,7 +85,7 @@ Public Class IDScan
             If MR.HasRows Then
                 MR.Read()
                 balance.Max = MR.Item(1)
-                balance.score = Integer.Parse(MR.Item(2).ToString) + Integer.Parse(balance.ALL_M_P.Text)
+                'balance.score = Double.Parse(MR.Item(2).ToString) + cash.score
                 balance.Pack_M.Text = MR.Item(0)
                 balance.oldPMP = Double.Parse(MR.Item(0))
                 balance.NumId = ID_I.Text.ToString()
