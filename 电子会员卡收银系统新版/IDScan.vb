@@ -22,12 +22,12 @@ Public Class IDScan
                     balance.ALL_M_P.Text = cash.ALL_M_P.Text
                     balance.VIP_M_P.Text = balance.ALL_M_P.Text
                     balance.Pack_M.Text = "0"
-                    balance.Show()
+                    balance.Show(background)
                 Else
                     If sureUserInfo = True Then
                         CalculateVipMon()
                         Me.Close()
-                        balance.Show()
+                        balance.Show(background)
                     End If
                     If sureUserInfo = False Then
 

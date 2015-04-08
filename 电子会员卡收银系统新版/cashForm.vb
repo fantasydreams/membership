@@ -92,14 +92,14 @@ Public Class cash
     End Sub
 
     Private Sub Esc_Click(sender As Object, e As EventArgs) Handles Esc.Click
-        background.Show()
-        balance.Show()
+        background.Show(Me)
+        balance.Show(background)
     End Sub
 
 
     Private Sub F4_Click(sender As Object, e As EventArgs) Handles F4.Click
-        background.Show()
-        IDScan.Show()
+        background.Show(Me)
+        IDScan.Show(background)
     End Sub
 
     '设置data以及对应的列标签的宽度
@@ -145,8 +145,8 @@ Public Class cash
                 If ID_P_A_I.Text = "" Then
                     If ID_P_A_I.Text = "0" Then
                     Else
-                        background.Show()
-                        IDScan.Show()
+                        background.Show(Me)
+                        IDScan.Show(background)
                     End If
                 Else
                     selectData()
@@ -229,7 +229,7 @@ Public Class cash
     Private Sub selectFromBaseData()
         If ID_P_A_I.Text = "" Then
         Else
-            Dim str As String = "select name ,shop_id,price,score from goods where id = " + ID_P_A_I.Text.ToString()
+            Dim str As String = "select name ,shop_id,price,score from goods where code = " + ID_P_A_I.Text.ToString()
             Dim Dr As MySqlCommand = New MySqlCommand(str, Login.conn)
             Dr.CommandType = CommandType.Text
             Dim MR As MySqlDataReader
