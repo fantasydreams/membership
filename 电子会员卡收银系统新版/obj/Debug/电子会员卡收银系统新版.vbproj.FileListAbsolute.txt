@@ -34,3 +34,4 @@ F:\github\membership\电子会员卡收银系统新版\obj\Debug\电子会员卡
 F:\github\membership\电子会员卡收银系统新版\obj\Debug\电子会员卡收银系统新版.MSG.resources
 F:\github\membership\电子会员卡收银系统新版\obj\Debug\电子会员卡收银系统新版.Resources.resources
 F:\github\membership\电子会员卡收银系统新版\obj\Debug\电子会员卡收银系统新版.vbproj.GenerateResource.Cache
+F:\github\membership\电子会员卡收银系统新版\obj\Debug\电子会员卡收银系统新版.fristrun.resources

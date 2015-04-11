@@ -31,4 +31,20 @@ Public Class MSG
     Private Sub X_Click(sender As Object, e As EventArgs) Handles X.Click
         Cancel_Button_Click(Me, e)
     End Sub
+
+    Private Sub yes_button_Click(sender As Object, e As EventArgs) Handles yes_button.Click
+        OK_Button_Click(Me, e)
+    End Sub
+
+    Private Sub no_button_Click(sender As Object, e As EventArgs) Handles no_button.Click
+
+        Cancel_Button_Click(Me, e)
+    End Sub
+
+    'change button image
+    Private Sub no_button_mouse_down(sender As Object, e As EventArgs) Handles no_button.MouseDown
+        no.Image = Image.FromFile(".\source\button_foc.png")
+        yes.Image = Image.FromFile(".\source\button_lose.png")
+        'no_button.ForeColor = Color.Blue
+    End Sub
 End Class

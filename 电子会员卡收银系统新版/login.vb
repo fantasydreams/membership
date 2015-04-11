@@ -233,23 +233,49 @@ Public Class Login
                 temp = fsr.ReadLine()
                 'MsgBox(temp)
 
+                Dim fristrunflag As Boolean = False
+                '读取是否已经运行过程序
+                If IO.File.Exists(".\config\fristrun.ini") Then
+                    Dim fristrunfl As New StreamReader(".\config\fristrun.ini")
+                    Dim flag As String = ""
+                    flag = fristrunfl.ReadLine()
+                    If flag = "1" Then
+                        fristrunflag = True
+                    Else
+                        fristrunflag = False
+                    End If
+                    fristrunfl.Close()
+                End If
                 If temp = "" Then 'readid
+                    Dim fristrunWindow As New fristrun
+                    If Not fristrunflag Then
+                        fristrunWindow.notice.Text = "您好，请重新选择店铺或者输入店铺编号："
+                    End If
+                    fristrunWindow.Show(Me)
                     Dim Msgform As New MSG
                     Msgform.head.Text = "error"
                     Msgform.msgP.Text = "配置文件丢失，请重新配置"
-                    Msgform.Show()
+                    Msgform.Show(fristrunWindow)
+
                     Exit Sub
                 Else
                     shopID = Long.Parse(temp)
                     'MsgBox(shopID.ToString)
                 End If
                 temp = fsr.ReadLine()
+                fsr.Close()
                 'MsgBox(temp)
                 If temp = "" Then  'readname
+                    Dim fristrunWindow As New fristrun
+                    If Not fristrunflag Then
+                        fristrunWindow.notice.Text = "您好，请重新选择店铺或者输入店铺编号："
+                    End If
+                    fristrunWindow.Show(Me)
                     Dim Msgform As New MSG
                     Msgform.head.Text = "error"
                     Msgform.msgP.Text = "配置文件丢失，请重新配置"
-                    Msgform.Show()
+                    Msgform.Show(fristrunWindow)
+
                     Exit Sub
                 End If
 
@@ -281,7 +307,6 @@ Public Class Login
     End Sub
 
     'this function design to get shop id and name and save it into config data
-
 
 
 End Class

@@ -28,15 +28,21 @@ Partial Class MSG
         Me.head = New System.Windows.Forms.Label()
         Me.X = New System.Windows.Forms.Label()
         Me.col = New System.Windows.Forms.PictureBox()
+        Me.no = New System.Windows.Forms.PictureBox()
+        Me.yes = New System.Windows.Forms.PictureBox()
+        Me.no_button = New System.Windows.Forms.Label()
+        Me.yes_button = New System.Windows.Forms.Label()
         CType(Me.warn, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.col, System.ComponentModel.ISupportInitialize).BeginInit()
+        CType(Me.no, System.ComponentModel.ISupportInitialize).BeginInit()
+        CType(Me.yes, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
         'msgP
         '
         Me.msgP.Font = New System.Drawing.Font("幼圆", 14.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(134, Byte))
         Me.msgP.ForeColor = System.Drawing.SystemColors.ActiveCaptionText
-        Me.msgP.Location = New System.Drawing.Point(103, 78)
+        Me.msgP.Location = New System.Drawing.Point(103, 69)
         Me.msgP.Name = "msgP"
         Me.msgP.Size = New System.Drawing.Size(257, 85)
         Me.msgP.TabIndex = 9
@@ -46,7 +52,7 @@ Partial Class MSG
         'warn
         '
         Me.warn.Image = CType(resources.GetObject("warn.Image"), System.Drawing.Image)
-        Me.warn.Location = New System.Drawing.Point(20, 78)
+        Me.warn.Location = New System.Drawing.Point(20, 69)
         Me.warn.Name = "warn"
         Me.warn.Size = New System.Drawing.Size(85, 85)
         Me.warn.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize
@@ -86,11 +92,55 @@ Partial Class MSG
         Me.col.TabIndex = 5
         Me.col.TabStop = False
         '
+        'no
+        '
+        Me.no.Image = CType(resources.GetObject("no.Image"), System.Drawing.Image)
+        Me.no.Location = New System.Drawing.Point(145, 160)
+        Me.no.Name = "no"
+        Me.no.Size = New System.Drawing.Size(79, 28)
+        Me.no.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage
+        Me.no.TabIndex = 10
+        Me.no.TabStop = False
+        '
+        'yes
+        '
+        Me.yes.Image = CType(resources.GetObject("yes.Image"), System.Drawing.Image)
+        Me.yes.Location = New System.Drawing.Point(238, 160)
+        Me.yes.Name = "yes"
+        Me.yes.Size = New System.Drawing.Size(79, 28)
+        Me.yes.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage
+        Me.yes.TabIndex = 11
+        Me.yes.TabStop = False
+        '
+        'no_button
+        '
+        Me.no_button.Font = New System.Drawing.Font("幼圆", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(134, Byte))
+        Me.no_button.Location = New System.Drawing.Point(147, 162)
+        Me.no_button.Name = "no_button"
+        Me.no_button.Size = New System.Drawing.Size(75, 24)
+        Me.no_button.TabIndex = 12
+        Me.no_button.Text = "重新选择"
+        Me.no_button.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        '
+        'yes_button
+        '
+        Me.yes_button.Font = New System.Drawing.Font("幼圆", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(134, Byte))
+        Me.yes_button.Location = New System.Drawing.Point(240, 162)
+        Me.yes_button.Name = "yes_button"
+        Me.yes_button.Size = New System.Drawing.Size(75, 24)
+        Me.yes_button.TabIndex = 13
+        Me.yes_button.Text = "确定"
+        Me.yes_button.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        '
         'MSG
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 12.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(400, 200)
+        Me.Controls.Add(Me.yes_button)
+        Me.Controls.Add(Me.no_button)
+        Me.Controls.Add(Me.yes)
+        Me.Controls.Add(Me.no)
         Me.Controls.Add(Me.msgP)
         Me.Controls.Add(Me.warn)
         Me.Controls.Add(Me.head)
@@ -104,9 +154,10 @@ Partial Class MSG
         Me.Name = "MSG"
         Me.ShowInTaskbar = False
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
-        Me.TopMost = True
         CType(Me.warn, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.col, System.ComponentModel.ISupportInitialize).EndInit()
+        CType(Me.no, System.ComponentModel.ISupportInitialize).EndInit()
+        CType(Me.yes, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
@@ -116,5 +167,9 @@ Partial Class MSG
     Friend WithEvents head As System.Windows.Forms.Label
     Friend WithEvents X As System.Windows.Forms.Label
     Friend WithEvents col As System.Windows.Forms.PictureBox
+    Friend WithEvents no As System.Windows.Forms.PictureBox
+    Friend WithEvents yes As System.Windows.Forms.PictureBox
+    Friend WithEvents no_button As System.Windows.Forms.Label
+    Friend WithEvents yes_button As System.Windows.Forms.Label
 
 End Class
