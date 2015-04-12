@@ -9,7 +9,12 @@ int main(int argc,char agrv[]) //传参数
 	if (ex.createDB())
 		std::cout << "yes";
 	else
-		std::cout << "no";
+	{
+		//std::cout << "no";
+		
+
+	}
+		
 	system("pause");
 	//Sleep(3000);
 //	BOOL WINAPI FreeConsole(void); // 不显示控制台窗口
