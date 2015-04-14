@@ -4,6 +4,10 @@ Imports System
 Imports System.Xml
 Imports System.Security
 Imports System.IO
+'Imports System.Data.SQLite
+Imports Finisar.SQLite
+
+
 
 
 Public Class Login
@@ -18,6 +22,13 @@ Public Class Login
     '    Dim runThread As Thread
     Dim KeepSqlAliveThread As Thread
     Public shopID As Long = 0
+
+    Dim db As String = "./DB/daba.db"
+    Dim sqliteconn As New SQLiteConnection
+    Dim sqlitecmd As New SQLiteCommand
+    Dim sqliteThisModule As String = "SQLite3"
+
+
 
 
     Public Sub connect()
@@ -64,6 +75,8 @@ Public Class Login
         key.Text = "请输入密码"
         '.Show()
         'System.Windows.Forms.Control.CheckForIllegalCrossThreadCalls = False
+        sqliteconn.ConnectionString = "Data Source= " & db
+
         shopGet()  'getshop info
     End Sub
 
@@ -307,6 +320,17 @@ Public Class Login
     End Sub
 
     'this function design to get shop id and name and save it into config data
+
+    Private Sub opensqlitecon()
+        Try
+            sqliteconn.Open()
+            'sqliteconn.
+        Catch ex As Exception
+
+        End Try
+    End Sub
+
+
 
 
 End Class

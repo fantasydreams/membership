@@ -101,6 +101,7 @@ Partial Class MSG
         Me.no.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage
         Me.no.TabIndex = 10
         Me.no.TabStop = False
+        Me.no.Visible = False
         '
         'yes
         '
@@ -111,6 +112,7 @@ Partial Class MSG
         Me.yes.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage
         Me.yes.TabIndex = 11
         Me.yes.TabStop = False
+        Me.yes.Visible = False
         '
         'no_button
         '
@@ -121,6 +123,7 @@ Partial Class MSG
         Me.no_button.TabIndex = 12
         Me.no_button.Text = "重新选择"
         Me.no_button.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        Me.no_button.Visible = False
         '
         'yes_button
         '
@@ -131,6 +134,7 @@ Partial Class MSG
         Me.yes_button.TabIndex = 13
         Me.yes_button.Text = "确定"
         Me.yes_button.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        Me.yes_button.Visible = False
         '
         'MSG
         '

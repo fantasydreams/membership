@@ -50,11 +50,17 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>.\MySql.Data.dll</HintPath>
     </Reference>
+    <Reference Include="SQLite.NET">
+      <HintPath>.\SQLite.NET.dll</HintPath>
+    </Reference>
     <Reference Include="SuperDataGrid">
       <HintPath>.\SuperDataGrid.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Data.SQLite">
+      <HintPath>.\System.Data.SQLite.dll</HintPath>
+    </Reference>
     <Reference Include="System.Deployment" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
