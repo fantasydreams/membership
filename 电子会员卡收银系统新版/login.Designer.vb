@@ -23,27 +23,27 @@ Partial Class Login
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Login))
-        Me.PictureBox1 = New System.Windows.Forms.PictureBox()
+        Me.logo = New System.Windows.Forms.PictureBox()
         Me.IDPic = New System.Windows.Forms.PictureBox()
         Me.IDCODE = New System.Windows.Forms.PictureBox()
         Me.loginButton = New System.Windows.Forms.Label()
         Me.ID = New System.Windows.Forms.TextBox()
         Me.key = New System.Windows.Forms.TextBox()
-        CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).BeginInit()
+        CType(Me.logo, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.IDPic, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.IDCODE, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
-        'PictureBox1
+        'logo
         '
-        Me.PictureBox1.Image = CType(resources.GetObject("PictureBox1.Image"), System.Drawing.Image)
-        Me.PictureBox1.Location = New System.Drawing.Point(200, 35)
-        Me.PictureBox1.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
-        Me.PictureBox1.Name = "PictureBox1"
-        Me.PictureBox1.Size = New System.Drawing.Size(235, 115)
-        Me.PictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom
-        Me.PictureBox1.TabIndex = 0
-        Me.PictureBox1.TabStop = False
+        Me.logo.Image = CType(resources.GetObject("logo.Image"), System.Drawing.Image)
+        Me.logo.Location = New System.Drawing.Point(200, 35)
+        Me.logo.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
+        Me.logo.Name = "logo"
+        Me.logo.Size = New System.Drawing.Size(235, 115)
+        Me.logo.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom
+        Me.logo.TabIndex = 0
+        Me.logo.TabStop = False
         '
         'IDPic
         '
@@ -110,7 +110,7 @@ Partial Class Login
         Me.Controls.Add(Me.loginButton)
         Me.Controls.Add(Me.IDCODE)
         Me.Controls.Add(Me.IDPic)
-        Me.Controls.Add(Me.PictureBox1)
+        Me.Controls.Add(Me.logo)
         Me.DoubleBuffered = True
         Me.Font = New System.Drawing.Font("微软雅黑", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(134, Byte))
         Me.ForeColor = System.Drawing.SystemColors.ControlDarkDark
@@ -119,14 +119,14 @@ Partial Class Login
         Me.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
         Me.Name = "Login"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
-        CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).EndInit()
+        CType(Me.logo, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.IDPic, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.IDCODE, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
     End Sub
-    Friend WithEvents PictureBox1 As System.Windows.Forms.PictureBox
+    Friend WithEvents logo As System.Windows.Forms.PictureBox
     Friend WithEvents IDPic As System.Windows.Forms.PictureBox
     Friend WithEvents IDCODE As System.Windows.Forms.PictureBox
     Friend WithEvents loginButton As System.Windows.Forms.Label

@@ -18,12 +18,36 @@
     <ClInclude Include="exception.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="unicode2utf8.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="network.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="SHA1.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="sqlite3.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="exception.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="SHA1.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="unicode2utf8.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="network.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Sqlserver.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

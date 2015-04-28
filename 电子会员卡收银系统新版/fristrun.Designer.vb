@@ -38,9 +38,9 @@ Partial Class fristrun
         'close_window
         '
         Me.close_window.Image = CType(resources.GetObject("close_window.Image"), System.Drawing.Image)
-        Me.close_window.Location = New System.Drawing.Point(597, 12)
+        Me.close_window.Location = New System.Drawing.Point(599, 12)
         Me.close_window.Name = "close_window"
-        Me.close_window.Size = New System.Drawing.Size(40, 40)
+        Me.close_window.Size = New System.Drawing.Size(38, 38)
         Me.close_window.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage
         Me.close_window.TabIndex = 0
         Me.close_window.TabStop = False

@@ -16,7 +16,8 @@ Public Class MSG
         '.BackColor = Color.FromArgb(&HFFFFFFFF)  if set backcolor be white,it looks a little strange
         X.Parent = col
         head.Parent = col
-
+        no_button.Parent = no
+        yes_button.Parent = yes
     End Sub
     Private Sub frm_KeyPress(sender As Object, e As KeyPressEventArgs) Handles Me.KeyPress
         If e.KeyChar = ChrW(13) Then   'when press key enter,return ok

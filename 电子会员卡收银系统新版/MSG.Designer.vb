@@ -116,10 +116,11 @@ Partial Class MSG
         '
         'no_button
         '
+        Me.no_button.BackColor = System.Drawing.Color.Transparent
         Me.no_button.Font = New System.Drawing.Font("幼圆", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(134, Byte))
-        Me.no_button.Location = New System.Drawing.Point(147, 162)
+        Me.no_button.Location = New System.Drawing.Point(4, 2)
         Me.no_button.Name = "no_button"
-        Me.no_button.Size = New System.Drawing.Size(75, 24)
+        Me.no_button.Size = New System.Drawing.Size(73, 22)
         Me.no_button.TabIndex = 12
         Me.no_button.Text = "重新选择"
         Me.no_button.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
@@ -127,10 +128,11 @@ Partial Class MSG
         '
         'yes_button
         '
+        Me.yes_button.BackColor = System.Drawing.Color.Transparent
         Me.yes_button.Font = New System.Drawing.Font("幼圆", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(134, Byte))
-        Me.yes_button.Location = New System.Drawing.Point(240, 162)
+        Me.yes_button.Location = New System.Drawing.Point(4, 2)
         Me.yes_button.Name = "yes_button"
-        Me.yes_button.Size = New System.Drawing.Size(75, 24)
+        Me.yes_button.Size = New System.Drawing.Size(73, 23)
         Me.yes_button.TabIndex = 13
         Me.yes_button.Text = "确定"
         Me.yes_button.TextAlign = System.Drawing.ContentAlignment.MiddleCenter

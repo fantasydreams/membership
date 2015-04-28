@@ -4,8 +4,9 @@ Imports System
 Imports System.Xml
 Imports System.Security
 Imports System.IO
-'Imports System.Data.SQLite
-Imports Finisar.SQLite
+Imports System.Data.SQLite
+'Imports Finisar.SQLite
+
 
 
 
@@ -27,6 +28,7 @@ Public Class Login
     Dim sqliteconn As New SQLiteConnection
     Dim sqlitecmd As New SQLiteCommand
     Dim sqliteThisModule As String = "SQLite3"
+    Public shopreset As Boolean = False
 
 
 
@@ -235,69 +237,61 @@ Public Class Login
 
     'shopid base64 encryption
     Private Sub shopGet()
+        Dim fristrunflag As Boolean = False
         If My.Computer.FileSystem.DirectoryExists(".\config") Then
             'MsgBox("存在")
             'MsgBox(fs.ReadLine())
             'MsgBox(fs.ReadLine)
-            If IO.File.Exists(".\config\data.ini") Then
+            If Not IO.File.Exists(".\config\data.ini") Then
                 'here get shopID and shopName
-                Dim fsr As New StreamReader(".\config\data.ini")
-                Dim temp As String = ""
-                temp = fsr.ReadLine()
-                'MsgBox(temp)
-
-                Dim fristrunflag As Boolean = False
-                '读取是否已经运行过程序
-                If IO.File.Exists(".\config\fristrun.ini") Then
-                    Dim fristrunfl As New StreamReader(".\config\fristrun.ini")
-                    Dim flag As String = ""
-                    flag = fristrunfl.ReadLine()
-                    If flag = "1" Then
-                        fristrunflag = True
-                    Else
-                        fristrunflag = False
-                    End If
-                    fristrunfl.Close()
-                End If
-                If temp = "" Then 'readid
-                    Dim fristrunWindow As New fristrun
-                    If Not fristrunflag Then
-                        fristrunWindow.notice.Text = "您好，请重新选择店铺或者输入店铺编号："
-                    End If
-                    fristrunWindow.Show(Me)
-                    Dim Msgform As New MSG
-                    Msgform.head.Text = "error"
-                    Msgform.msgP.Text = "配置文件丢失，请重新配置"
-                    Msgform.Show(fristrunWindow)
-
-                    Exit Sub
-                Else
-                    shopID = Long.Parse(temp)
-                    'MsgBox(shopID.ToString)
-                End If
-                temp = fsr.ReadLine()
-                fsr.Close()
-                'MsgBox(temp)
-                If temp = "" Then  'readname
-                    Dim fristrunWindow As New fristrun
-                    If Not fristrunflag Then
-                        fristrunWindow.notice.Text = "您好，请重新选择店铺或者输入店铺编号："
-                    End If
-                    fristrunWindow.Show(Me)
-                    Dim Msgform As New MSG
-                    Msgform.head.Text = "error"
-                    Msgform.msgP.Text = "配置文件丢失，请重新配置"
-                    Msgform.Show(fristrunWindow)
-
-                    Exit Sub
-                End If
-
-            Else
+                'config()
                 IO.File.Create(".\config\data.ini").Close()
                 'save config date into file
 
+                'Dim fsr As New StreamReader(".\config\data.ini")
+                'Dim temp As String = ""
+                'temp = fsr.ReadLine()
+                ''MsgBox(temp)
+                'config()
+                'If temp = "" Then 'readid
+                '    fsr.Close()
+                '    Dim Msgform As New MSG
+                '    Msgform.head.Text = "error"
+                '    Msgform.msgP.Text = "配置文件丢失，请重新配置"
+                '    If Msgform.ShowDialog(Me) Then
+                '        Dim fristrunWindow As New fristrun
+                '        If Not fristrunflag Then
+                '            fristrunWindow.notice.Text = "您好，请重新选择店铺或者输入店铺编号："
+                '        End If
+                '        fristrunWindow.Show(Me)
+                '    End If
 
+                '    Exit Sub
+                'Else
+                '    shopID = Long.Parse(temp)
+                '    'MsgBox(shopID.ToString)
+                'End If
+                'temp = fsr.ReadLine()
+                'fsr.Close()
+                ''MsgBox(temp)
+                'If temp = "" Then  'readname
+                '    Dim Msgform As New MSG
+                '    Msgform.head.Text = "error"
+                '    Msgform.msgP.Text = "配置文件丢失，请重新配置"
+                '    If Msgform.ShowDialog(Me) Then
+                '        Dim fristrunWindow As New fristrun
+                '        If Not fristrunflag Then
+                '            fristrunWindow.notice.Text = "您好，请重新选择店铺或者输入店铺编号："
+                '        End If
+                '        fristrunWindow.Show(Me)
+                '    End If
+                '    Exit Sub
+                '    'shopname
+                'End If
             End If
+            config()
+
+
             If IO.File.Exists(".\config\readme.txt") Then
             Else
                 IO.File.Create(".\config\readme.txt").Close()
@@ -313,9 +307,11 @@ Public Class Login
             My.Computer.FileSystem.CreateDirectory(".\config")
             IO.File.Create(".\config\data.ini").Close()
             IO.File.Create(".\config\readme.txt").Close()
+
             Dim fsw As New StreamWriter(".\config\readme.txt")
             fsw.WriteLine("this folder for the application configuration,don't move or delete or rewite")
             fsw.Close()
+            config()
         End If
     End Sub
 
@@ -331,6 +327,68 @@ Public Class Login
     End Sub
 
 
+    Private Sub config()
+        If IO.File.Exists(".\config\fristrun.ini") Then
+            Dim fristrunfl As New StreamReader(".\config\fristrun.ini")
+            Dim flag As String = ""
+            flag = fristrunfl.ReadLine()
+            fristrunfl.Close()
+            Dim fristrewrite As New StreamWriter(".\config\fristrun.ini") '重写配置文件
+            fristrewrite.WriteLine("0")
+            fristrewrite.Close()
 
+            Dim fsr As New StreamReader(".\config\data.ini")
+            Dim IDtemp As String = ""
+            Dim Nametemp As String = ""
+            IDtemp = fsr.ReadLine()
+            Nametemp = fsr.ReadLine()
+            fsr.Close()
 
+            If IDtemp = "" Or Nametemp = "" Then
+                Dim fristrunWindow As New fristrun
+                If Not flag = "1" Then
+                    Dim Msgform As New MSG
+                    Msgform.head.Text = "错误"
+                    Msgform.msgP.Text = "配置文件丢失，请重新配置"
+                    fristrunWindow.notice.Text = "您好，请选择店铺或者输入店铺编号："
+                    Msgform.ShowDialog(Me)
+                Else
+                    fristrunWindow.notice.Text = "您好，这是您第一次登录，请选择店铺或者输入店铺编号："
+                End If
+                fristrunWindow.Show(Me)
+            Else
+                shopID = Long.Parse(IDtemp)
+                'shopname
+            End If
+        Else
+            IO.File.Create(".\config\fristrun.ini").Close()
+            Dim rewrite As New StreamWriter(".\config\fristrun.ini") '重写配置文件
+            rewrite.WriteLine("0")
+            rewrite.Close()
+            Dim fristrun As New fristrun
+            fristrun.notice.Text = "您好，请选择店铺或者输入店铺编号："
+            fristrun.Show(Me)
+            End If
+    End Sub
+
+    Private Sub logo_Click(sender As Object, e As EventArgs) Handles logo.Click
+        If Msgbox("继续以重新设置店铺ID及名称", "提示", True, True, "取消", Me) = DialogResult.OK Then
+            shopreset = True
+            Dim reset As New fristrun
+            reset.notice.Text = "您好，请重新选择店铺或者输入店铺编号："
+            reset.Show()
+        End If
+    End Sub
+
+    Public Function Msgbox(ByVal msgp As String, ByVal head As String, ByVal No_B_visible As Boolean, ByVal Yes_B_visible As Boolean, ByVal canceltext As String, e As Form)
+        Dim formmsg As New MSG
+        formmsg.yes.Visible = Yes_B_visible
+        formmsg.yes_button.Visible = Yes_B_visible
+        formmsg.no.Visible = No_B_visible
+        formmsg.no_button.Visible = No_B_visible
+        formmsg.no_button.Text = canceltext
+        formmsg.msgP.Text = msgp
+        formmsg.head.Text = head
+        Msgbox = formmsg.ShowDialog(e)
+    End Function
 End Class
