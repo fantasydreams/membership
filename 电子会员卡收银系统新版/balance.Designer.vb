@@ -274,7 +274,7 @@ Partial Class balance
         '
         'Label8
         '
-        Me.Label8.Font = New System.Drawing.Font("幼圆", 18.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(134, Byte))
+        Me.Label8.Font = New System.Drawing.Font("幼圆", 21.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(134, Byte))
         Me.Label8.ForeColor = System.Drawing.SystemColors.ControlDarkDark
         Me.Label8.Location = New System.Drawing.Point(1, 1)
         Me.Label8.Name = "Label8"
@@ -326,7 +326,7 @@ Partial Class balance
         '
         '找回
         '
-        Me.找回.Font = New System.Drawing.Font("幼圆", 18.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(134, Byte))
+        Me.找回.Font = New System.Drawing.Font("幼圆", 21.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(134, Byte))
         Me.找回.ForeColor = System.Drawing.SystemColors.ControlDarkDark
         Me.找回.Location = New System.Drawing.Point(1, 1)
         Me.找回.Name = "找回"

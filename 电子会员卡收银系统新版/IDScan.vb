@@ -98,7 +98,7 @@ Public Class IDScan
                 '积分
 
                 balance.Pack_M.Text = tableData.Rows.Item(0).Item(0)
-                balance.oldPMP = Double.Parse(tableData.Rows.Item(0).Item(0))
+                'balance.oldPMP = Double.Parse(tableData.Rows.Item(0).Item(0))
                 balance.NumId = ID_I.Text.ToString()
                 chooseDatabase = True
             Else

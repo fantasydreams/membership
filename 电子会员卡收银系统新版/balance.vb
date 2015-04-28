@@ -5,7 +5,7 @@ Public Class balance
     Public NumId As String
     Public Max As Double = 0
     Public score As Double = 0 'this value be setted by cash windows
-    Public oldPMP As Double = 0
+    'Public oldPMP As Double = 0
     Public flag As Boolean = False  'this value be  setted by IDscan window
 
 
@@ -38,47 +38,58 @@ Public Class balance
         Dim ACPNUM As Double = Double.Parse(AC_P_I.Text.ToString())
         Dim VIPPPNUM As Double = Double.Parse(VIP_M_P.Text.ToString())
         If flag = True Then
-            If ACPNUM - Double.Parse(VIP_M_P.Text.ToString()) >= 0 Then
-                If oldPMP + ACPNUM - VIPPPNUM <= Max Then
-                    Pack_M.Text = oldPMP + ACPNUM - VIPPPNUM
-                    Pack_M.Text = "0"
-                    exchange = True
-                Else
-                    Dim mon As Integer
-                    mon = oldPMP + ACPNUM - VIPPPNUM - Max + 1
-                    Pack_M.Text = ACPNUM - VIPPPNUM - mon
-                    Pack_M.Text = mon
-                    exchange = True
-                End If
-            Else
-                If ACPNUM + oldPMP - VIPPPNUM >= 0 Then
-                    Pack_M.Text = ACPNUM + oldPMP - VIPPPNUM
-                    exchange = True
-                Else
+            'If ACPNUM - Double.Parse(VIP_M_P.Text.ToString()) >= 0 Then
+            '    If oldPMP + ACPNUM - VIPPPNUM <= Max Then
+            '        Pack_M.Text = oldPMP + ACPNUM - VIPPPNUM
+            '        Pack_M.Text = "0"
+            '        exchange = True
+            '    Else
+            '        Dim mon As Integer
+            '        mon = oldPMP + ACPNUM - VIPPPNUM - Max + 1
+            '        Pack_M.Text = ACPNUM - VIPPPNUM - mon
+            '        Pack_M.Text = mon
+            '        exchange = True
+            '    End If
+            'Else
+            '    If ACPNUM + oldPMP - VIPPPNUM >= 0 Then
+            '        Pack_M.Text = ACPNUM + oldPMP - VIPPPNUM
+            '        exchange = True
+            '    Else
+            '        exchange = False
+            '        Dim form As New MSG
+            '        form.head.Text = "警告"
+            '        form.msgP.Text = "付款金额不足！"
+            '        form.Show()
+            '        AC_P_I.Text = ""
+            '        'Message.Msg.Text = "付款金额不足！"
+            '        'Message.Show()
+            '    End If
+
+            'End If
+            Dim temp As Integer = Int(Double.Parse(VIP_M_P.Text.ToString()))
+            Dim subchange As Double = Double.Parse(VIP_M_P.Text.ToString()) - temp '记录需要交费中的零钱
+            'MsgBox(Double.Parse(VIP_M_P.Text.ToString()) - temp)
+            If Double.Parse(AC_P_I.Text) >= Double.Parse(VIP_M_P.Text) Or Double.Parse(AC_P_I.Text) + subchange >= Double.Parse(VIP_M_P.Text) And Double.Parse(Pack_M.Text) >= subchange Then
+                If ((Double.Parse(AC_P_I.Text) > Double.Parse(VIP_M_P.Text)) And (Double.Parse(AC_P_I.Text) - Double.Parse(VIP_M_P.Text) < 0.5)) Then
+                    Login.MsgboxNotice("请用户以0.5元增大或减小付款金额,多的零钱无法充值", "错误", False, True, Nothing, Me)
                     exchange = False
-                    Dim form As New MSG
-                    form.head.Text = "警告"
-                    form.msgP.Text = "付款金额不足！"
-                    form.Show()
-                    AC_P_I.Text = ""
-                    'Message.Msg.Text = "付款金额不足！"
-                    'Message.Show()
+                    Exit Function
                 End If
+                Dim money As Integer = Int(Double.Parse(AC_P_I.Text))
+                Dim submoney As Double = Double.Parse(AC_P_I.Text) - money  '得到客户给收银员中的钱中的零钱
+                PA_BACK_P.Text = money - temp '得到补给客户的钱
+                subchange -= submoney
+                Pack_M.Text = Double.Parse(Pack_M.Text) - subchange
+                exchange = True
+            Else
 
-            End If
-        Else
-            If ACPNUM - VIPPPNUM < 0 Then
+
                 exchange = False
-                Dim form As New MSG
-                form.head.Text = "警告"
-                form.msgP.Text = "付款金额不足！"
-                form.Show()
-                AC_P_I.Text = ""
-                'Message.Msg.Text = "付款金额不足！"
-                'Message.Show()
+                Login.MsgboxNotice("付款金额不足！", "警告", False, True, Nothing, Me)
             End If
-
+            'MsgBox(subchange)
         End If
+        exchange = False
     End Function
 
     Private Sub writetosql()

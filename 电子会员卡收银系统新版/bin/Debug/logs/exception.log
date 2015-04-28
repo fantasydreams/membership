@@ -95,3 +95,5 @@ no such column: stock
 参数名: index
 2015_04_28 08:36:05:(window_cash,func_cancleLastStep)索引超出范围。必须为非负值并小于集合大小。
 参数名: index
+2015_04_28 09:15:00:(window_cash,func_selectFromBaseData)索引超出范围。必须为非负值并小于集合大小。
+参数名: index

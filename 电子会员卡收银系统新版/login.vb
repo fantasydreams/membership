@@ -93,7 +93,8 @@ Public Class Login
         GHWindowSize()
         shopGet()  'getshop info
         'cash.Show()
-        MsgboxNotice("test", "test", False, True, Nothing, Me)
+
+        'MsgBox(Int(Double.Parse("5.6")))
     End Sub
 
     Private Sub loginButton_Press(sender As Object, e As EventArgs) Handles loginButton.MouseDown
@@ -103,8 +104,6 @@ Public Class Login
     Private Sub loginButton_up(sender As Object, e As EventArgs) Handles loginButton.MouseUp
         loginButton.BackColor = temp
     End Sub
-
-
 
 
     Private Sub ID_MouseCaptureChanged(sender As Object, e As EventArgs) Handles ID.MouseCaptureChanged
@@ -157,8 +156,6 @@ Public Class Login
             BeginInvoke(New EventHandler(AddressOf CashLogin1), Nothing)
         End If
     End Sub
-
-
     '保持数据库连接的线程
     'Private Sub keepSQLAlive()
     '    KeepSqlAliveThread = New Thread(AddressOf connect)

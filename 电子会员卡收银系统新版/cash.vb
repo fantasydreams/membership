@@ -4,7 +4,7 @@ Public Class cash
 
     'Public score As Double = 0  'shop goods score
     Public lineNum As Integer = 1
-    Private cancleFlag(21) As Integer '用来记录上次的操作的情况
+    'Private cancleFlag(21) As Integer '用来记录上次的操作的情况
     Private Sub cash_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         'System.Windows.Forms.Control.CheckForIllegalCrossThreadCalls = False
         Me.Size = New Size(Login.ScreenWidth, Login.ScreenHeight)
@@ -176,7 +176,7 @@ Public Class cash
         selectFromBaseData()
     End Sub
 
-
+    '重新计算总额
     Private Sub changeMoney()
         Dim money As Double = 0
         For i = 0 To Data.Rows.Count - 1
@@ -185,7 +185,7 @@ Public Class cash
         ALL_M_P.Text = money
     End Sub
 
-
+    '重新计算商品数量
     Private Sub calculatePronum()
         Dim Num As Integer = 0
         For i = 0 To Data.Rows.Count - 1
@@ -193,6 +193,7 @@ Public Class cash
         Next
         ALL_N_P.Text = Num
     End Sub
+
 
     Private Sub selectFromBaseData()
         Try
@@ -207,8 +208,8 @@ Public Class cash
                 Dim flag As Boolean = False
                 If table.Rows.Count() Then
                     flag = True
-                    cancleFlag(cancleFlag(0) + 1) = 0  '记录步骤
-                    cancleFlag(0) += 1
+                    'cancleFlag(cancleFlag(0) + 1) = 0  '记录步骤
+                    'cancleFlag(0) += 1
                     Data.Rows.Add()
                     Data.Rows(Data.Rows.Count - 1).Height = 45
                     Data.Rows(lineNum - 1).Cells(0).Value = lineNum
@@ -264,7 +265,7 @@ Public Class cash
         End If
     End Sub
 
-
+    '得到shop的名称与id
     Private Function getshopName(ByVal Id As String)
         Dim str As String = "select name from shop where id = " + Id
         'Dim Dr As MySqlCommand = New MySqlCommand(str, Login.conn)
@@ -293,16 +294,16 @@ Public Class cash
                         Data.Rows(Data.CurrentCell.RowIndex).Cells(6).Value = Double.Parse(Data.Rows(Data.CurrentCell.RowIndex).Cells(5).Value) * Double.Parse(Data.Rows(Data.CurrentCell.RowIndex).Cells(4).Value)
                         changeMoney()
                         calculatePronum()
-                        cancleFlag(0) += 1
-                        cancleFlag(cancleFlag(0)) = 1
+                        ' cancleFlag(0) += 1
+                        'cancleFlag(cancleFlag(0)) = 1
                     Case Windows.Forms.MouseButtons.Right
                         If Data.Rows(Data.CurrentCell.RowIndex).Cells(4).Value >= 2 Then
                             Data.Rows(Data.CurrentCell.RowIndex).Cells(4).Value -= 1
                             Data.Rows(Data.CurrentCell.RowIndex).Cells(6).Value = Double.Parse(Data.Rows(Data.CurrentCell.RowIndex).Cells(5).Value) * Double.Parse(Data.Rows(Data.CurrentCell.RowIndex).Cells(4).Value)
                             changeMoney()
                             calculatePronum()
-                            cancleFlag(0) += 1
-                            cancleFlag(cancleFlag(0)) = 0
+                            'cancleFlag(0) += 1
+                            ' cancleFlag(cancleFlag(0)) = 0
                             Exit Select
                         End If
                         If Data.Rows(Data.CurrentCell.RowIndex).Cells(4).Value = 1 Then
@@ -311,8 +312,8 @@ Public Class cash
                             lineNum -= 1
                             changeMoney()
                             calculatePronum()
-                            cancleFlag(0) += 1
-                            cancleFlag(cancleFlag(0)) = 0
+                            ' cancleFlag(0) += 1
+                            'cancleFlag(cancleFlag(0)) = 0
                         End If
                 End Select
             End If
@@ -366,33 +367,41 @@ Public Class cash
     End Sub
 
     Private Sub cancleLastStep()
-        Try
-            If cancleFlag(0) > 0 Then
-                Select Case cancleFlag(cancleFlag(0))
-                    Case 0
-                        If Integer.Parse(Data.Rows(lineNum - 2).Cells(4).Value) > 1 Then
-                            Data.Rows(lineNum - 2).Cells(4).Value -= 1
-                            Data.Rows(lineNum - 2).Cells(6).Value -= Data.Rows(lineNum - 1).Cells(5).Value
-                            'changeMoney()
-                            ALL_M_P.Text = Double.Parse(ALL_M_P.Text) - Double.Parse(Data.Rows(lineNum - 2).Cells(5).Value)
-                            ALL_N_P.Text = Integer.Parse(ALL_N_P.Text) - 1
-                        Else
-                            Data.Rows.RemoveAt(lineNum - 2)
-                            changeMoney()
-                            ALL_N_P.Text = Integer.Parse(ALL_N_P.Text) - 1
-                            lineNum -= 1
-                        End If
-                    Case 1
-                        Data.Rows(lineNum - 2).Cells(4).Value += 1
-                        Data.Rows(lineNum - 2).Cells(6).Value += Data.Rows(lineNum - 2).Cells(5).Value
-                        changeMoney()
-                        ALL_N_P.Text = Integer.Parse(ALL_N_P.Text) + 1
-                End Select
-                cancleFlag(0) -= 1
-            End If
-        Catch ex As Exception
-            Login.write_errmsg(ex.Message, Me.Name, "cancleLastStep", Me)
-        End Try
+        'Try
+        '    If cancleFlag(0) > 0 Then
+        '        Select Case cancleFlag(cancleFlag(0))
+        '            Case 0
+        '                If Integer.Parse(Data.Rows(lineNum - 2).Cells(4).Value) > 1 Then
+        '                    Data.Rows(lineNum - 2).Cells(4).Value -= 1
+        '                    Data.Rows(lineNum - 2).Cells(6).Value -= Data.Rows(lineNum - 1).Cells(5).Value
+        '                    'changeMoney()
+        '                    ALL_M_P.Text = Double.Parse(ALL_M_P.Text) - Double.Parse(Data.Rows(lineNum - 2).Cells(5).Value)
+        '                    ALL_N_P.Text = Integer.Parse(ALL_N_P.Text) - 1
+        '                Else
+        '                    Data.Rows.RemoveAt(lineNum - 2)
+        '                    changeMoney()
+        '                    ALL_N_P.Text = Integer.Parse(ALL_N_P.Text) - 1
+        '                    lineNum -= 1
+        '                End If
+        '            Case 1
+        '                Data.Rows(lineNum - 2).Cells(4).Value += 1
+        '                Data.Rows(lineNum - 2).Cells(6).Value += Data.Rows(lineNum - 2).Cells(5).Value
+        '                changeMoney()
+        '                ALL_N_P.Text = Integer.Parse(ALL_N_P.Text) + 1
+        '        End Select
+        '        cancleFlag(0) -= 1
+        '    End If
+        'Catch ex As Exception
+        '    Login.write_errmsg(ex.Message, Me.Name, "cancleLastStep", Me)
+        'End Try
+
+        If Data.Rows.Count Then
+            Data.Rows.RemoveAt(Data.Rows.Count() - 1)
+            lineNum -= 1
+            changeMoney()
+            calculatePronum()
+        End If
+
     End Sub
 
 End Class
