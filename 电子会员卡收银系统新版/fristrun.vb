@@ -92,10 +92,11 @@ Public Class fristrun
                     Exit Sub
                 End If
             Next
-            Dim msgform As New MSG
-            msgform.msgP.Text = "没有以编号为：" & shop_id_in.Text & "的超市！请检查编号是否准确。"
-            msgform.head.Text = "提示"
-            msgform.Show()
+            'Dim msgform As New MSG
+            'msgform.msgP.Text = "没有以编号为：" & shop_id_in.Text & "的超市！请检查编号是否准确。"
+            'msgform.head.Text = "提示"
+            'msgform.Show()
+            Login.MsgboxNotice("没有以编号为：" & shop_id_in.Text & "的超市！请检查编号是否准确。", "提示", False, True, Nothing, Me)
         End If
        
     End Sub
@@ -107,7 +108,7 @@ Public Class fristrun
 
     Private Sub close_window_Click(sender As Object, e As EventArgs) Handles close_window.Click
         If Not Login.shopreset Then
-            Login.Close()
+            End '关闭窗体
         End If
         Me.Close()
     End Sub
@@ -124,14 +125,14 @@ Public Class fristrun
 
 
     Private Sub Yes_Button_Click(sender As Object, e As EventArgs) Handles Yes_Button.Click
-        Dim formmsg As New MSG
-        formmsg.msgP.Text = "您的店铺ID为：" & shop_id_in.Text + vbCrLf + "您的店铺名称为：" & shop_list.Text
-        formmsg.head.Text = "消息"
-        formmsg.yes.Visible = True
-        formmsg.yes_button.Visible = True
-        formmsg.no.Visible = True
-        formmsg.no_button.Visible = True
-        If formmsg.ShowDialog(Me) = Windows.Forms.DialogResult.OK Then
+        'Dim formmsg As New MSG
+        'formmsg.msgP.Text = "您的店铺ID为：" & shop_id_in.Text + vbCrLf + "您的店铺名称为：" & shop_list.Text
+        'formmsg.head.Text = "消息"
+        'formmsg.yes.Visible = True
+        'formmsg.yes_button.Visible = True
+        'formmsg.no.Visible = True
+        'formmsg.no_button.Visible = True
+        If Login.MsgboxNotice("您的店铺ID为：" & shop_id_in.Text + vbCrLf + "您的店铺名称为：" & shop_list.Text, "消息", True, True, "重新选择", Me) = Windows.Forms.DialogResult.OK Then
             Dim fsr As New StreamWriter(".\config\data.ini")  '向文件中写入配置信息
             fsr.WriteLine(shop_id_in.Text)
             fsr.WriteLine(shop_list.Text)

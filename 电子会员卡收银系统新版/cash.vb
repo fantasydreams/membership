@@ -4,10 +4,12 @@ Public Class cash
 
     'Public score As Double = 0  'shop goods score
     Public lineNum As Integer = 1
+    Private cancleFlag(21) As Integer '用来记录上次的操作的情况
     Private Sub cash_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         'System.Windows.Forms.Control.CheckForIllegalCrossThreadCalls = False
         Me.Size = New Size(Login.ScreenWidth, Login.ScreenHeight)
         Me.BackColor = Color.FromArgb(&HFFF1F1F1)
+        'Me.Visible = True
         Esc.Parent = column
         F4.Parent = column
         F5.Parent = column
@@ -79,7 +81,7 @@ Public Class cash
 
         Data.Size = New Size(Login.ScreenWidth, Login.ScreenHeight - 176)
         Data.BackgroundColor = Color.White
-
+        Data.Show()
 
         SetLableAndDataGridViewWith()
 
@@ -143,8 +145,7 @@ Public Class cash
             End If
             If e.KeyChar = ChrW(13) Then
                 If ID_P_A_I.Text = "" Then
-                    If ID_P_A_I.Text = "0" Then
-                    Else
+                    If Not ALL_N_P.Text = "0" Then
                         background.Show(Me)
                         IDScan.Show(background)
                     End If
@@ -159,60 +160,27 @@ Public Class cash
 
 
     Private Sub selectData()
-        If Login.conn.State = ConnectionState.Broken Then
-            Connect()
-        Else
-            For i = 0 To Data.Rows.Count - 1
-                If Data.Rows(i).Cells(1).Value.ToString() = ID_P_A_I.Text.ToString() Then
-                    Data.Rows(i).Cells(4).Value += 1
-                    Data.Rows(i).Cells(6).Value = Data.Rows(i).Cells(5).Value * Data.Rows(i).Cells(4).Value
-                    'ID_P_A_I.Text = Data.Rows(i).Cells(1).Value
-                    'P_Name.Text = Data.Rows(i).Cells(2).Value
-                    'P_NUM.Text = Data.Rows(i).Cells(4).Value
-                    changeMoney()
-                    calculatePronum()
-                    ID_P_A_I.Text = ""
-                    Exit Sub
-                End If
-            Next
-            selectFromBaseData()
-        End If
-
-    End Sub
-
-
-    Private Sub Connect()
-        Dim connStr As String
-        If Not Login.conn Is Nothing Then Login.conn.Close()
-        'connStr = String.Format("server={0};user id={1}; password={2}; database=member; pooling=false;charset=utf8", _
-        '"112.74.105.67", "ming", "18883285787")
-
-        connStr = String.Format("server={0};user id={1}; password={2}; database=member; pooling=false;charset=utf8", _
-        "localhost", "root", "lsw19940816")
-
-        Try
-            Login.conn = New MySqlConnection(connStr)
-            Login.conn.Open()
-            If Login.conn.State = ConnectionState.Open Then
-
-                'CashLogin1()
+        For i = 0 To Data.Rows.Count - 1
+            If Data.Rows(i).Cells(1).Value.ToString() = ID_P_A_I.Text.ToString() Then
+                Data.Rows(i).Cells(4).Value += 1
+                Data.Rows(i).Cells(6).Value = Data.Rows(i).Cells(5).Value * Data.Rows(i).Cells(4).Value
+                'ID_P_A_I.Text = Data.Rows(i).Cells(1).Value
+                'P_Name.Text = Data.Rows(i).Cells(2).Value
+                'P_NUM.Text = Data.Rows(i).Cells(4).Value
+                changeMoney()
+                calculatePronum()
+                ID_P_A_I.Text = ""
+                Exit Sub
             End If
-            '    MsgBox("开")
-            'Else
-            '    MsgBox("关")
-            'End If
-
-        Catch ex As MySqlException
-            MessageBox.Show("Error connecting to the server: " + ex.Message)
-            'runThread.Abort()
-        End Try
+        Next
+        selectFromBaseData()
     End Sub
 
 
     Private Sub changeMoney()
-        Dim money As Integer = 0
+        Dim money As Double = 0
         For i = 0 To Data.Rows.Count - 1
-            money += Data.Rows(i).Cells(6).Value
+            money += Double.Parse(Data.Rows(i).Cells(6).Value)
         Next
         ALL_M_P.Text = money
     End Sub
@@ -227,54 +195,59 @@ Public Class cash
     End Sub
 
     Private Sub selectFromBaseData()
-        If ID_P_A_I.Text = "" Then
-        Else
-            Dim str As String = "select name ,shop_id,price,score from goods where code = " + ID_P_A_I.Text.ToString()
-            Dim Dr As MySqlCommand = New MySqlCommand(str, Login.conn)
-            Dr.CommandType = CommandType.Text
-            Dim MR As MySqlDataReader
-            MR = Dr.ExecuteReader()
-            Dim temp As String = ""
-            Dim flag As Boolean = False
-            If MR.HasRows Then
-                flag = True
-                MR.Read()   '一次读取一行
-                Data.Rows.Add()
-                Data.Rows(Data.Rows.Count - 1).Height = 45
-                Data.Rows(lineNum - 1).Cells(0).Value = lineNum
-                Data.Rows(lineNum - 1).Cells(1).Value = ID_P_A_I.Text.ToString()
-                Data.Rows(lineNum - 1).Cells(2).Value = MR.Item(0)
-                Data.Rows(lineNum - 1).Cells(4).Value = 1
-                Data.Rows(lineNum - 1).Cells(5).Value = MR.Item(2)
-                Data.Rows(lineNum - 1).Cells(6).Value = MR.Item(2)
-                balance.score += Double.Parse(MR.Item(3).ToString())   'calculate goods scores
-                'p_id_p.Text = Data.Rows(lineNum - 1).Cells(1).Value
-                'P_Name.Text = Data.Rows(lineNum - 1).Cells(2).Value
-                'P_NUM.Text = Data.Rows(lineNum - 1).Cells(4).Value
+        Try
+            If ID_P_A_I.Text = "" Then
+            Else
+                Dim str As String = "select name ,shop_id,price,score from goods where code = " + ID_P_A_I.Text.ToString()
+                Dim sqliteadapter As New SQLite.SQLiteDataAdapter(str, Login.sqliteconn)
+                Dim table As New DataTable
+                table.Reset()
+                sqliteadapter.Fill(table)
+                Dim temp As String = ""
+                Dim flag As Boolean = False
+                If table.Rows.Count() Then
+                    flag = True
+                    cancleFlag(cancleFlag(0) + 1) = 0  '记录步骤
+                    cancleFlag(0) += 1
+                    Data.Rows.Add()
+                    Data.Rows(Data.Rows.Count - 1).Height = 45
+                    Data.Rows(lineNum - 1).Cells(0).Value = lineNum
+                    Data.Rows(lineNum - 1).Cells(1).Value = ID_P_A_I.Text.ToString()
+                    Data.Rows(lineNum - 1).Cells(2).Value = table.Rows.Item(0).Item(0)
+                    Data.Rows(lineNum - 1).Cells(4).Value = 1
+                    Data.Rows(lineNum - 1).Cells(5).Value = table.Rows.Item(0).Item(2)
+                    Data.Rows(lineNum - 1).Cells(6).Value = table.Rows.Item(0).Item(2)
+                    balance.score += Double.Parse(table.Rows.Item(0).Item(3).ToString())   'calculate goods scores
+                    'p_id_p.Text = Data.Rows(lineNum - 1).Cells(1).Value
+                    'P_Name.Text = Data.Rows(lineNum - 1).Cells(2).Value
+                    'P_NUM.Text = Data.Rows(lineNum - 1).Cells(4).Value
 
-                If Data.Rows.Count Mod 2 = 0 Then
-                    Data.Rows(Data.Rows.Count - 1).DefaultCellStyle.BackColor = Color.FromArgb(&HFFF7F7F7)
-                Else
-                    Data.Rows(Data.Rows.Count - 1).DefaultCellStyle.BackColor = Color.White
+                    If Data.Rows.Count Mod 2 = 0 Then
+                        Data.Rows(Data.Rows.Count - 1).DefaultCellStyle.BackColor = Color.FromArgb(&HFFF7F7F7)
+                    Else
+                        Data.Rows(Data.Rows.Count - 1).DefaultCellStyle.BackColor = Color.White
+                    End If
+
+                    temp = table.Rows.Item(0).Item(1)
+                    lineNum += 1
+                    ID_P_A_I.Text = ""
+                Else  'print the error msg
+                    'Dim form As New MSG
+                    'form.head.Text = "提示"
+                    'form.msgP.Text = "仓库不存在此商品"
+                    'form.Show()
+                    Login.MsgboxNotice("仓库不存在此商品", "提示", False, True, Nothing, Me)
+                    ID_P_A_I.Text = ""
                 End If
-
-                temp = MR.Item(1)
-                lineNum += 1
-                ID_P_A_I.Text = ""
-            Else  'print the error msg
-                Dim form As New MSG
-                form.head.Text = "提示"
-                form.msgP.Text = "仓库不存在此商品"
-                form.Show()
-                ID_P_A_I.Text = ""
+                If flag = True Then
+                    Data.Rows(lineNum - 2).Cells(3).Value = getshopName(temp) '名称
+                    changeMoney()
+                    calculatePronum()
+                End If
             End If
-            MR.Close()
-            If flag = True Then
-                Data.Rows(lineNum - 2).Cells(3).Value = getshopName(temp) '名称
-                changeMoney()
-                calculatePronum()
-            End If
-        End If
+        Catch ex As Exception
+            Login.write_errmsg(ex.Message, Me.Name, "selectFromBaseData", Me)
+        End Try
 
     End Sub
 
@@ -294,17 +267,19 @@ Public Class cash
 
     Private Function getshopName(ByVal Id As String)
         Dim str As String = "select name from shop where id = " + Id
-        Dim Dr As MySqlCommand = New MySqlCommand(str, Login.conn)
-        Dr.CommandType = CommandType.Text
-        Dim MR As MySqlDataReader
-        MR = Dr.ExecuteReader()
-        If MR.HasRows Then
-            MR.Read()
-            getshopName = MR.Item(0)
+        'Dim Dr As MySqlCommand = New MySqlCommand(str, Login.conn)
+        'Dr.CommandType = CommandType.Text
+        'Dim MR As MySqlDataReader
+        'MR = Dr.ExecuteReader()
+        Dim sqliteadater As New SQLite.SQLiteDataAdapter(str, Login.sqliteconn)
+        Dim table As New DataTable
+        table.Reset()
+        sqliteadater.Fill(table)
+        If table.Rows.Count Then
+            getshopName = table.Rows.Item(0).Item(0)
         Else
             getshopName = ""
         End If
-        MR.Close()
     End Function
 
 
@@ -318,12 +293,16 @@ Public Class cash
                         Data.Rows(Data.CurrentCell.RowIndex).Cells(6).Value = Double.Parse(Data.Rows(Data.CurrentCell.RowIndex).Cells(5).Value) * Double.Parse(Data.Rows(Data.CurrentCell.RowIndex).Cells(4).Value)
                         changeMoney()
                         calculatePronum()
+                        cancleFlag(0) += 1
+                        cancleFlag(cancleFlag(0)) = 1
                     Case Windows.Forms.MouseButtons.Right
                         If Data.Rows(Data.CurrentCell.RowIndex).Cells(4).Value >= 2 Then
                             Data.Rows(Data.CurrentCell.RowIndex).Cells(4).Value -= 1
                             Data.Rows(Data.CurrentCell.RowIndex).Cells(6).Value = Double.Parse(Data.Rows(Data.CurrentCell.RowIndex).Cells(5).Value) * Double.Parse(Data.Rows(Data.CurrentCell.RowIndex).Cells(4).Value)
                             changeMoney()
                             calculatePronum()
+                            cancleFlag(0) += 1
+                            cancleFlag(cancleFlag(0)) = 0
                             Exit Select
                         End If
                         If Data.Rows(Data.CurrentCell.RowIndex).Cells(4).Value = 1 Then
@@ -332,6 +311,8 @@ Public Class cash
                             lineNum -= 1
                             changeMoney()
                             calculatePronum()
+                            cancleFlag(0) += 1
+                            cancleFlag(cancleFlag(0)) = 0
                         End If
                 End Select
             End If
@@ -341,23 +322,77 @@ Public Class cash
     'form keypress detect
     Private Sub form_keypress(sender As Object, e As KeyEventArgs) Handles Me.KeyDown
         If e.keycode = Keys.Escape Then
-            Dim messge As New MSG
-            messge.head.Text = "即将退出系统"
-            messge.msgP.Text = "按下enter退出系统，esc返回..."
-            messge.Show()
+            'Dim messge As New MSG
+            'messge.head.Text = "即将退出系统"
+            'messge.msgP.Text = "按下enter退出系统，esc返回..."
+            'messge.Show()
+            If Login.MsgboxNotice("按下enter退出系统，esc返回...", "即将退出系统", True, True, "取消", Me) = DialogResult.OK Then
+                Login.sqliteconn.Close()
+                End '关闭程序
+            End If
         End If
         If e.KeyCode = Keys.F4 Then
-            Dim messge As New MSG
-            messge.head.Text = "F4"
-            messge.msgP.Text = "你按下了F4"
-            messge.Show()
+            clear()
+            'Dim messge As New MSG
+            'messge.head.Text = "F4"
+            'messge.msgP.Text = "你按下了F4"
+            'messge.Show()
+
+
         End If
         If e.KeyCode = Keys.F5 Then
-            Dim messge As New MSG
-            messge.head.Text = "F5"
-            messge.msgP.Text = "你按下了F5"
-            messge.Show()
+            'Dim messge As New MSG
+            'messge.head.Text = "F5"
+            'messge.msgP.Text = "你按下了F5"
+            'messge.Show()
+            cancleLastStep()
+
         End If
+    End Sub
+
+
+    '重置函数
+    Private Sub clear()
+        ID_P_A_I.Text = ""
+        ALL_N_P.Text = "0"
+        ALL_M_P.Text = "0"
+        For i = Data.Rows.Count - 1 To 0 Step -1
+            If i < 0 Then
+                Exit For
+            End If
+            Data.Rows.RemoveAt(i)
+        Next i
+        lineNum = 1
+    End Sub
+
+    Private Sub cancleLastStep()
+        Try
+            If cancleFlag(0) > 0 Then
+                Select Case cancleFlag(cancleFlag(0))
+                    Case 0
+                        If Integer.Parse(Data.Rows(lineNum - 2).Cells(4).Value) > 1 Then
+                            Data.Rows(lineNum - 2).Cells(4).Value -= 1
+                            Data.Rows(lineNum - 2).Cells(6).Value -= Data.Rows(lineNum - 1).Cells(5).Value
+                            'changeMoney()
+                            ALL_M_P.Text = Double.Parse(ALL_M_P.Text) - Double.Parse(Data.Rows(lineNum - 2).Cells(5).Value)
+                            ALL_N_P.Text = Integer.Parse(ALL_N_P.Text) - 1
+                        Else
+                            Data.Rows.RemoveAt(lineNum - 2)
+                            changeMoney()
+                            ALL_N_P.Text = Integer.Parse(ALL_N_P.Text) - 1
+                            lineNum -= 1
+                        End If
+                    Case 1
+                        Data.Rows(lineNum - 2).Cells(4).Value += 1
+                        Data.Rows(lineNum - 2).Cells(6).Value += Data.Rows(lineNum - 2).Cells(5).Value
+                        changeMoney()
+                        ALL_N_P.Text = Integer.Parse(ALL_N_P.Text) + 1
+                End Select
+                cancleFlag(0) -= 1
+            End If
+        Catch ex As Exception
+            Login.write_errmsg(ex.Message, Me.Name, "cancleLastStep", Me)
+        End Try
     End Sub
 
 End Class

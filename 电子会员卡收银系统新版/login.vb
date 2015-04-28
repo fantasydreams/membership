@@ -9,62 +9,74 @@ Imports System.Data.SQLite
 
 
 
-
-
 Public Class Login
+    Dim db As String = ".\DB\data.db"
+    Public sqliteconn As New SQLiteConnection
+    'Dim sqliteThisModule As String = "SQLite3"
+    Public shopreset As Boolean = False
     '定义显示器的高宽度
     Public ScreenHeight, ScreenWidth As Integer
 
     Public User, Password As String
-    Public conn As New MySqlConnection
+    'Public conn As New MySqlConnection
     Dim flag As Boolean
     Public data As String
     Dim Sqlconnect As Boolean = False
     '    Dim runThread As Thread
-    Dim KeepSqlAliveThread As Thread
+    'Dim KeepSqlAliveThread As Thread
     Public shopID As Long = 0
 
-    Dim db As String = "./DB/daba.db"
-    Dim sqliteconn As New SQLiteConnection
-    Dim sqlitecmd As New SQLiteCommand
-    Dim sqliteThisModule As String = "SQLite3"
-    Public shopreset As Boolean = False
-
-
-
-
-    Public Sub connect()
-        ScreenHeight = Screen.PrimaryScreen.Bounds.Height
-        ScreenWidth = Screen.PrimaryScreen.Bounds.Width
-        Dim connStr As String
-        If Not conn Is Nothing Then conn.Close()
-        'connStr = String.Format("server={0};user id={1}; password={2}; database=member; pooling=false;charset=utf8", _
-        '"112.74.105.67", "ming", "18883285787")
-
-        connStr = String.Format("server={0};user id={1}; password={2}; database=member; pooling=false;charset=utf8", _
-        "localhost", "root", "lsw19940816")
-
-        Try
-            conn = New MySqlConnection(connStr)
-            conn.Open()
-            If conn.State = ConnectionState.Open Then
-                Sqlconnect = True
-                CashLogin1()
-            End If
-            '    MsgBox("开")
-            'Else
-            '    MsgBox("关")
-            'End If
-
-        Catch ex As MySqlException
-            MessageBox.Show("Error connecting to the server: " + ex.Message)
-            'runThread.Abort()
-        End Try
-    End Sub
 
     Dim temp As Object
+
+
+    'mysql连接
+    'Public Sub connect()
+    '    ScreenHeight = Screen.PrimaryScreen.Bounds.Height
+    '    ScreenWidth = Screen.PrimaryScreen.Bounds.Width
+    '    Dim connStr As String
+    '    If Not conn Is Nothing Then conn.Close()
+    '    'connStr = String.Format("server={0};user id={1}; password={2}; database=member; pooling=false;charset=utf8", _
+    '    '"112.74.105.67", "ming", "18883285787")
+
+    '    connStr = String.Format("server={0};user id={1}; password={2}; database=member; pooling=false;charset=utf8", _
+    '    "localhost", "root", "lsw19940816")
+
+    '    Try
+    '        conn = New MySqlConnection(connStr)
+    '        conn.Open()
+    '        If conn.State = ConnectionState.Open Then
+    '            Sqlconnect = True
+    '            CashLogin1()
+    '        End If
+    '        '    MsgBox("开")
+    '        'Else
+    '        '    MsgBox("关")
+    '        'End If
+
+    '    Catch ex As MySqlException
+    '        MessageBox.Show("Error connecting to the server: " + ex.Message)
+    '        'runThread.Abort()
+    '    End Try
+    'End Sub
+
+
     '主界面的加载
+
+    'sqlite连接
+    Private Sub connect()
+        Try
+            'sqliteConn.SetPassword("sql")
+            sqliteconn.Open()
+            Sqlconnect = True
+            CashLogin1()
+            'sqliteConn.SetPassword("sql")
+        Catch ex As Exception
+            write_errmsg(ex.Message, Me.Name, "connect", Me)
+        End Try
+    End Sub
     Private Sub Login_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        sqliteconn.ConnectionString = "Data Source = " & db
         Me.BackColor = Color.FromArgb(&HFFFAFAFA)
         'Me.BackColor = Color.Blue
         'Me.TransparencyKey = Me.BackColor
@@ -78,8 +90,10 @@ Public Class Login
         '.Show()
         'System.Windows.Forms.Control.CheckForIllegalCrossThreadCalls = False
         sqliteconn.ConnectionString = "Data Source= " & db
-
+        GHWindowSize()
         shopGet()  'getshop info
+        'cash.Show()
+        MsgboxNotice("test", "test", False, True, Nothing, Me)
     End Sub
 
     Private Sub loginButton_Press(sender As Object, e As EventArgs) Handles loginButton.MouseDown
@@ -146,34 +160,58 @@ Public Class Login
 
 
     '保持数据库连接的线程
-    Private Sub keepSQLAlive()
-        KeepSqlAliveThread = New Thread(AddressOf connect)
-        KeepSqlAliveThread.Start()
-    End Sub
+    'Private Sub keepSQLAlive()
+    '    KeepSqlAliveThread = New Thread(AddressOf connect)
+    '    KeepSqlAliveThread.Start()
+    'End Sub
 
 
     '获取显示屏的高宽度
+    Private Sub GHWindowSize()
+        ScreenHeight = Screen.PrimaryScreen.Bounds.Height
+        ScreenWidth = Screen.PrimaryScreen.Bounds.Width
+    End Sub
+
 
     '
     Private Function CasherLogin()
-        Dim str As String = "select id from casher where password = '" + key.Text.ToString() + "' and id = " + ID.Text.ToString + " and shop_id = " + shopID.ToString + ";"
-        ' MsgBox(str)
+        'Dim str As String = "select id from casher where password = '" + key.Text.ToString() + "' and id = " + ID.Text.ToString + " and shop_id = " + shopID.ToString + ";"
+        '' MsgBox(str)
+        'Try
+        '    Dim Dr As MySqlCommand = New MySqlCommand(str, conn)
+        '    Dr.CommandType = CommandType.Text
+        '    Dim MR As MySqlDataReader
+        '    MR = Dr.ExecuteReader()
+        '    If MR.HasRows Then
+        '        ' MsgBox(MR.Item(0))
+        '        MR.Close()
+        '        CasherLogin = True
+        '        Exit Function
+        '    End If
+        '    MR.Close()
+        '    CasherLogin = False
+        'Catch ex As Exception
+        '    'MsgBox(ex.ToString)
+        '    CasherLogin = False
+        'End Try
+
         Try
-            Dim Dr As MySqlCommand = New MySqlCommand(str, conn)
-            Dr.CommandType = CommandType.Text
-            Dim MR As MySqlDataReader
-            MR = Dr.ExecuteReader()
-            If MR.HasRows Then
-                ' MsgBox(MR.Item(0))
-                MR.Close()
+            Dim sqlcmd As New SQLite.SQLiteCommand
+            sqlcmd.Connection = sqliteconn
+            sqlcmd.CommandType = CommandType.Text
+            sqlcmd.CommandText = "select id from casher where password = '" + key.Text.ToString() + "' and id = " + ID.Text.ToString + " and shop_id = " + shopID.ToString + ";"
+            Dim sqlda As SQLite.SQLiteDataAdapter
+            sqlda = New SQLite.SQLiteDataAdapter(sqlcmd.CommandText, sqliteconn)
+            Dim tableData As New DataTable
+            sqlda.Fill(tableData)
+            If tableData.Rows.Count() Then
                 CasherLogin = True
                 Exit Function
             End If
-            MR.Close()
             CasherLogin = False
         Catch ex As Exception
-            'MsgBox(ex.ToString)
             CasherLogin = False
+            write_errmsg(ex.Message, Me.Name, "CasherLogin", Me)
         End Try
     End Function
 
@@ -183,10 +221,11 @@ Public Class Login
             Me.Hide()
             cash.Show()
         Else  'when login error
-            Dim form As New MSG
-            form.head.Text = "登录失败"
-            form.msgP.Text = "请检查你的用户名密码"
-            form.Show()
+            'Dim form As New MSG
+            'form.head.Text = "登录失败"
+            'form.msgP.Text = "请检查你的用户名密码"
+            'form.Show()
+            MsgboxNotice("请检查你的用户名密码", "登录失败", False, True, Nothing, Me)
         End If
     End Sub
 
@@ -198,99 +237,56 @@ Public Class Login
     End Sub
 
 
-    Public Function ConcectDataIfBreak()
-        Dim connStr As String
-        If Not conn Is Nothing Then conn.Close()
-        'connStr = String.Format("server={0};user id={1}; password={2}; database=member; pooling=false;charset=utf8", _
-        '"112.74.105.67", "ming", "18883285787")
+    'Public Function ConcectDataIfBreak()
+    '    Dim connStr As String
+    '    If Not conn Is Nothing Then conn.Close()
+    '    'connStr = String.Format("server={0};user id={1}; password={2}; database=member; pooling=false;charset=utf8", _
+    '    '"112.74.105.67", "ming", "18883285787")
 
-        connStr = String.Format("server={0};user id={1}; password={2}; database=member; pooling=false;charset=utf8", _
-        "localhost", "root", "lsw19940816")
+    '    connStr = String.Format("server={0};user id={1}; password={2}; database=member; pooling=false;charset=utf8", _
+    '    "localhost", "root", "lsw19940816")
 
-        Try
-            conn = New MySqlConnection(connStr)
-            conn.Open()
-            If conn.State = ConnectionState.Open Then
-                ConcectDataIfBreak = True
-                Exit Function
-            End If
-            '    MsgBox("开")
-            'Else
-            '    MsgBox("关")
-            'End If
+    '    Try
+    '        conn = New MySqlConnection(connStr)
+    '        conn.Open()
+    '        If conn.State = ConnectionState.Open Then
+    '            ConcectDataIfBreak = True
+    '            Exit Function
+    '        End If
+    '        '    MsgBox("开")
+    '        'Else
+    '        '    MsgBox("关")
+    '        'End If
 
-        Catch ex As MySqlException
-            MessageBox.Show("Error connecting to the server: " + ex.Message)
-            'runThread.Abort()
-            ConcectDataIfBreak = False
-        End Try
-        ConcectDataIfBreak = False
-    End Function
+    '    Catch ex As MySqlException
+    '        MessageBox.Show("Error connecting to the server: " + ex.Message)
+    '        'runThread.Abort()
+    '        ConcectDataIfBreak = False
+    '    End Try
+    '    ConcectDataIfBreak = False
+    'End Function
 
     'when esc pressed,windows app close the sql connenction and close itself
     Private Sub form_key(sender As Object, e As KeyEventArgs) Handles Me.KeyDown
         If e.KeyCode = Keys.Escape Then
-            conn.Close()
-            Me.Close()
+            sqliteconn.Close()
+            End
         End If
     End Sub
 
     'shopid base64 encryption
+
+
+
+    'this function design to get shop id and name and save it into config data
     Private Sub shopGet()
         Dim fristrunflag As Boolean = False
         If My.Computer.FileSystem.DirectoryExists(".\config") Then
-            'MsgBox("存在")
-            'MsgBox(fs.ReadLine())
-            'MsgBox(fs.ReadLine)
+
             If Not IO.File.Exists(".\config\data.ini") Then
-                'here get shopID and shopName
-                'config()
-                IO.File.Create(".\config\data.ini").Close()
-                'save config date into file
 
-                'Dim fsr As New StreamReader(".\config\data.ini")
-                'Dim temp As String = ""
-                'temp = fsr.ReadLine()
-                ''MsgBox(temp)
-                'config()
-                'If temp = "" Then 'readid
-                '    fsr.Close()
-                '    Dim Msgform As New MSG
-                '    Msgform.head.Text = "error"
-                '    Msgform.msgP.Text = "配置文件丢失，请重新配置"
-                '    If Msgform.ShowDialog(Me) Then
-                '        Dim fristrunWindow As New fristrun
-                '        If Not fristrunflag Then
-                '            fristrunWindow.notice.Text = "您好，请重新选择店铺或者输入店铺编号："
-                '        End If
-                '        fristrunWindow.Show(Me)
-                '    End If
-
-                '    Exit Sub
-                'Else
-                '    shopID = Long.Parse(temp)
-                '    'MsgBox(shopID.ToString)
-                'End If
-                'temp = fsr.ReadLine()
-                'fsr.Close()
-                ''MsgBox(temp)
-                'If temp = "" Then  'readname
-                '    Dim Msgform As New MSG
-                '    Msgform.head.Text = "error"
-                '    Msgform.msgP.Text = "配置文件丢失，请重新配置"
-                '    If Msgform.ShowDialog(Me) Then
-                '        Dim fristrunWindow As New fristrun
-                '        If Not fristrunflag Then
-                '            fristrunWindow.notice.Text = "您好，请重新选择店铺或者输入店铺编号："
-                '        End If
-                '        fristrunWindow.Show(Me)
-                '    End If
-                '    Exit Sub
-                '    'shopname
-                'End If
             End If
             config()
-
 
             If IO.File.Exists(".\config\readme.txt") Then
             Else
@@ -299,10 +295,7 @@ Public Class Login
                 fsw.WriteLine("this folder for the application configuration,don't move or delete or rewite")
                 fsw.Close()
                 'save config date into file
-
-
             End If
-
         Else
             My.Computer.FileSystem.CreateDirectory(".\config")
             IO.File.Create(".\config\data.ini").Close()
@@ -315,18 +308,7 @@ Public Class Login
         End If
     End Sub
 
-    'this function design to get shop id and name and save it into config data
-
-    Private Sub opensqlitecon()
-        Try
-            sqliteconn.Open()
-            'sqliteconn.
-        Catch ex As Exception
-
-        End Try
-    End Sub
-
-
+    'config config files(also get shop id)
     Private Sub config()
         If IO.File.Exists(".\config\fristrun.ini") Then
             Dim fristrunfl As New StreamReader(".\config\fristrun.ini")
@@ -368,11 +350,11 @@ Public Class Login
             Dim fristrun As New fristrun
             fristrun.notice.Text = "您好，请选择店铺或者输入店铺编号："
             fristrun.Show(Me)
-            End If
+        End If
     End Sub
 
     Private Sub logo_Click(sender As Object, e As EventArgs) Handles logo.Click
-        If Msgbox("继续以重新设置店铺ID及名称", "提示", True, True, "取消", Me) = DialogResult.OK Then
+        If MsgboxNotice("继续以重新设置店铺ID及名称", "提示", True, True, "取消", Me) = DialogResult.OK Then
             shopreset = True
             Dim reset As New fristrun
             reset.notice.Text = "您好，请重新选择店铺或者输入店铺编号："
@@ -380,7 +362,7 @@ Public Class Login
         End If
     End Sub
 
-    Public Function Msgbox(ByVal msgp As String, ByVal head As String, ByVal No_B_visible As Boolean, ByVal Yes_B_visible As Boolean, ByVal canceltext As String, e As Form)
+    Public Function MsgboxNotice(ByVal msgp As String, ByVal head As String, ByVal No_B_visible As Boolean, ByVal Yes_B_visible As Boolean, ByVal canceltext As String, e As Form)
         Dim formmsg As New MSG
         formmsg.yes.Visible = Yes_B_visible
         formmsg.yes_button.Visible = Yes_B_visible
@@ -389,6 +371,29 @@ Public Class Login
         formmsg.no_button.Text = canceltext
         formmsg.msgP.Text = msgp
         formmsg.head.Text = head
-        Msgbox = formmsg.ShowDialog(e)
+        If Not No_B_visible And Yes_B_visible Then
+            formmsg.yes.Location = New Point(281, 160)
+
+            ' formmsg.yes_button.Location = New Point(281, 260)
+        End If
+        'MsgBox(formmsg.yes.Location.X & "   " & formmsg.yes.Location.Y)
+        MsgboxNotice = formmsg.ShowDialog(e)
+
     End Function
+
+    '向文件写错误日志
+    Public Sub write_errmsg(ByVal errmsg As String, ByVal window As String, ByVal func As String, e As Object)
+        MsgboxNotice(errmsg, "发生了一个错误", False, True, Nothing, e)
+        Dim time As String = Format(Now, "yyyy_MM_dd hh:mm:ss") '获得系统时间
+        If IO.File.Exists(".\logs\exception.log") Then
+        Else
+            If Not My.Computer.FileSystem.DirectoryExists(".\logs") Then
+                My.Computer.FileSystem.CreateDirectory(".\logs")
+            End If
+            IO.File.Create(".\logs\exception.log").Close()
+        End If
+        Dim fsw As New StreamWriter(".\logs\exception.log", True) '向日志中添加错误信息
+        fsw.WriteLine(time & ":(window_" & window & ",func_" & func & ")" & errmsg)
+        fsw.Close()
+    End Sub
 End Class

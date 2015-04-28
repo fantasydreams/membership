@@ -87,19 +87,20 @@ Public Class balance
                 Dim SC As String = score.ToString()
                 Dim Num As String = NumId.ToString()
                 Dim str As String = "update utos set balance = " + Pack_M.Text.ToString() + ", score = " + SC + " where user_id = '" + Num + "'"
-                Dim Dr As MySqlCommand = New MySqlCommand(str, Login.conn)
+                Dim Dr As SQLite.SQLiteCommand = New SQLite.SQLiteCommand(str, Login.sqliteconn)
                 Dr.CommandType = CommandType.Text
-                Dr.BeginExecuteNonQuery()
-                Dim msgform As New MSG
-                msgform.Text = "提示"
-                msgform.msgP.Text = "已付款成功"
-                msgform.Show()
-                subStock()
+                Dr.ExecuteNonQuery()
+                'Dim msgform As New MSG
+                'msgform.Text = "提示"
+                'msgform.msgP.Text = "已付款成功"
+                'msgform.Show()
+                Login.MsgboxNotice("已付款成功", "提示", False, True, Nothing, Me)
+                'subStock()
                 destory()
                 Me.Close()
                 background.Hide()
             Catch ex As Exception
-                MsgBox(ex.Message)
+                Login.write_errmsg(ex.Message, Me.Name, "writetosql", Me)
             End Try
         End If
     End Sub
@@ -126,11 +127,11 @@ Public Class balance
         For i = 0 To cash.Data.Rows.Count - 1
             Try
                 str = "update goods set stock = stock - " + cash.Data.Rows(0).Cells(4).Value.ToString + " where id = " + cash.Data.Rows(0).Cells(1).Value.ToString
-                Dim Dr As MySqlCommand = New MySqlCommand(str, Login.conn)
+                Dim Dr As SQLite.SQLiteCommand = New SQLite.SQLiteCommand(str, Login.sqliteconn)
                 Dr.CommandType = CommandType.Text
-                Dr.BeginExecuteNonQuery()
+                Dr.ExecuteNonQuery()
             Catch ex As Exception
-                MsgBox(ex.Message)
+                Login.write_errmsg(ex.Message, Me.Name, "subStock", Me)
             End Try
         Next
         Me.Close()
