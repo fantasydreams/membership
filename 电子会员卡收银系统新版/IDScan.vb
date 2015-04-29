@@ -26,6 +26,8 @@ Public Class IDScan
                 Else
                     If sureUserInfo = True Then
                         CalculateVipMon()
+                        balance.user_id = ID_I.Text
+                        balance.user_name = User_name.Text
                         Me.Close()
                         balance.Show(background)
                     End If
@@ -41,7 +43,7 @@ Public Class IDScan
                             'form.head.Text = "error"
                             'form.msgP.Text = "没有此会员信息！"
                             'form.Show()
-                            Login.MsgboxNotice("没有此会员信息！", "消息", False, True, Nothing, Me)
+                            Login.MsgboxNotice("没有此会员信息！", "消息", False, False, Nothing, Me, True)
                             ID_I.Text = ""
                         End If
 
@@ -115,7 +117,7 @@ Public Class IDScan
                     'form.head.Text = "提示"
                     'form.msgP.Text = "会员未完善信息，请提醒会员完善信息..."
                     'form.Show()
-                    Login.MsgboxNotice("会员未完善信息，请提醒会员完善信息...", "提示", False, True, Nothing, Me)
+                    Login.MsgboxNotice("会员未完善信息，请提醒会员完善信息...", "提示", False, False, Nothing, Me, True)
                     GetUserInfoFlag = True
                     chooseDatabase = True
                 Else
@@ -125,7 +127,7 @@ Public Class IDScan
             End If
         Catch ex As Exception
             chooseDatabase = False
-            Login.MsgboxNotice(ex.Message, "发生了一个错误", False, True, Nothing, Me)
+            Login.MsgboxNotice(ex.Message, "发生了一个错误", False, False, Nothing, Me, False)
         End Try
     End Function
 
@@ -210,4 +212,15 @@ Public Class IDScan
             User_name.Text = ""
         End If
     End Sub
+
+    Private Sub me_key(sender As Object, e As KeyEventArgs) Handles Me.KeyDown
+        If e.KeyCode = Keys.Escape Then
+            Me.Close()
+            background.Close()
+        End If
+        If e.KeyCode = Keys.F4 Then
+            ID_I.Text = ""
+        End If
+    End Sub
+
 End Class

@@ -13,6 +13,7 @@ Public Class cash
         Esc.Parent = column
         F4.Parent = column
         F5.Parent = column
+        about.Parent = column
 
         ALL_M_Back.BackColor = Color.FromArgb(&HFFD7D7D7)
         ALL_M_Back.Size = New Size(230, 65)
@@ -94,14 +95,15 @@ Public Class cash
     End Sub
 
     Private Sub Esc_Click(sender As Object, e As EventArgs) Handles Esc.Click
-        background.Show(Me)
-        balance.Show(background)
+        If Login.MsgboxNotice("按下enter退出系统，esc返回...", "即将退出系统", True, True, "取消", Me, True) = DialogResult.OK Then
+            Login.sqliteconn.Close()
+            End '关闭程序
+        End If
     End Sub
 
 
     Private Sub F4_Click(sender As Object, e As EventArgs) Handles F4.Click
-        background.Show(Me)
-        IDScan.Show(background)
+        clear()
     End Sub
 
     '设置data以及对应的列标签的宽度
@@ -194,7 +196,7 @@ Public Class cash
         ALL_N_P.Text = Num
     End Sub
 
-
+    '从数据库得到数据
     Private Sub selectFromBaseData()
         Try
             If ID_P_A_I.Text = "" Then
@@ -237,7 +239,7 @@ Public Class cash
                     'form.head.Text = "提示"
                     'form.msgP.Text = "仓库不存在此商品"
                     'form.Show()
-                    Login.MsgboxNotice("仓库不存在此商品", "提示", False, True, Nothing, Me)
+                    Login.MsgboxNotice("仓库不存在此商品", "提示", False, True, Nothing, Me, False)
                     ID_P_A_I.Text = ""
                 End If
                 If flag = True Then
@@ -251,6 +253,14 @@ Public Class cash
         End Try
 
     End Sub
+
+    'calculatescore
+    'Private Sub calculatescore()
+    '    For i = 0 To Data.Rows.Count - 1
+    '        balance.score += Math.Round(Double.Parse(Data.Rows(i).Cells(4).Value()), 2) * 
+    '    Next
+    'End Sub
+
 
     '重新调整datagirdview的颜色
     Private Sub ExchageBackColor(ByVal int As Integer)
@@ -282,7 +292,6 @@ Public Class cash
             getshopName = ""
         End If
     End Function
-
 
 
     Private Sub Data_CellContentClick(sender As Object, e As MouseEventArgs) Handles Data.MouseClick
@@ -327,10 +336,7 @@ Public Class cash
             'messge.head.Text = "即将退出系统"
             'messge.msgP.Text = "按下enter退出系统，esc返回..."
             'messge.Show()
-            If Login.MsgboxNotice("按下enter退出系统，esc返回...", "即将退出系统", True, True, "取消", Me) = DialogResult.OK Then
-                Login.sqliteconn.Close()
-                End '关闭程序
-            End If
+            Esc_Click(Me, Nothing)
         End If
         If e.KeyCode = Keys.F4 Then
             clear()
@@ -348,6 +354,10 @@ Public Class cash
             'messge.Show()
             cancleLastStep()
 
+        End If
+
+        If e.KeyCode = Keys.F6 Then
+            about_Click(Me, Nothing)
         End If
     End Sub
 
@@ -404,4 +414,14 @@ Public Class cash
 
     End Sub
 
+    Private Sub F5_Click(sender As Object, e As EventArgs) Handles F5.Click
+        cancleLastStep()
+    End Sub
+
+    Private Sub about_Click(sender As Object, e As EventArgs) Handles about.Click
+        If Login.MsgboxNotice("版本：1.0" + vbCrLf + "2015年5月更新。", "版本信息", True, True, "检查更新", Me, True) = DialogResult.Cancel Then
+            '这里加更新代码
+            MsgBox("更新...")
+        End If
+    End Sub
 End Class

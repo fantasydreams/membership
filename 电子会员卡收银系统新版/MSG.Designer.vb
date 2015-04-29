@@ -54,8 +54,8 @@ Partial Class MSG
         Me.warn.Image = CType(resources.GetObject("warn.Image"), System.Drawing.Image)
         Me.warn.Location = New System.Drawing.Point(20, 69)
         Me.warn.Name = "warn"
-        Me.warn.Size = New System.Drawing.Size(85, 85)
-        Me.warn.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize
+        Me.warn.Size = New System.Drawing.Size(84, 84)
+        Me.warn.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage
         Me.warn.TabIndex = 8
         Me.warn.TabStop = False
         '
@@ -165,7 +165,6 @@ Partial Class MSG
         CType(Me.no, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.yes, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
-        Me.PerformLayout()
 
     End Sub
     Friend WithEvents msgP As System.Windows.Forms.Label

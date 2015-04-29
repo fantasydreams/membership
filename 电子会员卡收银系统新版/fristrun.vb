@@ -9,6 +9,7 @@ Public Class fristrun
     Dim datatable As New DataTable
     Dim flag As Integer = -1  '标记商店的下标
     Dim connectflag As Boolean = False
+    Dim shop As Boolean = False
     Private Sub invo()
         BeginInvoke(New eventhandler(AddressOf connect), Nothing)
     End Sub
@@ -19,30 +20,38 @@ Public Class fristrun
         'connStr = String.Format("server={0};user id={1}; password={2}; database=member; pooling=false;charset=utf8", _
         '"112.74.105.67", "ming", "18883285787")
         Dim hostname As String = "www.myvip6.com"
-        Dim IPs() As System.Net.IPAddress = System.Net.Dns.GetHostAddresses(hostname) '根据域名获取ip地址
-        For I = 0 To UBound(IPs)
-            connStr = String.Format("server={0};user id={1}; password={2}; database=member; pooling=false;charset=utf8", _
-        IPs(I).ToString, "ming", "18883285787")
-            Try
+        Dim IPs() As System.Net.IPAddress = Nothing
+        If Not My.Computer.Network.IsAvailable Then
+            Login.MsgboxNotice("无法从服务器获取信息，请检查网络连接！", "提示", False, False, Nothing, Me, True)
+            Exit Sub
+        End If
+        Try
+            IPs = System.Net.Dns.GetHostAddresses(hostname) '根据域名获取ip地址
+            For I = 0 To UBound(IPs)
+                connStr = String.Format("server={0};user id={1}; password={2}; database=member; pooling=false;charset=utf8", _
+            IPs(I).ToString, "ming", "18883285787")
+
                 conn = New MySqlConnection(connStr)
                 conn.Open()
                 If conn.State = ConnectionState.Open Then
                     connectflag = True
                     BeginInvoke(New eventhandler(AddressOf getshopNameandId), Nothing)
+                Else
+                    Login.MsgboxNotice("无法从服务器获取信息，请检查网络连接！", "提示", False, False, Nothing, Me, True)
                 End If
                 '    MsgBox("开")
                 'Else
                 '    MsgBox("关")
                 'End If
-            Catch ex As MySqlException
-                MessageBox.Show("Error connecting to the server: " + ex.Message)
-                'runThread.Abort()
-            End Try
-            If connectflag Then
-                Exit Sub
-            End If
-        Next I
-        
+                If connectflag Then
+                    Exit Sub
+                End If
+            Next I
+        Catch ex As Exception
+            Login.write_errmsg("无法获取信息，请检查网络连接！", Me.Name, "connect", Me)
+        End Try
+
+
     End Sub
 
     Private Sub fristrun_Load(sender As Object, e As EventArgs) Handles MyBase.Load
@@ -64,6 +73,7 @@ Public Class fristrun
                     shop_list.Items.Add(datatable.Rows.Item(i).Item(1).ToString())
                 Next
                 shop_list.Text = datatable.Rows.Item(0).Item(1).ToString()
+                shop = True
             End If
         Catch
 
@@ -85,7 +95,7 @@ Public Class fristrun
         If Not (e.KeyChar >= "0" And e.KeyChar <= "9" Or e.KeyChar = Chr(Keys.Enter) Or e.KeyChar = Chr(Keys.Back)) Then
             e.Handled = True
         End If
-        If e.KeyChar = Chr(Keys.Enter) Then
+        If e.KeyChar = Chr(Keys.Enter) And connectflag Then
             For i = 0 To datatable.Rows.Count() - 1
                 If shop_id_in.Text = datatable.Rows.Item(i).Item(0) Then
                     shop_list.Text = datatable.Rows.Item(i).Item(1)
@@ -96,7 +106,10 @@ Public Class fristrun
             'msgform.msgP.Text = "没有以编号为：" & shop_id_in.Text & "的超市！请检查编号是否准确。"
             'msgform.head.Text = "提示"
             'msgform.Show()
-            Login.MsgboxNotice("没有以编号为：" & shop_id_in.Text & "的超市！请检查编号是否准确。", "提示", False, True, Nothing, Me)
+            Login.MsgboxNotice("没有以编号为：" & shop_id_in.Text & "的超市！请检查编号是否准确。", "提示", False, False, Nothing, Me, True)
+        End If
+        If connectflag = False Then
+            Login.MsgboxNotice("无法获取信息，请检查网络连接！", "提示", False, False, Nothing, Me, True)
         End If
        
     End Sub
@@ -132,15 +145,27 @@ Public Class fristrun
         'formmsg.yes_button.Visible = True
         'formmsg.no.Visible = True
         'formmsg.no_button.Visible = True
-        If Login.MsgboxNotice("您的店铺ID为：" & shop_id_in.Text + vbCrLf + "您的店铺名称为：" & shop_list.Text, "消息", True, True, "重新选择", Me) = Windows.Forms.DialogResult.OK Then
-            Dim fsr As New StreamWriter(".\config\data.ini")  '向文件中写入配置信息
-            fsr.WriteLine(shop_id_in.Text)
-            fsr.WriteLine(shop_list.Text)
-            fsr.Close()
-            conn.Close() '关闭sql连接
-            Login.shopID = Long.Parse(shop_id_in.Text)
-            'MsgBox(Login.shopID)
-            Me.Close() '关闭本窗口
+        If shop Then
+            If Login.MsgboxNotice("您的店铺ID为：" & shop_id_in.Text + vbCrLf + "您的店铺名称为：" & shop_list.Text, "消息", True, True, "重新选择", Me, True) = Windows.Forms.DialogResult.OK Then
+                Dim fsr As New StreamWriter(".\config\data.ini")  '向文件中写入配置信息
+                fsr.WriteLine(shop_id_in.Text)
+                fsr.WriteLine(shop_list.Text)
+                fsr.Close()
+                conn.Close() '关闭sql连接
+                Login.shopID = Long.Parse(shop_id_in.Text)
+                'MsgBox(Login.shopID)
+                Me.Close() '关闭本窗口
+            End If
+        End If
+
+    End Sub
+
+    Private Sub me_key_down(sender As Object, e As KeyEventArgs) Handles Me.KeyDown
+        If e.KeyCode = Keys.Escape Then
+            close_window_Click(Me, Nothing)
+        End If
+        If e.KeyCode = Keys.F5 Then
+            invo()
         End If
     End Sub
 End Class

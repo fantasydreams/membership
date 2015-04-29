@@ -6,7 +6,9 @@ Public Class balance
     Public Max As Double = 0
     Public score As Double = 0 'this value be setted by cash windows
     'Public oldPMP As Double = 0
-    Public flag As Boolean = False  'this value be  setted by IDscan window
+    Public flag As Boolean = False  'this value be  setted by IDscan window   判断是否为会员
+    Public user_id As String
+    Public user_name As String
 
 
     Private Sub balance_Load(sender As Object, e As EventArgs) Handles MyBase.Load
@@ -67,27 +69,42 @@ Public Class balance
 
             'End If
             Dim temp As Integer = Int(Double.Parse(VIP_M_P.Text.ToString()))
-            Dim subchange As Double = Double.Parse(VIP_M_P.Text.ToString()) - temp '记录需要交费中的零钱
+            Dim subchange As Double = System.Math.Round(Double.Parse(VIP_M_P.Text.ToString()) - temp, 2) '记录需要交费中的零钱
             'MsgBox(Double.Parse(VIP_M_P.Text.ToString()) - temp)
             If Double.Parse(AC_P_I.Text) >= Double.Parse(VIP_M_P.Text) Or Double.Parse(AC_P_I.Text) + subchange >= Double.Parse(VIP_M_P.Text) And Double.Parse(Pack_M.Text) >= subchange Then
                 If ((Double.Parse(AC_P_I.Text) > Double.Parse(VIP_M_P.Text)) And (Double.Parse(AC_P_I.Text) - Double.Parse(VIP_M_P.Text) < 0.5)) Then
-                    Login.MsgboxNotice("请用户以0.5元增大或减小付款金额,多的零钱无法充值", "错误", False, True, Nothing, Me)
+                    Login.MsgboxNotice("请用户以0.5元增大或减小付款金额,多的零钱无法充值", "错误", False, False, Nothing, Me, True)
                     exchange = False
                     Exit Function
                 End If
                 Dim money As Integer = Int(Double.Parse(AC_P_I.Text))
-                Dim submoney As Double = Double.Parse(AC_P_I.Text) - money  '得到客户给收银员中的钱中的零钱
+                Dim submoney As Double = System.Math.Round(Double.Parse(AC_P_I.Text) - money, 2)  '得到客户给收银员中的钱中的零钱
                 PA_BACK_P.Text = money - temp '得到补给客户的钱
-                subchange -= submoney
-                Pack_M.Text = Double.Parse(Pack_M.Text) - subchange
-                exchange = True
+                If subchange - submoney >= 0 And Double.Parse(Pack_M.Text) >= (subchange - submoney) Then
+                    subchange -= submoney
+                    Pack_M.Text = Double.Parse(Pack_M.Text) - subchange
+                    exchange = True
+                ElseIf subchange > 0.5 And Double.Parse(Pack_M.Text) >= subchange - 0.5 And Double.Parse(AC_P_I.Text) - temp >= 0.5 Then
+                    subchange -= 0.5
+                    Pack_M.Text = Double.Parse(Pack_M.Text) - subchange
+                    PA_BACK_P.Text = System.Math.Round(Double.Parse(AC_P_I.Text) - temp - 0.5, 2)
+                Else
+                    PA_BACK_P.Text = System.Math.Round(Double.Parse(AC_P_I.Text) - Double.Parse(VIP_M_P.Text.ToString()), 2)
+                End If
             Else
-
-
                 exchange = False
-                Login.MsgboxNotice("付款金额不足！", "警告", False, True, Nothing, Me)
+                Login.MsgboxNotice("付款金额不足！", "警告", False, False, Nothing, Me, False)
             End If
             'MsgBox(subchange)
+        Else
+            Dim payback As Double = Double.Parse(AC_P_I.Text) - Double.Parse(ALL_M_P.Text)
+            If payback >= 0 Then
+                PA_BACK_P.Text = System.Math.Round(payback, 2)
+                exchange = True
+            Else
+                exchange = False
+                Login.MsgboxNotice("付款金额不足！", "警告", False, False, Nothing, Me, False)
+            End If
         End If
         exchange = False
     End Function
@@ -105,7 +122,7 @@ Public Class balance
                 'msgform.Text = "提示"
                 'msgform.msgP.Text = "已付款成功"
                 'msgform.Show()
-                Login.MsgboxNotice("已付款成功", "提示", False, True, Nothing, Me)
+                Login.MsgboxNotice("已付款成功", "提示", False, False, Nothing, Me, True)
                 'subStock()
                 destory()
                 Me.Close()
@@ -146,6 +163,20 @@ Public Class balance
             End Try
         Next
         Me.Close()
+    End Sub
+
+
+    Private Sub me_key(sender As Object, e As KeyEventArgs) Handles Me.KeyDown
+        If e.KeyCode = Keys.Escape Then
+            Me.Close()
+            IDScan.ID_I.Text = user_id
+            IDScan.User_name.Text = user_name
+            IDScan.Show()
+        End If
+        If e.KeyCode = Keys.F4 Then
+            AC_P_I.Text = ""
+            PA_BACK_P.Text = "0"
+        End If
     End Sub
 
 End Class
