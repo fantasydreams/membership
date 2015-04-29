@@ -4,6 +4,8 @@ Public Class cash
 
     'Public score As Double = 0  'shop goods score
     Public lineNum As Integer = 1
+    'score table
+    Dim scoreTable As New DataTable
     'Private cancleFlag(21) As Integer '用来记录上次的操作的情况
     Private Sub cash_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         'System.Windows.Forms.Control.CheckForIllegalCrossThreadCalls = False
@@ -91,6 +93,7 @@ Public Class cash
         'Data.Columns(0).Width = 90
         'Data.Rows(0).Height = 45
         'Data.Rows(0).DefaultCellStyle.BackColor = Color.FromArgb(&HFFF7F7F7)
+        'scoreTable.Columns.Add(1)
 
     End Sub
 
@@ -150,6 +153,7 @@ Public Class cash
                     If Not ALL_N_P.Text = "0" Then
                         background.Show(Me)
                         IDScan.Show(background)
+                        calculatescore()
                     End If
                 Else
                     selectData()
@@ -201,6 +205,9 @@ Public Class cash
         Try
             If ID_P_A_I.Text = "" Then
             Else
+                If scoreTable.Columns.Count = 0 Then
+                    scoreTable.Columns.Add(1)
+                End If
                 Dim str As String = "select name ,shop_id,price,score from goods where code = " + ID_P_A_I.Text.ToString()
                 Dim sqliteadapter As New SQLite.SQLiteDataAdapter(str, Login.sqliteconn)
                 Dim table As New DataTable
@@ -220,7 +227,9 @@ Public Class cash
                     Data.Rows(lineNum - 1).Cells(4).Value = 1
                     Data.Rows(lineNum - 1).Cells(5).Value = table.Rows.Item(0).Item(2)
                     Data.Rows(lineNum - 1).Cells(6).Value = table.Rows.Item(0).Item(2)
-                    balance.score += Double.Parse(table.Rows.Item(0).Item(3).ToString())   'calculate goods scores
+                    'balance.score += Double.Parse(table.Rows.Item(0).Item(3).ToString())   'calculate goods scores
+                    scoreTable.Rows.Add()
+                    scoreTable.Rows.Item(scoreTable.Rows.Count - 1).Item(0) = Double.Parse(table.Rows.Item(0).Item(3).ToString()) 'calculate goods scores
                     'p_id_p.Text = Data.Rows(lineNum - 1).Cells(1).Value
                     'P_Name.Text = Data.Rows(lineNum - 1).Cells(2).Value
                     'P_NUM.Text = Data.Rows(lineNum - 1).Cells(4).Value
@@ -239,7 +248,7 @@ Public Class cash
                     'form.head.Text = "提示"
                     'form.msgP.Text = "仓库不存在此商品"
                     'form.Show()
-                    Login.MsgboxNotice("仓库不存在此商品", "提示", False, True, Nothing, Me, False)
+                    Login.MsgboxNotice("仓库不存在此商品", "提示", False, False, Nothing, Me, True)
                     ID_P_A_I.Text = ""
                 End If
                 If flag = True Then
@@ -255,11 +264,13 @@ Public Class cash
     End Sub
 
     'calculatescore
-    'Private Sub calculatescore()
-    '    For i = 0 To Data.Rows.Count - 1
-    '        balance.score += Math.Round(Double.Parse(Data.Rows(i).Cells(4).Value()), 2) * 
-    '    Next
-    'End Sub
+    Private Sub calculatescore()
+        Dim score As Double = 0
+        For i = 0 To scoreTable.Rows.Count - 1
+            score += Math.Round(Double.Parse(scoreTable.Rows().Item(i).Item(0).ToString()), 2) * Integer.Parse(Data.Rows(i).Cells(4).Value.ToString)
+        Next
+        balance.score = score
+    End Sub
 
 
     '重新调整datagirdview的颜色
@@ -321,6 +332,7 @@ Public Class cash
                             lineNum -= 1
                             changeMoney()
                             calculatePronum()
+                            scoreTable.Rows.RemoveAt(Data.CurrentCell.RowIndex)
                             ' cancleFlag(0) += 1
                             'cancleFlag(cancleFlag(0)) = 0
                         End If
@@ -374,6 +386,7 @@ Public Class cash
             Data.Rows.RemoveAt(i)
         Next i
         lineNum = 1
+        scoreTable.Reset()
     End Sub
 
     Private Sub cancleLastStep()

@@ -20,7 +20,7 @@ Public Class balance
         AC_PA_B.BackColor = Color.FromArgb(&HFFC5C5C5)
         PA_B_B.BackColor = Color.FromArgb(&HFFC5C5C5)
         ALL_M_ZI.BackColor = Color.FromArgb(&HFFF4F4F4)
-        MsgBox(score.ToString)
+        ' MsgBox(score.ToString)
     End Sub
 
     Private Sub TextBox1_KeyPress(ByVal sender As Object, ByVal e As System.Windows.Forms.KeyPressEventArgs) Handles AC_P_I.KeyPress

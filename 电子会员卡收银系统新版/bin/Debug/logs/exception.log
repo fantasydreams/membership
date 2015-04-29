@@ -174,3 +174,6 @@ no such column: stock
 2015_04_29 05:58:08:(window_fristrun,func_connect)无法获取信息，请检查网络连接！
 2015_04_29 05:58:08:(window_fristrun,func_connect)无法获取信息，请检查网络连接！
 2015_04_29 05:58:09:(window_fristrun,func_connect)无法获取信息，请检查网络连接！
+2015_04_30 01:15:20:(window_cash,func_selectFromBaseData)输入数组长度大于此表中的列数。
+2015_04_30 01:16:15:(window_cash,func_selectFromBaseData)输入数组长度大于此表中的列数。
+2015_04_30 01:20:33:(window_cash,func_selectFromBaseData)无法找到列 0。
