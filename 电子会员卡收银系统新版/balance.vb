@@ -9,6 +9,8 @@ Public Class balance
     Public flag As Boolean = False  'this value be  setted by IDscan window   判断是否为会员
     Public user_id As String
     Public user_name As String
+    Private enterflag As Boolean = False '标记是否第二次按下回车
+    Private changesubed As Double = 0
 
 
     Private Sub balance_Load(sender As Object, e As EventArgs) Handles MyBase.Load
@@ -23,7 +25,7 @@ Public Class balance
         ' MsgBox(score.ToString)
     End Sub
 
-    Private Sub TextBox1_KeyPress(ByVal sender As Object, ByVal e As System.Windows.Forms.KeyPressEventArgs) Handles AC_P_I.KeyPress
+    Private Sub AC_P_I_KeyPress(ByVal sender As Object, ByVal e As System.Windows.Forms.KeyPressEventArgs) Handles AC_P_I.KeyPress
         If Char.IsDigit(e.KeyChar) Or e.KeyChar = "." Or e.KeyChar = Chr(13) Or e.KeyChar = Chr(8) Then
         Else
             e.Handled = True
@@ -40,34 +42,6 @@ Public Class balance
         Dim ACPNUM As Double = Double.Parse(AC_P_I.Text.ToString())
         Dim VIPPPNUM As Double = Double.Parse(VIP_M_P.Text.ToString())
         If flag = True Then
-            'If ACPNUM - Double.Parse(VIP_M_P.Text.ToString()) >= 0 Then
-            '    If oldPMP + ACPNUM - VIPPPNUM <= Max Then
-            '        Pack_M.Text = oldPMP + ACPNUM - VIPPPNUM
-            '        Pack_M.Text = "0"
-            '        exchange = True
-            '    Else
-            '        Dim mon As Integer
-            '        mon = oldPMP + ACPNUM - VIPPPNUM - Max + 1
-            '        Pack_M.Text = ACPNUM - VIPPPNUM - mon
-            '        Pack_M.Text = mon
-            '        exchange = True
-            '    End If
-            'Else
-            '    If ACPNUM + oldPMP - VIPPPNUM >= 0 Then
-            '        Pack_M.Text = ACPNUM + oldPMP - VIPPPNUM
-            '        exchange = True
-            '    Else
-            '        exchange = False
-            '        Dim form As New MSG
-            '        form.head.Text = "警告"
-            '        form.msgP.Text = "付款金额不足！"
-            '        form.Show()
-            '        AC_P_I.Text = ""
-            '        'Message.Msg.Text = "付款金额不足！"
-            '        'Message.Show()
-            '    End If
-
-            'End If
             Dim temp As Integer = Int(Double.Parse(VIP_M_P.Text.ToString()))
             Dim subchange As Double = System.Math.Round(Double.Parse(VIP_M_P.Text.ToString()) - temp, 2) '记录需要交费中的零钱
             'MsgBox(Double.Parse(VIP_M_P.Text.ToString()) - temp)
@@ -83,17 +57,25 @@ Public Class balance
                 If subchange - submoney >= 0 And Double.Parse(Pack_M.Text) >= (subchange - submoney) Then
                     subchange -= submoney
                     Pack_M.Text = Double.Parse(Pack_M.Text) - subchange
+
                     exchange = True
+                    Exit Function
                 ElseIf subchange > 0.5 And Double.Parse(Pack_M.Text) >= subchange - 0.5 And Double.Parse(AC_P_I.Text) - temp >= 0.5 Then
                     subchange -= 0.5
                     Pack_M.Text = Double.Parse(Pack_M.Text) - subchange
                     PA_BACK_P.Text = System.Math.Round(Double.Parse(AC_P_I.Text) - temp - 0.5, 2)
+                    exchange = True
+                    Exit Function
                 Else
                     PA_BACK_P.Text = System.Math.Round(Double.Parse(AC_P_I.Text) - Double.Parse(VIP_M_P.Text.ToString()), 2)
+                    exchange = True
+                    Exit Function
                 End If
             Else
-                exchange = False
                 Login.MsgboxNotice("付款金额不足！", "警告", False, False, Nothing, Me, False)
+                exchange = False
+                Exit Function
+
             End If
             'MsgBox(subchange)
         Else
@@ -101,9 +83,11 @@ Public Class balance
             If payback >= 0 Then
                 PA_BACK_P.Text = System.Math.Round(payback, 2)
                 exchange = True
+                Exit Function
             Else
-                exchange = False
                 Login.MsgboxNotice("付款金额不足！", "警告", False, False, Nothing, Me, False)
+                exchange = False
+                Exit Function
             End If
         End If
         exchange = False
@@ -135,8 +119,20 @@ Public Class balance
 
 
     Private Sub Yes_Click(sender As Object, e As EventArgs) Handles Yes.Click
-        If exchange() = True Then
-            writetosql()
+        If enterflag = False Then
+            If exchange() = True Then
+                enterflag = True
+            End If
+        Else
+            If flag = True Then
+                writetosql()
+            Else
+                Login.MsgboxNotice("已付款成功！", "消息", False, False, Nothing, Me, True)
+                Me.Close()
+                background.Close()
+            End If
+            'If exchange() = True Then
+            '    writetosql()
         End If
     End Sub
 
@@ -147,6 +143,7 @@ Public Class balance
         Next
         cash.ALL_M_P.Text = ""
         cash.ALL_N_P.Text = ""
+        cash.scoretable.reset()
     End Sub
 
 
@@ -178,5 +175,7 @@ Public Class balance
             PA_BACK_P.Text = "0"
         End If
     End Sub
+
+
 
 End Class

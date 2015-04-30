@@ -5,7 +5,7 @@ Public Class cash
     'Public score As Double = 0  'shop goods score
     Public lineNum As Integer = 1
     'score table
-    Dim scoreTable As New DataTable
+    Public scoreTable As New DataTable
     'Private cancleFlag(21) As Integer '用来记录上次的操作的情况
     Private Sub cash_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         'System.Windows.Forms.Control.CheckForIllegalCrossThreadCalls = False
@@ -266,10 +266,14 @@ Public Class cash
     'calculatescore
     Private Sub calculatescore()
         Dim score As Double = 0
-        For i = 0 To scoreTable.Rows.Count - 1
-            score += Math.Round(Double.Parse(scoreTable.Rows().Item(i).Item(0).ToString()), 2) * Integer.Parse(Data.Rows(i).Cells(4).Value.ToString)
-        Next
-        balance.score = score
+        Try
+            For i = 0 To scoreTable.Rows.Count - 1
+                score += Math.Round(Double.Parse(scoreTable.Rows().Item(i).Item(0).ToString()), 2) * Integer.Parse(Data.Rows(i).Cells(4).Value.ToString)
+            Next
+            balance.score = score
+        Catch ex As Exception
+            Login.write_errmsg(ex.Message, Me.Name, "calculatescore", Me)
+        End Try
     End Sub
 
 
