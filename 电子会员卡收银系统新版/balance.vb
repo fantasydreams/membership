@@ -47,7 +47,7 @@ Public Class balance
             'MsgBox(Double.Parse(VIP_M_P.Text.ToString()) - temp)
             If Double.Parse(AC_P_I.Text) >= Double.Parse(VIP_M_P.Text) Or Double.Parse(AC_P_I.Text) + subchange >= Double.Parse(VIP_M_P.Text) And Double.Parse(Pack_M.Text) >= subchange Then
                 If ((Double.Parse(AC_P_I.Text) > Double.Parse(VIP_M_P.Text)) And (Double.Parse(AC_P_I.Text) - Double.Parse(VIP_M_P.Text) < 0.5)) Then
-                    Login.MsgboxNotice("请用户以0.5元增大或减小付款金额,多的零钱无法充值", "错误", False, False, Nothing, Me, True)
+                    Login.MsgboxNotice("请用户以0.5元增大或减小付款金额,多的零钱无法充值", "错误", False, False, Nothing, Me, True, False)
                     exchange = False
                     Exit Function
                 End If
@@ -57,12 +57,13 @@ Public Class balance
                 If subchange - submoney >= 0 And Double.Parse(Pack_M.Text) >= (subchange - submoney) Then
                     subchange -= submoney
                     Pack_M.Text = Double.Parse(Pack_M.Text) - subchange
-
+                    changesubed = subchange
                     exchange = True
                     Exit Function
                 ElseIf subchange > 0.5 And Double.Parse(Pack_M.Text) >= subchange - 0.5 And Double.Parse(AC_P_I.Text) - temp >= 0.5 Then
                     subchange -= 0.5
                     Pack_M.Text = Double.Parse(Pack_M.Text) - subchange
+                    changesubed = subchange
                     PA_BACK_P.Text = System.Math.Round(Double.Parse(AC_P_I.Text) - temp - 0.5, 2)
                     exchange = True
                     Exit Function
@@ -72,7 +73,7 @@ Public Class balance
                     Exit Function
                 End If
             Else
-                Login.MsgboxNotice("付款金额不足！", "警告", False, False, Nothing, Me, False)
+                Login.MsgboxNotice("付款金额不足！", "警告", False, False, Nothing, Me, False, False)
                 exchange = False
                 Exit Function
 
@@ -85,7 +86,7 @@ Public Class balance
                 exchange = True
                 Exit Function
             Else
-                Login.MsgboxNotice("付款金额不足！", "警告", False, False, Nothing, Me, False)
+                Login.MsgboxNotice("付款金额不足！", "警告", False, False, Nothing, Me, False, False)
                 exchange = False
                 Exit Function
             End If
@@ -106,7 +107,7 @@ Public Class balance
                 'msgform.Text = "提示"
                 'msgform.msgP.Text = "已付款成功"
                 'msgform.Show()
-                Login.MsgboxNotice("已付款成功", "提示", False, False, Nothing, Me, True)
+                Login.MsgboxNotice("已付款成功" + vbCrLf + "扣除零钱：" + changesubed.ToString() + "元" + vbCrLf + "找回：" + PA_BACK_P.Text + "元", "提示", False, False, Nothing, Me, True, True)
                 'subStock()
                 destory()
                 Me.Close()
@@ -127,7 +128,7 @@ Public Class balance
             If flag = True Then
                 writetosql()
             Else
-                Login.MsgboxNotice("已付款成功！", "消息", False, False, Nothing, Me, True)
+                Login.MsgboxNotice("已付款成功！", "消息", False, False, Nothing, Me, True, False)
                 Me.Close()
                 background.Close()
             End If

@@ -222,7 +222,7 @@ Public Class Login
             'form.head.Text = "登录失败"
             'form.msgP.Text = "请检查你的用户名密码"
             'form.Show()
-            MsgboxNotice("请检查你的用户名密码", "登录失败", False, False, Nothing, Me, True)
+            MsgboxNotice("请检查你的用户名密码", "登录失败", False, False, Nothing, Me, True, False)
         End If
     End Sub
 
@@ -351,7 +351,7 @@ Public Class Login
     End Sub
 
     Private Sub logo_Click(sender As Object, e As EventArgs) Handles logo.Click
-        If MsgboxNotice("继续以重新设置店铺ID及名称", "提示", True, True, "取消", Me, True) = DialogResult.OK Then
+        If MsgboxNotice("继续以重新设置店铺ID及名称", "提示", True, True, "取消", Me, True, False) = DialogResult.OK Then
             shopreset = True
             Dim reset As New fristrun
             reset.notice.Text = "您好，请重新选择店铺或者输入店铺编号："
@@ -359,7 +359,7 @@ Public Class Login
         End If
     End Sub
 
-    Public Function MsgboxNotice(ByVal msgp As String, ByVal head As String, ByVal No_B_visible As Boolean, ByVal Yes_B_visible As Boolean, ByVal canceltext As String, e As Form, ByVal info As Boolean)
+    Public Function MsgboxNotice(ByVal msgp As String, ByVal head As String, ByVal No_B_visible As Boolean, ByVal Yes_B_visible As Boolean, ByVal canceltext As String, e As Form, ByVal info As Boolean, ByVal factoy As Boolean)
         Dim formmsg As New MSG
         formmsg.yes.Visible = Yes_B_visible
         formmsg.yes_button.Visible = Yes_B_visible
@@ -377,6 +377,10 @@ Public Class Login
             formmsg.warn.Image = Image.FromFile(".\source\info.png")
         End If
 
+        If factoy Then
+            formmsg.msgP.TextAlign = ContentAlignment.MiddleLeft
+        End If
+
         'MsgBox(formmsg.yes.Location.X & "   " & formmsg.yes.Location.Y)
         MsgboxNotice = formmsg.ShowDialog(e)
 
@@ -384,7 +388,7 @@ Public Class Login
 
     '向文件写错误日志
     Public Sub write_errmsg(ByVal errmsg As String, ByVal window As String, ByVal func As String, e As Object)
-        MsgboxNotice(errmsg, "发生了一个错误", False, True, Nothing, e, False)
+        MsgboxNotice(errmsg, "发生了一个错误", False, True, Nothing, e, False, False)
         Dim time As String = Format(Now, "yyyy_MM_dd hh:mm:ss") '获得系统时间
         If IO.File.Exists(".\logs\exception.log") Then
         Else

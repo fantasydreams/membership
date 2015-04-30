@@ -98,7 +98,7 @@ Public Class cash
     End Sub
 
     Private Sub Esc_Click(sender As Object, e As EventArgs) Handles Esc.Click
-        If Login.MsgboxNotice("按下enter退出系统，esc返回...", "即将退出系统", True, True, "取消", Me, True) = DialogResult.OK Then
+        If Login.MsgboxNotice("按下enter退出系统，esc返回...", "即将退出系统", True, True, "取消", Me, True, False) = DialogResult.OK Then
             Login.sqliteconn.Close()
             End '关闭程序
         End If
@@ -248,7 +248,7 @@ Public Class cash
                     'form.head.Text = "提示"
                     'form.msgP.Text = "仓库不存在此商品"
                     'form.Show()
-                    Login.MsgboxNotice("仓库不存在此商品", "提示", False, False, Nothing, Me, True)
+                    Login.MsgboxNotice("仓库不存在此商品", "提示", False, False, Nothing, Me, True, False)
                     ID_P_A_I.Text = ""
                 End If
                 If flag = True Then
@@ -436,7 +436,7 @@ Public Class cash
     End Sub
 
     Private Sub about_Click(sender As Object, e As EventArgs) Handles about.Click
-        If Login.MsgboxNotice("版本：1.0" + vbCrLf + "2015年5月更新。", "版本信息", True, True, "检查更新", Me, True) = DialogResult.Cancel Then
+        If Login.MsgboxNotice("版本：1.3" + vbCrLf + "2015年5月更新。", "版本信息", True, True, "检查更新", Me, True, False) = DialogResult.Cancel Then
             '这里加更新代码
             MsgBox("更新...")
         End If

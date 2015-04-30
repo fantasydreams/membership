@@ -177,3 +177,8 @@ no such column: stock
 2015_04_30 01:15:20:(window_cash,func_selectFromBaseData)输入数组长度大于此表中的列数。
 2015_04_30 01:16:15:(window_cash,func_selectFromBaseData)输入数组长度大于此表中的列数。
 2015_04_30 01:20:33:(window_cash,func_selectFromBaseData)无法找到列 0。
+2015_04_30 11:33:52:(window_balance,func_writetosql)未将对象引用设置到对象的实例。
+2015_05_01 12:03:31:(window_balance,func_writetosql)未将对象引用设置到对象的实例。
+2015_05_01 12:03:53:(window_balance,func_writetosql)未将对象引用设置到对象的实例。
+2015_05_01 12:07:11:(window_balance,func_writetosql)未将对象引用设置到对象的实例。
+2015_05_01 12:11:54:(window_balance,func_writetosql)未将对象引用设置到对象的实例。

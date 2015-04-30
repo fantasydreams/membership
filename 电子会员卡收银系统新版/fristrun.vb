@@ -22,7 +22,7 @@ Public Class fristrun
         Dim hostname As String = "www.myvip6.com"
         Dim IPs() As System.Net.IPAddress = Nothing
         If Not My.Computer.Network.IsAvailable Then
-            Login.MsgboxNotice("无法从服务器获取信息，请检查网络连接！", "提示", False, False, Nothing, Me, True)
+            Login.MsgboxNotice("无法从服务器获取信息，请检查网络连接！", "提示", False, False, Nothing, Me, True, False)
             Exit Sub
         End If
         Try
@@ -37,7 +37,7 @@ Public Class fristrun
                     connectflag = True
                     BeginInvoke(New eventhandler(AddressOf getshopNameandId), Nothing)
                 Else
-                    Login.MsgboxNotice("无法从服务器获取信息，请检查网络连接！", "提示", False, False, Nothing, Me, True)
+                    Login.MsgboxNotice("无法从服务器获取信息，请检查网络连接！", "提示", False, False, Nothing, Me, True, False)
                 End If
                 '    MsgBox("开")
                 'Else
@@ -106,10 +106,10 @@ Public Class fristrun
             'msgform.msgP.Text = "没有以编号为：" & shop_id_in.Text & "的超市！请检查编号是否准确。"
             'msgform.head.Text = "提示"
             'msgform.Show()
-            Login.MsgboxNotice("没有以编号为：" & shop_id_in.Text & "的超市！请检查编号是否准确。", "提示", False, False, Nothing, Me, True)
+            Login.MsgboxNotice("没有以编号为：" & shop_id_in.Text & "的超市！" + vbCrLf + "请检查编号是否准确。", "提示", False, False, Nothing, Me, True, False)
         End If
         If connectflag = False Then
-            Login.MsgboxNotice("无法获取信息，请检查网络连接！", "提示", False, False, Nothing, Me, True)
+            Login.MsgboxNotice("无法获取信息，请检查网络连接！", "提示", False, False, Nothing, Me, True, False)
         End If
        
     End Sub
@@ -146,7 +146,7 @@ Public Class fristrun
         'formmsg.no.Visible = True
         'formmsg.no_button.Visible = True
         If shop Then
-            If Login.MsgboxNotice("您的店铺ID为：" & shop_id_in.Text + vbCrLf + "您的店铺名称为：" & shop_list.Text, "消息", True, True, "重新选择", Me, True) = Windows.Forms.DialogResult.OK Then
+            If Login.MsgboxNotice("您的店铺ID为：" & shop_id_in.Text + vbCrLf + "您的店铺名称为：" & shop_list.Text, "消息", True, True, "重新选择", Me, True, True) = Windows.Forms.DialogResult.OK Then
                 Dim fsr As New StreamWriter(".\config\data.ini")  '向文件中写入配置信息
                 fsr.WriteLine(shop_id_in.Text)
                 fsr.WriteLine(shop_list.Text)

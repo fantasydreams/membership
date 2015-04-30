@@ -1,6 +1,9 @@
 ﻿Imports MySql.Data.MySqlClient
-
+Imports System.Security.Cryptography
 Public Class IDScan
+
+
+
 
     Dim sureUserInfo As Boolean = False
     Dim GetUserInfoFlag As Boolean = False
@@ -43,7 +46,7 @@ Public Class IDScan
                             'form.head.Text = "error"
                             'form.msgP.Text = "没有此会员信息！"
                             'form.Show()
-                            Login.MsgboxNotice("没有此会员信息！", "消息", False, False, Nothing, Me, True)
+                            Login.MsgboxNotice("没有此会员信息！", "消息", False, False, Nothing, Me, True, False)
                             ID_I.Text = ""
                         End If
 
@@ -117,7 +120,8 @@ Public Class IDScan
                     'form.head.Text = "提示"
                     'form.msgP.Text = "会员未完善信息，请提醒会员完善信息..."
                     'form.Show()
-                    Login.MsgboxNotice("会员未完善信息，请提醒会员完善信息...", "提示", False, False, Nothing, Me, True)
+                    balance.NumId = ID_I.Text.ToString()
+                    Login.MsgboxNotice("会员未完善信息" + vbCrLf + "请提醒会员完善信息...", "提示", False, False, Nothing, Me, True, False)
                     GetUserInfoFlag = True
                     chooseDatabase = True
                 Else
@@ -127,7 +131,7 @@ Public Class IDScan
             End If
         Catch ex As Exception
             chooseDatabase = False
-            Login.MsgboxNotice(ex.Message, "发生了一个错误", False, False, Nothing, Me, False)
+            Login.MsgboxNotice(ex.Message, "发生了一个错误", False, False, Nothing, Me, False, False)
         End Try
     End Function
 
