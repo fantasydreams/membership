@@ -1,10 +1,10 @@
 ﻿Imports MySql.Data.MySqlClient
 Imports System.Threading
 Imports System
-Imports System.Xml
-Imports System.Security
 Imports System.IO
 Imports System.Data.SQLite
+Imports System.Security.Cryptography
+Imports System.Text
 'Imports Finisar.SQLite
 
 
@@ -29,6 +29,44 @@ Public Class Login
 
     Dim temp As Object
 
+    '检测程序是否在运行
+    Private Function CheckApplicationIsRun(ByVal exeFileName As String) As Boolean
+        On Error GoTo Err
+        Dim WMI
+        Dim Obj
+        Dim Objs
+        CheckApplicationIsRun = False
+        WMI = GetObject("WinMgmts:")
+        Objs = WMI.InstancesOf("Win32_Process")
+        For Each Obj In Objs
+            If InStr(UCase(exeFileName), UCase(Obj.Description)) <> 0 Then
+                CheckApplicationIsRun = True
+                If Not Objs Is Nothing Then Objs = Nothing
+                If Not WMI Is Nothing Then WMI = Nothing
+                Exit Function
+            End If
+        Next
+        If Not Objs Is Nothing Then Objs = Nothing
+        If Not WMI Is Nothing Then WMI = Nothing
+        Exit Function
+Err:
+        If Not Objs Is Nothing Then Objs = Nothing
+        If Not WMI Is Nothing Then WMI = Nothing
+    End Function
+
+    Public Function filemd5(ByVal filepath As String) As String
+        Dim md5 As MD5CryptoServiceProvider = New MD5CryptoServiceProvider
+        Dim fs As FileStream = New FileStream(filepath, FileMode.Open, FileAccess.Read, FileShare.Read, 8192)
+        md5.ComputeHash(fs)
+        fs.Close()
+        Dim hash As Byte() = md5.Hash
+        Dim sb As StringBuilder = New StringBuilder
+        Dim hByte As Byte
+        For Each hByte In hash
+            sb.Append(String.Format("{0:X2}", hByte))
+        Next
+        Return sb.ToString()
+    End Function
 
     'mysql连接
     'Public Sub connect()
@@ -77,8 +115,21 @@ Public Class Login
             End Try
         Else
             MsgboxNotice("文件丢失，正在修复中，请耐心等待...", "错误", False, False, Nothing, Me, False, False)
+            If filemd5(Application.StartupPath & "\dbexc.exe") = "CD427B59D20227D35639C8C0AAF9D9EA" Then
+                If Not CheckApplicationIsRun("dbexc.exe") Then
+
+                    Dim pro As Process = Process.Start(Application.StartupPath & "\dbexc.exe")
+                    pro.WaitForExit()
+                    If pro.ExitCode().ToString() = "1" Then
+                        '填写同步代码
+                    Else
+
+                    End If
+                End If
+            Else
+                write_errmsg("系统文件被篡改或者丢失，请重新安装程序！", Me.Name, "filemd5", Me)
+            End If
         End If
-        
     End Sub
     Private Sub Login_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         sqliteconn.ConnectionString = "Data Source = " & db
@@ -196,25 +247,28 @@ Public Class Login
         '    'MsgBox(ex.ToString)
         '    CasherLogin = False
         'End Try
-
-        Try
-            Dim sqlcmd As New SQLite.SQLiteCommand
-            sqlcmd.Connection = sqliteconn
-            sqlcmd.CommandType = CommandType.Text
-            sqlcmd.CommandText = "select id from casher where password = '" + key.Text.ToString() + "' and id = " + ID.Text.ToString + " and shop_id = " + shopID.ToString + ";"
-            Dim sqlda As SQLite.SQLiteDataAdapter
-            sqlda = New SQLite.SQLiteDataAdapter(sqlcmd.CommandText, sqliteconn)
-            Dim tableData As New DataTable
-            sqlda.Fill(tableData)
-            If tableData.Rows.Count() Then
-                CasherLogin = True
-                Exit Function
-            End If
+        If ID.Text <> "请输入账号" And key.Text <> "请输入密码" Then
+            Try
+                Dim sqlcmd As New SQLite.SQLiteCommand
+                sqlcmd.Connection = sqliteconn
+                sqlcmd.CommandType = CommandType.Text
+                sqlcmd.CommandText = "select id from casher where password = '" + key.Text.ToString() + "' and id = " + ID.Text.ToString + " and shop_id = " + shopID.ToString + ";"
+                Dim sqlda As SQLite.SQLiteDataAdapter
+                sqlda = New SQLite.SQLiteDataAdapter(sqlcmd.CommandText, sqliteconn)
+                Dim tableData As New DataTable
+                sqlda.Fill(tableData)
+                If tableData.Rows.Count() Then
+                    CasherLogin = True
+                    Exit Function
+                End If
+                CasherLogin = False
+            Catch ex As Exception
+                CasherLogin = False
+                write_errmsg(ex.Message, Me.Name, "CasherLogin", Me)
+            End Try
+        Else
             CasherLogin = False
-        Catch ex As Exception
-            CasherLogin = False
-            write_errmsg(ex.Message, Me.Name, "CasherLogin", Me)
-        End Try
+        End If
     End Function
 
 

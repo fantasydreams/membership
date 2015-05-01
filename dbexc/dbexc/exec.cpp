@@ -9,7 +9,7 @@ bool dbexec::execute()
 {
 	if (detectfile() && createfile())//如果文件不存在，那么建立
 	{
-		connect();
+		return connect();
 	}
 	else
 		exit(0);//文件存在，退出程序
@@ -24,9 +24,11 @@ bool dbexec::connect()
 	{
 		cout << "yes" << endl;
 		if (createTable())
-			cout << "yes" << endl;
+			return true;
+		//cout << "yes" << endl;
 		else
-			cout << "false";
+			return false;
+			//cout << "false";
 	}
 	return true;
 }

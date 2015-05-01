@@ -196,3 +196,7 @@ unrecognized token: "',5);"
 2015_05_01 10:01:08:(window_Login,func_CasherLogin)SQL logic error or missing database
 no such table: casher
 2015_05_01 10:01:45:(window_Login,func_connect)unable to open database file
+2015_05_01 10:23:01:(window_Login,func_CasherLogin)SQL logic error or missing database
+no such column: 请输入账号
+2015_05_01 10:23:40:(window_Login,func_CasherLogin)SQL logic error or missing database
+no such column: 请输入账号
