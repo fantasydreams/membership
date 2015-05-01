@@ -97,26 +97,49 @@ Public Class balance
     Private Sub writetosql()
         If flag = True Then
             Try
-                Dim SC As String = score.ToString()
-                Dim Num As String = NumId.ToString()
-                Dim str As String = "update utos set balance = " + Pack_M.Text.ToString() + ", score = " + SC + " where user_id = '" + Num + "'"
-                Dim Dr As SQLite.SQLiteCommand = New SQLite.SQLiteCommand(str, Login.sqliteconn)
-                Dr.CommandType = CommandType.Text
-                Dr.ExecuteNonQuery()
+                
                 'Dim msgform As New MSG
                 'msgform.Text = "提示"
                 'msgform.msgP.Text = "已付款成功"
                 'msgform.Show()
-                Login.MsgboxNotice("已付款成功" + vbCrLf + "扣除零钱：" + changesubed.ToString() + "元" + vbCrLf + "找回：" + PA_BACK_P.Text + "元", "提示", False, False, Nothing, Me, True, True)
-                'subStock()
-                destory()
-                Me.Close()
+                If update_user_data() Then
+                    Login.MsgboxNotice("已付款成功" + vbCrLf + "扣除零钱：" + changesubed.ToString() + "元" + vbCrLf + "找回：" + PA_BACK_P.Text + "元", "提示", False, False, Nothing, Me, True, True)
+                    'subStock()
+                    destory()
+                    Me.Close()
+                Else
+                    Login.write_errmsg("未完成付款，请尝试重启收银台系统解决...", Me.Name, "writetosql", Me)
+                End If
                 background.Hide()
             Catch ex As Exception
                 Login.write_errmsg(ex.Message, Me.Name, "writetosql", Me)
             End Try
         End If
     End Sub
+
+    '更新用户零钱和总体消费以及积分
+    Private Function update_user_data() '这里的异常可能会导致数据不一致性问题
+        Try
+            Dim SC As String = score.ToString()
+            Dim Num As String = NumId.ToString()
+            Dim str As String = "insert into sync(shop_id,user_id,column,operate,value) values(" & Login.shopID.ToString() & "," & Num & ",'" & "score" & "'," & "'+'," & score & ");"
+            Dim Dr As SQLite.SQLiteCommand = New SQLite.SQLiteCommand(str, Login.sqliteconn)
+            Dr.CommandType = CommandType.Text
+            Dr.ExecuteNonQuery()
+            str = "insert into sync(shop_id,user_id,column,operate,value) values(" & Login.shopID.ToString() & "," & Num & ",'" & "totalspend" & "'," & "'+'," & VIP_M_P.Text.ToString() & ");"
+            Dr = New SQLite.SQLiteCommand(str, Login.sqliteconn)
+            Dr.ExecuteNonQuery()
+            If Not changesubed = 0 Then
+                str = "insert into sync(shop_id,user_id,column,operate,value) values(" & Login.shopID.ToString() & "," & Num & ",'" & "balance" & "'," & "'-'," & changesubed.ToString() & ");"
+                Dr = New SQLite.SQLiteCommand(str, Login.sqliteconn)
+                Dr.ExecuteNonQuery()
+            End If
+            update_user_data = True
+        Catch ex As Exception
+            Login.write_errmsg(ex.Message, Me.Name, "update_user_data", Me)
+            update_user_data = False
+        End Try
+    End Function
 
 
     Private Sub Yes_Click(sender As Object, e As EventArgs) Handles Yes.Click

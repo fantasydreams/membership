@@ -182,3 +182,14 @@ no such column: stock
 2015_05_01 12:03:53:(window_balance,func_writetosql)未将对象引用设置到对象的实例。
 2015_05_01 12:07:11:(window_balance,func_writetosql)未将对象引用设置到对象的实例。
 2015_05_01 12:11:54:(window_balance,func_writetosql)未将对象引用设置到对象的实例。
+2015_05_01 04:34:48:(window_balance,func_update_user_data)从字符串“insert into sync(shop_id,user_id”到类型“Double”的转换无效。
+2015_05_01 04:41:50:(window_balance,func_update_user_data)从字符串“insert into sync(shop_id,user_id”到类型“Double”的转换无效。
+2015_05_01 04:41:51:(window_balance,func_writetosql)未完成付款，请尝试重启收银台系统解决...
+2015_05_01 04:43:43:(window_balance,func_update_user_data)SQL logic error or missing database
+unrecognized token: "',5);"
+2015_05_01 04:43:44:(window_balance,func_writetosql)未完成付款，请尝试重启收银台系统解决...
+2015_05_01 04:49:08:(window_balance,func_update_user_data)SQL logic error or missing database
+unrecognized token: "',5);"
+2015_05_01 04:49:09:(window_balance,func_writetosql)未完成付款，请尝试重启收银台系统解决...
+2015_05_01 05:29:02:(window_IDScan,func_getInfoFromDatabase)从字符串“罗胜文”到类型“Long”的转换无效。
+2015_05_01 05:29:24:(window_IDScan,func_getInfoFromDatabase)从字符串“罗胜文”到类型“Long”的转换无效。

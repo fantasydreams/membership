@@ -85,7 +85,7 @@ Public Class IDScan
 
 
     Private Function chooseDatabase()
-        Dim str As String = "select balance,score from utos where user_id = " + ID_I.Text
+        Dim str As String = "select balance from utos where user_id = " + ID_I.Text
         'Dim Dr As MySqlCommand = New MySqlCommand(str, Login.conn)
         'Dim scm As New SQLite.SQLiteCommand(str, Login.sqliteconn)
         'scm.CommandType = CommandType.Text
@@ -131,7 +131,7 @@ Public Class IDScan
             End If
         Catch ex As Exception
             chooseDatabase = False
-            Login.MsgboxNotice(ex.Message, "发生了一个错误", False, False, Nothing, Me, False, False)
+            Login.write_errmsg(ex.Message, "发生了一个错误", "chooseDatabase", Me)
         End Try
     End Function
 
@@ -164,12 +164,19 @@ Public Class IDScan
             tabledata.Reset()
             sqliteadapter.Fill(tabledata)
             If tabledata.Rows.Count Then
-                User_name.Text = tabledata.Rows.Item(0).Item(0).ToString
-                GetUserInfoFlag = True
-                Exit Sub
+                If Not tabledata.Rows.Item(0).Item(0).ToString = "" Then
+                    User_name.Text = tabledata.Rows.Item(0).Item(0).ToString
+                    GetUserInfoFlag = True
+                    Exit Sub
+                Else
+                    Login.MsgboxNotice("此会员没有完善信息！提醒会员完善信息！", "消息", False, False, Nothing, Me, True, False)
+                    GetUserInfoFlag = True
+                End If
+                
             Else
+                Login.MsgboxNotice("此会员没有完善信息！提醒会员完善信息！", "消息", False, False, Nothing, Me, True, False)
+                GetUserInfoFlag = True
                 '这里填写未找到相关会员的信息
-
                 'MsgBox("未找到相关会员！")
                 'MR.Close()
                 'str = "select id from user where id = " + ID_I.Text.ToString
