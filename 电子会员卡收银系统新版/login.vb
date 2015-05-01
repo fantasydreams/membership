@@ -65,15 +65,20 @@ Public Class Login
 
     'sqlite连接
     Private Sub connect()
-        Try
-            'sqliteConn.SetPassword("sql")
-            sqliteconn.Open()
-            Sqlconnect = True
-            CashLogin1()
-            'sqliteConn.SetPassword("sql")
-        Catch ex As Exception
-            write_errmsg(ex.Message, Me.Name, "connect", Me)
-        End Try
+        If IO.File.Exists(".\DB\data.db") Then
+            Try
+                'sqliteConn.SetPassword("sql")
+                sqliteconn.Open()
+                Sqlconnect = True
+                CashLogin1()
+                'sqliteConn.SetPassword("sql")
+            Catch ex As Exception
+                write_errmsg(ex.Message, Me.Name, "connect", Me)
+            End Try
+        Else
+            MsgboxNotice("文件丢失，正在修复中，请耐心等待...", "错误", False, False, Nothing, Me, False, False)
+        End If
+        
     End Sub
     Private Sub Login_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         sqliteconn.ConnectionString = "Data Source = " & db

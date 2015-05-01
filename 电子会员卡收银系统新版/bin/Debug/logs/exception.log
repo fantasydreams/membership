@@ -193,3 +193,6 @@ unrecognized token: "',5);"
 2015_05_01 04:49:09:(window_balance,func_writetosql)未完成付款，请尝试重启收银台系统解决...
 2015_05_01 05:29:02:(window_IDScan,func_getInfoFromDatabase)从字符串“罗胜文”到类型“Long”的转换无效。
 2015_05_01 05:29:24:(window_IDScan,func_getInfoFromDatabase)从字符串“罗胜文”到类型“Long”的转换无效。
+2015_05_01 10:01:08:(window_Login,func_CasherLogin)SQL logic error or missing database
+no such table: casher
+2015_05_01 10:01:45:(window_Login,func_connect)unable to open database file
