@@ -3,30 +3,43 @@
 #include <iostream>
 #include <fstream>
 #include <windows.h>
-//#define _UNICODE
+
 #pragma comment(lib,"sqlite3.lib")
+
+#ifndef _member_security
+#define _member_security
 
 typedef struct table
 {
 	char * name;
 	char * security_code;
-	Table * next;
+	struct table * next;
 }Table;
+
 
 class security
 {
 public:
+
 	security();
-	~security(){};
+	~security(){ deleteMemery(); };
+	bool exec();
+	static Table * head;
+	static Table * Last;
+	bool getFilesha1(char *);
 private:
-	Table * head;
-	Table * Last;
+
 	char * errmsg;
 	sqlite3 * conn;
-	bool getFilesha1(char *);
-	static int sqlite3_exec_callback(void *data, int nColumn, char **colValues, char **colNames);//callback function must be static
-	void applyMemery(char * ,char *);//形成链表
+	TCHAR * sha1;
+	
+	static int sqlite3_exec_callback(void *, int , char **, char **);//callback function must be static
+	static void applyMemery(char * ,char *);//形成链表
 	bool query();
 	bool security::connect();
-	bool detectfile();
+	bool detectfile(char *);
+	bool check();//检测
+	void deleteMemery();
 };
+
+#endif 

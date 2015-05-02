@@ -1,0 +1,21 @@
+﻿生成启动时间为 2015/5/2 10:52:24。
+     1>项目“F:\github\membership\security\security\security.vcxproj”在节点 2 上(Build 个目标)。
+     1>ClCompile:
+         D:\Program Files (x86)\Microsoft Visual Studio\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt security.cpp
+         security.cpp
+     1>d:\program files (x86)\microsoft visual studio\vc\include\fstream(543): warning C4244: “参数”: 从“__int64”转换到“long”，可能丢失数据
+                 d:\program files (x86)\microsoft visual studio\vc\include\fstream(533): 编译类 模板 成员函数“std::fpos<_Mbstatet> std::basic_filebuf<char,std::char_traits<char>>::seekoff(__int64,std::ios_base::seekdir,std::ios_base::openmode)”时
+                 d:\program files (x86)\microsoft visual studio\vc\include\fstream(904): 参见对正在编译的类 模板 实例化“std::basic_filebuf<char,std::char_traits<char>>”的引用
+                 f:\github\membership\security\security\security.cpp(113): 参见对正在编译的类 模板 实例化“std::basic_ifstream<char,std::char_traits<char>>”的引用
+     1>d:\program files (x86)\microsoft visual studio\vc\include\fstream(561): warning C4244: “参数”: 从“__int64”转换到“long”，可能丢失数据
+                 d:\program files (x86)\microsoft visual studio\vc\include\fstream(555): 编译类 模板 成员函数“std::fpos<_Mbstatet> std::basic_filebuf<char,std::char_traits<char>>::seekpos(std::fpos<_Mbstatet>,std::ios_base::openmode)”时
+       Link:
+         D:\Program Files (x86)\Microsoft Visual Studio\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"F:\github\membership\security\Debug\security.exe" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"F:\github\membership\security\Debug\security.pdb" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"F:\github\membership\security\Debug\security.lib" /MACHINE:X86 Debug\main.obj
+         Debug\security.obj
+         Debug\SHA1.obj
+         security.vcxproj -> F:\github\membership\security\Debug\security.exe
+     1>已完成生成项目“F:\github\membership\security\security\security.vcxproj”(Build 个目标)的操作。
+
+生成成功。
+
+已用时间 00:00:01.81

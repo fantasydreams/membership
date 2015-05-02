@@ -71,9 +71,7 @@ private:
 	MYSQL_RES* res = NULL;
 	MYSQL_ROW record;
 	bool conncetsql(); //连接数据库
-
 };
-
 #endif
 
 
