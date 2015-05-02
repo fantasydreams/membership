@@ -39,7 +39,7 @@ bool network::gethostip()
 	SOCKET sock = socket(AF_INET, SOCK_STREAM, 0);//建立socket  
 	if (sock == INVALID_SOCKET)
 	{
-		std::cout << "建立访问socket套接字失败!" << std::endl;
+		//std::cout << "建立访问socket套接字失败!" << std::endl;
 		return false;
 	}
 	hostent* host = gethostbyname(http);//取得主机的IP地址  

@@ -15,9 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="exception.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="unicode2utf8.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -30,11 +27,11 @@
     <ClInclude Include="sqlite3.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="sync.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="exception.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="SHA1.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
