@@ -41,9 +41,10 @@ class MysqlServer :protected  network
 public:
 	MysqlServer();
 	~MysqlServer();
-	void sync();//执行同步并创建多线程函数
+	void sync(char *);//执行同步并创建多线程函数
 private:
 	char value = 1,value1 = 1;
+	char * shop_id = NULL;
 	bool createDB();
 	TCHAR Name[100];
 	sqlite3 * conn,* conn1 = NULL;
@@ -71,10 +72,14 @@ private:
 	bool sqlconnect();
 	void uploadToMysql();//thread 1
 	bool Mysqlupdatequery(MYSQL *, char *);//用于执行没有返回值得sql语句
-	bool SqliteNoCallbackQuery(sqlite3 * ,char *);
+	bool SqliteNoCallbackQuery(sqlite3 * ,const char *);
 	void downloadToSqlite();//更新本地sqlite数据库
 	bool DownloadMysqlQuery(MYSQL *, char *);//用于执行有返回值的sql语句
-	bool NetworkIsAvliable();
+	bool DownloadMysqlQuery1(MYSQL *, char *);
+	bool NetworkIsAvliable(); //判断网络是否畅通
+	bool casherupdate(MYSQL *mysql,const MYSQL_ROW); //cash表格更新
+	bool goodsupdate(MYSQL *mysql, const MYSQL_ROW); //goods表格更新
+	bool utosupdate(MYSQL *mysql, const MYSQL_ROW);  //utos表格更新
 	friend int sqlite3_exec_callback(void *data, int nColumn, char **colValues, char **colNames);//callback function must be static or overall function
 };
 #endif

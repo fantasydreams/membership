@@ -44,7 +44,7 @@
     <ClCompile Include="network.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Sqlserver.cpp">
+    <ClCompile Include="sync.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

@@ -1,18 +1,24 @@
-﻿生成启动时间为 2015/5/3 16:14:06。
+﻿生成启动时间为 2015/5/3 23:40:15。
      1>项目“F:\github\membership\exception\exception\exception.vcxproj”在节点 2 上(Build 个目标)。
      1>ClCompile:
-         D:\Program Files (x86)\Microsoft Visual Studio\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _LIB /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt Sqlserver.cpp
-         Sqlserver.cpp
+         D:\Program Files (x86)\Microsoft Visual Studio\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _LIB /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /FR"Debug\\" /Gd /TP /analyze- /errorReport:prompt main.cpp network.cpp SHA1.cpp sync.cpp unicode2utf8.cpp
+         unicode2utf8.cpp
+         sync.cpp
+         SHA1.cpp
+         network.cpp
+         main.cpp
+         正在生成代码...
        Link:
          D:\Program Files (x86)\Microsoft Visual Studio\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"F:\github\membership\exception\Debug\exception.exe" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"F:\github\membership\exception\Debug\exception.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"F:\github\membership\exception\Debug\exception.lib" /MACHINE:X86 Debug\main.obj
          Debug\network.obj
          Debug\SHA1.obj
-         Debug\Sqlserver.obj
+         Debug\sync.obj
          Debug\unicode2utf8.obj
-     1>main.obj : warning LNK4075: 忽略“/EDITANDCONTINUE”(由于“/OPT:LBR”规范)
          exception.vcxproj -> F:\github\membership\exception\Debug\exception.exe
+       BscMake:
+         D:\Program Files (x86)\Microsoft Visual Studio\VC\bin\bscmake.exe /nologo /o"F:\github\membership\exception\Debug\exception.bsc" /n Debug\main.sbr Debug\network.sbr Debug\SHA1.sbr Debug\sync.sbr Debug\unicode2utf8.sbr
      1>已完成生成项目“F:\github\membership\exception\exception\exception.vcxproj”(Build 个目标)的操作。
 
 生成成功。
 
-已用时间 00:00:02.17
+已用时间 00:00:12.26
