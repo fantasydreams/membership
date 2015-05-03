@@ -29,7 +29,7 @@ void MysqlServer::downloadToSqlite()
 		catch (...)
 		{
 			//异常处理代码
-			while (!sqlconnect())
+			//while (!sqlconnect())
 				Sleep(6000);
 		}
 	}
@@ -37,7 +37,7 @@ void MysqlServer::downloadToSqlite()
 
 bool MysqlServer::DownloadMysqlQuery(MYSQL * mysql,char * sql)
 {
-	point:if (!(mysql_query(mysql, sql)))//执行成功
+	if (!(mysql_query(mysql, sql)))//执行成功
 	{
 		//MYSQL_RES * res = mysql_store_result(mysql);
 		//MYSQL_ROW record = mysql_fetch_row(res);
@@ -46,8 +46,9 @@ bool MysqlServer::DownloadMysqlQuery(MYSQL * mysql,char * sql)
 	}
 	else
 	{
-		Sleep(6000);//另一个线程中断会重新连接，这里进行等待就好
-		goto point;
+		//while (!sqlconnect())
+		mysql_ping(mysql);
+		Sleep(6000);
 	}
 		  return true;
 }
@@ -65,7 +66,7 @@ void MysqlServer::uploadToMysql()
 		catch (...)
 		{
 			//异常处理代码
-			while (!sqlconnect())
+			//while (!sqlconnect())
 				Sleep(6000);
 		}
 	}
@@ -92,54 +93,120 @@ MysqlServer::MysqlServer()
 	bit = 0;
 	key = NULL;
 	sha1 = NULL;
-	mysql = mysql_init(mysql);
-	mysql1 = mysql_init(mysql1);
-	while (IpAddr[0] == NULL)  //当没有连接互联网
-	{
-		Sleep(10000);//休眠10s
-		gethostip();
-		//std::cout << "休眠..." << std::endl;
-	}
 }
 
 MysqlServer::~MysqlServer()
 {
 	if (res)
 		mysql_free_result(res);  //释放查询结果
+	if (res1)
+		mysql_free_result(res1);
 	if (mysql)
 		mysql_close(mysql);		//关闭mysql连接
+	if (mysql1)
+		mysql_close(mysql1);
 	if (key)
 		delete[] key;
 	if (sha1)
 		delete[]sha1;
 }
 
-inline bool MysqlServer::conncetsql()
+bool MysqlServer::conncetsql()
 {
-	for (int i = 0; i < 8; i++)
+	while (!NetworkIsAvliable())
+		Sleep(2000);
+	if (mysql)
 	{
-		if (*(IpAddr+i))
-			if (mysql_real_connect(mysql, *IpAddr, "ming", "18883285787", "member", 3306, NULL, NULL))  //连接至数据库
-			{
-				mysql_query(mysql, "set names gbk");
-				return true;  //成功返回真
-			}
+		mysql_close(mysql);
+		mysql_free_result(res);
 	}
+		mysql = mysql_init(mysql);
+		mysql_options(mysql, MYSQL_OPT_RECONNECT, &value);
+
+		while (IpAddr[0] == NULL)  //当没有连接互联网
+		{
+			Sleep(10000);//休眠10s
+			gethostip();
+			//std::cout << "休眠..." << std::endl;
+		}
+		for (int i = 0; i < 8; i++)
+		{
+			if (*(IpAddr + i))
+				try
+				{
+					if (mysql_real_connect(mysql, *IpAddr, "ming", "18883285787", "member", 3306, NULL, NULL))  //连接至数据库
+					{
+						mysql_query(mysql, "set names gbk");
+						return true;  //成功返回真
+					}
+				}
+				catch (...)
+				{
+					return false;
+				}
+		}
 	return false;  //否则返回假
 }
 
 inline bool MysqlServer::conncetsql1()
 {
-	for (int i = 0; i < 8; i++)
+	while (!NetworkIsAvliable())
+		Sleep(2000);
+	try
 	{
-		if (*(IpAddr + i))
-			if (mysql_real_connect(mysql1, *IpAddr, "ming", "18883285787", "member", 3306, NULL, NULL))  //连接至数据库
-			{
-				mysql_query(mysql1, "set names gbk");
-				return true;  //成功返回真
-			}
+		if (mysql1)
+			mysql_close(mysql1);
+		mysql1 = mysql_init(mysql1);
+		mysql_options(mysql1, MYSQL_OPT_RECONNECT, &value1);
+		while (!NetworkIsAvliable())
+			Sleep(10000);//休眠10s
+		for (int i = 0; i < 8; i++)
+		{
+			if (*(IpAddr + i))
+				if (mysql_real_connect(mysql1, *IpAddr, "ming", "18883285787", "member", 3306, NULL, NULL))  //连接至数据库
+				{
+					mysql_query(mysql1, "set names gbk");
+					return true;  //成功返回真
+				}
+		}
+	}
+	catch (...)
+	{
+		return false;
 	}
 	return false;  //否则返回假
+}
+
+bool MysqlServer::NetworkIsAvliable()
+{
+	WORD wVersionRequested;
+	WSADATA wsaData;
+	wVersionRequested = MAKEWORD(1, 1);    //初始化Socket动态连接库,请求1.1版本的winsocket库  
+
+	err = WSAStartup(wVersionRequested, &wsaData);
+
+	if (LOBYTE(wsaData.wVersion) != 1 ||   //判断请求的winsocket是不是1.1的版本  
+		HIBYTE(wsaData.wVersion) != 1)
+	{
+		WSACleanup();          //清盘  
+		return false;                  //终止对winsocket使用  
+	}
+	//WSADATA ws;  
+	//WSAStartup(MAKEWORD(2,2),&ws);//  
+	char http[] = "www.myvip6.com";           //访问服务器域名
+	SOCKET sock = socket(AF_INET, SOCK_STREAM, 0);//建立socket  
+	if (sock == INVALID_SOCKET)
+	{
+		//std::cout << "建立访问socket套接字失败!" << std::endl;
+		return false;
+	}
+	hostent* host = gethostbyname(http);//取得主机的IP地址  
+	if (host == NULL)
+	{
+		//std::cout << "主机处于没有联网状态;" << std::endl;
+		return false;
+	}
+	return true;
 }
 
 bool MysqlServer::queryDatabase()
@@ -189,7 +256,7 @@ int sqlite3_exec_callback(void *data, int nColumn, char **colValues, char **colN
 	temp = colValues[1];
 	sql += temp + ";";
 	//std::cout << sql << std::endl;
-	if (!mysql_query(Sql.mysql, sql.c_str()))//查询成功
+	point:if (!mysql_query(Sql.mysql, sql.c_str()))//查询成功
 	{
 		Sql.res = mysql_store_result(Sql.mysql);
 		if (Sql.record1 = mysql_fetch_row(Sql.res)) //数据存在
@@ -226,8 +293,10 @@ int sqlite3_exec_callback(void *data, int nColumn, char **colValues, char **colN
 	}
 	else
 	{
-		while (!Sql.conncetsql1());
+		//while (!mysql_options(Sql.mysql, MYSQL_OPT_RECONNECT, NULL)) //尝试重新连接数据库
+		mysql_ping(Sql.mysql1);
 		Sleep(6000);//休眠6S
+		goto point;
 	}
 	return 0;
 }

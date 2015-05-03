@@ -43,6 +43,7 @@ public:
 	~MysqlServer();
 	void sync();//执行同步并创建多线程函数
 private:
+	char value = 1,value1 = 1;
 	bool createDB();
 	TCHAR Name[100];
 	sqlite3 * conn,* conn1 = NULL;
@@ -73,6 +74,7 @@ private:
 	bool SqliteNoCallbackQuery(sqlite3 * ,char *);
 	void downloadToSqlite();//更新本地sqlite数据库
 	bool DownloadMysqlQuery(MYSQL *, char *);//用于执行有返回值的sql语句
+	bool NetworkIsAvliable();
 	friend int sqlite3_exec_callback(void *data, int nColumn, char **colValues, char **colNames);//callback function must be static or overall function
 };
 #endif
