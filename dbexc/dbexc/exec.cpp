@@ -111,6 +111,13 @@ bool dbexec::createTable()
 		return false;
 	}
 
+	if (sqlite3_exec(conn, "CREATE TABLE sync_time (\
+		'lasttime'  TEXT(20) NOT NULL\
+		); ", NULL, NULL, &errmsg) != SQLITE_OK)
+	{
+		std::cout << errmsg;
+		return false;
+	}
 	return true;
 }
 //检测文件和文件夹是否存在

@@ -22,7 +22,7 @@ void MysqlServer::downloadToSqlite()
 	{
 		try
 		{
-			
+			DownloadMysqlQuery(mysql1, "select id,s_table,s_method,s_id_0,s_id_1 from refresh_log;");
 			//std::cout << "hello word!" << std::endl;
 			Sleep(5000);//完成一次提交后线程休眠5S
 		}
@@ -33,6 +33,23 @@ void MysqlServer::downloadToSqlite()
 				Sleep(6000);
 		}
 	}
+}
+
+bool MysqlServer::DownloadMysqlQuery(MYSQL * mysql,char * sql)
+{
+	point:if (!(mysql_query(mysql, sql)))//执行成功
+	{
+		//MYSQL_RES * res = mysql_store_result(mysql);
+		//MYSQL_ROW record = mysql_fetch_row(res);
+		printtest(mysql);
+		return true;
+	}
+	else
+	{
+		Sleep(6000);//另一个线程中断会重新连接，这里进行等待就好
+		goto point;
+	}
+		  return true;
 }
 
 void MysqlServer::uploadToMysql()
@@ -129,17 +146,18 @@ bool MysqlServer::queryDatabase()
 {
 	if (!(mysql_query(mysql, "select id,s_table,s_method,s_id_0,s_id_1 from refresh_log;")))//查询成功
 	{
-		res = mysql_store_result(mysql);
-		printtest();
+		printtest(mysql);
 		return true;
 	}
 	else
 		return false;
 }
 
-void MysqlServer::printtest()
+void MysqlServer::printtest(MYSQL *mysql)
 {
 	int lineNum = mysql_field_count(mysql), i = 0;
+	MYSQL_RES *res = mysql_store_result(mysql);
+	MYSQL_ROW record = NULL;// mysql_fetch_row(res);
 	while (record = mysql_fetch_row(res))
 	{
 		for (i = 0; i < lineNum; i++)
@@ -155,14 +173,14 @@ void MysqlServer::printtest()
 int sqlite3_exec_callback(void *data, int nColumn, char **colValues, char **colNames)
 {
 	//std::cout << "in";
-	std::wstring wstr;
-	std::wcout.imbue(std::locale("chs"));
-	for (int i = 0; i < nColumn; i++)
-	{
-		wstr = UTF8ToUnicode(colValues[i]);
-		std::wcout << wstr << "\t";
-	}
-	std::cout << std::endl;
+	//std::wstring wstr;
+	//std::wcout.imbue(std::locale("chs"));
+	//for (int i = 0; i < nColumn; i++)
+	//{
+	//	wstr = UTF8ToUnicode(colValues[i]);
+	//	std::wcout << wstr << "\t";
+	//}
+	//std::cout << std::endl;
 	std::string sql, temp;
 	//首先查找是否在服务器上存在相关信息
 	sql = "select user_id from utos where shop_id = ";
@@ -171,10 +189,10 @@ int sqlite3_exec_callback(void *data, int nColumn, char **colValues, char **colN
 	temp = colValues[1];
 	sql += temp + ";";
 	//std::cout << sql << std::endl;
-	if (!mysql_query(Sql.mysql1, sql.c_str()))//查询成功
+	if (!mysql_query(Sql.mysql, sql.c_str()))//查询成功
 	{
-		Sql.res1 = mysql_store_result(Sql.mysql1);
-		if (Sql.record1 = mysql_fetch_row(Sql.res1)) //数据存在
+		Sql.res = mysql_store_result(Sql.mysql);
+		if (Sql.record1 = mysql_fetch_row(Sql.res)) //数据存在
 		{
 			sql = "update utos set ";
 			temp = colValues[2];
@@ -191,7 +209,7 @@ int sqlite3_exec_callback(void *data, int nColumn, char **colValues, char **colN
 			//std::cout << sql << std::endl;
 			char buffer[512];
 			strcpy(buffer,sql.c_str());
-			if (Sql.Mysqlupdatequery(Sql.mysql1, buffer))
+			if (Sql.Mysqlupdatequery(Sql.mysql, buffer))
 			{
 				sql = "delete from sync where shop_id = ";
 				temp = colValues[0];
@@ -231,7 +249,7 @@ inline bool MysqlServer::SqliteNoCallbackQuery(sqlite3 * sqlite, char * sql)
 
 inline bool MysqlServer::Mysqlupdatequery(MYSQL * mysql, char *sql)
 {
-	if (!mysql_query(mysql1, sql))
+	if (!mysql_query(mysql, sql))
 		return true;
 	else
 		return false;
