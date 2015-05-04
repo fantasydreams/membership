@@ -4,7 +4,7 @@ extern MysqlServer Sql;
 int main(char argc,char *argv[]) //传参数
 {
 	//std::cout << argv[0] << "" << argv[1];
-	if (argv[1])//仅当传进参数才进行工作
+	if (argv[1] && argv[2])//仅当传进参数才进行工作  //第一个参数是shop_id,第二个参数是判定客户端是否第一次启动
 	{
 		//std::cout << argv[0] << "	" << argv[1];
 		Sql.sync(argv[1]);

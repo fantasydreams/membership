@@ -297,10 +297,10 @@ bool MysqlServer::DownloadMysqlQuery1(MYSQL *mysql, const char *sql)
 		chain_table<MYSQL_ROW> result;
 		while (record = mysql_fetch_row(res))
 		{
-			std::cout << record[0] << "	"
+			/*std::cout << record[0] << "	"
 				<< record[1] << "	"
 				<< record[2] << "	"
-				<< record[3] << "	" << std::endl;
+				<< record[3] << "	" << std::endl;*/
 			result.push_back(record);
 		}
 			
@@ -760,6 +760,7 @@ bool MysqlServer::connectdata()
 	{
 		if (!(sqlite3_open("./DB/data.db", &conn) != SQLITE_OK))
 		{
+			sqlite3_busy_timeout(conn, 6000);//设置busy时查询时间
 			//填写连接密码代码
 			return true;
 		}
