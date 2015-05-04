@@ -112,8 +112,8 @@ bool dbexec::createTable()
 	}
 
 	if (sqlite3_exec(conn, "CREATE TABLE sync_time (\
-		'lasttime'  TEXT(20) NOT NULL\
-		); ", NULL, NULL, &errmsg) != SQLITE_OK)
+		'shop_lasttime'  TEXT(20),\
+		'null_lasttime'  TEXT(20)); ", NULL, NULL, &errmsg) != SQLITE_OK)
 	{
 		std::cout << errmsg;
 		return false;

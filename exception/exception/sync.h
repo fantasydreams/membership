@@ -77,9 +77,12 @@ private:
 	bool DownloadMysqlQuery(MYSQL *, char *);//用于执行有返回值的sql语句
 	bool DownloadMysqlQuery1(MYSQL *, char *);
 	bool NetworkIsAvliable(); //判断网络是否畅通
-	bool casherupdate(MYSQL *mysql,const MYSQL_ROW); //cash表格更新
+	bool casherupdate(MYSQL *mysql,const MYSQL_ROW); //casher表格更新
 	bool goodsupdate(MYSQL *mysql, const MYSQL_ROW); //goods表格更新
 	bool utosupdate(MYSQL *mysql, const MYSQL_ROW);  //utos表格更新
+	//bool shopupdate(MYSQL *mysql, const MYSQL_ROW);//shop表格更新
+	bool userupdate(MYSQL *mysql, const MYSQL_ROW);  //user表格更新
+	bool userinfoupdate(MYSQL *mysql, const MYSQL_ROW);//userinfo 表格更新
 	friend int sqlite3_exec_callback(void *data, int nColumn, char **colValues, char **colNames);//callback function must be static or overall function
 };
 #endif

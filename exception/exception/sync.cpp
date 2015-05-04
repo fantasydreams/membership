@@ -27,8 +27,9 @@ void MysqlServer::downloadToSqlite()
 	{
 		try
 		{
-			DownloadMysqlQuery(mysql1, buffer);
-			DownloadMysqlQuery1(mysql1, "select s_id_0,s_table,s_method,time from refresh_log where shop_id is NULL;");
+			//先进行user 更新，不然会导致sqlite规则性失败
+			DownloadMysqlQuery1(mysql1, "select s_id_0,s_table,s_method,time from refresh_log where shop_id is NULL;");  //update the record which ship_id is null
+			DownloadMysqlQuery(mysql1, buffer);  //update have shop_id value
 			//std::cout << "hello word!" << std::endl;
 			Sleep(5000);//完成一次提交后线程休眠5S
 		}
@@ -47,17 +48,28 @@ bool MysqlServer::DownloadMysqlQuery(MYSQL * mysql,char * sql)
 	{
 		MYSQL_RES * res = mysql_store_result(mysql);
 		MYSQL_ROW record = NULL;
+		std::string time = ""; //record the last sync time
 		//std::string switchon;
 		while (record = mysql_fetch_row(res))
 		{
+			if (strcmp(record[3], time.c_str()))
+				time = record[3];  //将最新同步时间存到time变量中
 			if (!strcmp("casher", record[1]))//如果是casher表格
 				casherupdate(mysql, record);
 			if (!strcmp("goods", record[1]))//goods table
 				goodsupdate(mysql,record);
+			if (!strcmp("utos", record[1]))//utos table
+				utosupdate(mysql, record);
 		}
 		//printtest(mysql);
 		if (res)
 			mysql_free_result(res);
+
+		if (time.c_str())
+		{
+			std::string sql = "update sync_time set shop_lasttime = '" + time + "';";
+			SqliteNoCallbackQuery(conn1, sql.c_str());
+		}
 		return true;
 	}
 	else
@@ -68,15 +80,89 @@ bool MysqlServer::DownloadMysqlQuery(MYSQL * mysql,char * sql)
 	}
 		  return true;
 }
+//bool MysqlServer::shopupdate(MYSQL * mysql, MYSQL_ROW record)
+//{
+//	std::string sql,temp = record[0]; //id:shop_id,sql :sql query , temp : id  //这里的temp就是utos中的user_id
+//	std::string tmp; //存储临时信息
+//	if (!strcmp("insert", record[2]))//insert method;
+//	{
+//		sql = "insert into shop(id) values(" + temp + ")";
+//		SqliteNoCallbackQuery(conn1, sql.c_str());//执行sql语句
+//		return true;
+//	}
+//	if (!(strcmp("delete", record[2])))//delete method
+//	{  //删除本地所有有关shop_id的数据
+//		sql = "delete from shop where shop_id = " + temp + ";";
+//		SqliteNoCallbackQuery(conn1, sql.c_str());
+//		sql = "delete from casher where shop_id = " + temp + ";";
+//		SqliteNoCallbackQuery(conn1, sql.c_str());
+//		sql = "delete from goods where shop_id = " + temp + ";";
+//		SqliteNoCallbackQuery(conn1, sql.c_str());
+//		sql = "delete from utos where shop_id = " + temp + ";";
+//		SqliteNoCallbackQuery(conn1, sql.c_str());
+//		return true;
+//	}
+//	return false;
+//}
+
 bool MysqlServer::utosupdate(MYSQL *mysql,const MYSQL_ROW record)
 {
-	std::string id = this->shop_id, sql, temp = record[0]; //id:shop_id,sql :sql query , temp : id
-
+	std::string id = this->shop_id, sql, temp = record[0]; //id:shop_id,sql :sql query , temp : id  //这里的temp就是utos中的user_id
+	std::string tmp; //存储临时信息
+	if (!strcmp("insert", record[2]))	//insert method
+	{
+		sql = "select balance,usable from utos where shop_id = " + id + " and user_id = " + temp + ";";
+		if (mysql_query(mysql, sql.c_str()))//查询成功
+		{
+			MYSQL_RES * res = mysql_store_result(mysql);
+			MYSQL_ROW record = mysql_fetch_row(res);
+			if (record)//如果查询有结果
+			{
+				sql = "insert into utos(user_id,shop_id,balance,usable) values(" + id + "," + temp + ",";
+				tmp = record[0];
+				sql += tmp + ",";
+				tmp = record[1];
+				sql += tmp + ");";
+				SqliteNoCallbackQuery(conn1, sql.c_str());//执行本地sql database操作语句
+			}
+			if (res)
+				mysql_free_result(res);
+			return true;
+		}
+	}
+	if (!strcmp("delete", record[2]))//delete method
+	{
+		sql = "delete form utos where shop_id = " + id + " and user_id = " + temp + ";";
+		SqliteNoCallbackQuery(conn1, sql.c_str());
+		return true;
+	}
+	if (!strcmp("update", record[2]))//update method
+	{
+		sql = "select balance,usable from utos where shop_id = " + id + " and user_id = " + temp + ";";
+		if (mysql_query(mysql, sql.c_str()))//查询成功
+		{
+			MYSQL_RES * res = mysql_store_result(mysql);
+			MYSQL_ROW record = mysql_fetch_row(res);
+			if (record)//如果查询有结果
+			{
+				sql = "update utos set balance = ";
+				tmp = record[0];
+				sql += tmp + ", usable = ";
+				tmp = record[1];
+				sql += tmp + ";";
+				SqliteNoCallbackQuery(conn1, sql.c_str());//执行本地sql database操作语句
+			}
+			if (res)
+				mysql_free_result(res);
+			return true;
+		}
+	}
+	return false;
 }
 
 bool MysqlServer::goodsupdate(MYSQL *mysql, const MYSQL_ROW record)
 {
-	std::string id = this->shop_id , sql, temp = record[0]; //id:shop_id,sql :sql query , temp : id
+	std::string id = this->shop_id , sql, temp = record[0]; //id:shop_id,sql :sql query , temp : id  //这里的id等同于goods.code
 	if (!strcmp("update", record[2]))//update method
 	{
 		sql = "select code,name,price,score,discount,brand from goods where id = " + temp + ";";
@@ -138,20 +224,8 @@ bool MysqlServer::goodsupdate(MYSQL *mysql, const MYSQL_ROW record)
 		}
 		if (!strcmp("delete", record[2]))//delete method
 		{
-			sql = "select code from goods where id = " + temp + ";";
-			if (mysql_query(mysql, sql.c_str()))
-			{
-				MYSQL_RES * res = mysql_store_result(mysql);
-				MYSQL_ROW record = mysql_fetch_row(res);//因为只有一个结果
-				if (record)
-				{
-					std::string code = record[0];
-					sql = "delete from goods where shop_id = " + id + " and code = '" + code + "';";
-					SqliteNoCallbackQuery(conn1, sql.c_str());//执行成功
-				}
-				if (res)
-					mysql_free_result(res);
-			}
+			sql = "delete from goods where shop_id = " + id + " and code = '" + temp + "';";
+			SqliteNoCallbackQuery(conn1, sql.c_str());//执行成功
 			return true;
 		}
 	}
@@ -207,16 +281,31 @@ bool MysqlServer::casherupdate(MYSQL *mysql,MYSQL_ROW record)
 	return false;
 }
 
-//user conn1 and mysql1 connection
+//user conn1 and mysql1 connection    //
 bool MysqlServer::DownloadMysqlQuery1(MYSQL *mysql, char *sql)
 {
 	if (!(mysql_query(mysql, sql)))//执行成功
 	{
 		MYSQL_RES * res = mysql_store_result(mysql);
-		MYSQL_ROW record = mysql_fetch_row(res);
+		MYSQL_ROW record = NULL;// mysql_fetch_row(res);
 		//printtest(mysql);
+		std::string time = "";
+		while (record = mysql_fetch_row(res))
+		{
+			if (record[3], time.c_str())
+				time = record[3];
+			if (!strcmp("user", record[1])) //user table
+				userupdate(mysql, record);
+			if (!strcmp("userinfo", record[1]))//userinfo table
+				userinfoupdate(mysql, record);
+		}
 		if (res)
 			mysql_free_result(res);
+		if (time.c_str())
+		{
+			std::string sql = "update sync_time set null_lasttime = '" + time + "';";
+			SqliteNoCallbackQuery(conn1, sql.c_str());
+		}
 		return true;
 	}
 	else
@@ -226,6 +315,69 @@ bool MysqlServer::DownloadMysqlQuery1(MYSQL *mysql, char *sql)
 		Sleep(6000);
 	}
 	return true;
+}
+bool MysqlServer::userinfoupdate(MYSQL *mysql, const MYSQL_ROW record)
+{
+	std::string sql,temp = record[0]; //temp is user_id
+	if (!strcmp("delete",record[2]))//delete method
+	{
+		sql = "delete from userinfo where user_id = " + temp + ";";
+		SqliteNoCallbackQuery(conn1, sql.c_str());
+		return true;
+	}
+	if (!strcmp("insert", record[2]))//insert method
+	{
+		sql = "select name from userinfo where user_id = " + temp + ";";
+		if (!mysql_query(mysql, sql.c_str()))
+		{
+			MYSQL_RES * res = mysql_store_result(mysql);
+			MYSQL_ROW record = mysql_fetch_row(res);
+			sql = "insert into userinfo(user_id,name) values(" + temp + "," + record[0] + ");";//record[0] here represent user_id name instead of user_id
+			SqliteNoCallbackQuery(conn1, sql.c_str());
+			if (res)
+				mysql_free_result(res);
+			return true;
+		}
+		return false;
+	}
+	if (!strcmp("update", record[2]))//update method
+	{
+		sql = "select name from userinfo where user_id = " + temp + ";";
+		if (!mysql_query(mysql, sql.c_str()))
+		{
+			std::string tmp;
+			MYSQL_RES * res = mysql_store_result(mysql);
+			MYSQL_ROW record = mysql_fetch_row(res);
+			sql = "update userinfo set name = '";
+			tmp = record[0];//record[0] here represent user_id name instead of user_id
+			sql += tmp + "';";
+			SqliteNoCallbackQuery(conn1, sql.c_str());
+			if (res)
+				mysql_free_result(res);
+			return true;
+		}
+		return false;
+	}
+	return false;
+}
+
+//user table update
+bool MysqlServer::userupdate(MYSQL *mysql, const MYSQL_ROW record)
+{
+	std::string sql ,temp = record[0];//temp is user_id
+	if (!strcmp("delete", record[2]))//delete method
+	{
+		sql = "delete from user where id = " + temp + ";";
+		SqliteNoCallbackQuery(conn1, sql.c_str());
+		return true;
+	}
+	if (!strcmp("insert", record[3]))//insert method
+	{
+		sql = "insert into user(id) values(" + temp + ")";
+		SqliteNoCallbackQuery(conn1, sql.c_str());
+		return true;
+	}
+	return false;
 }
 
 //use conn and mysql connection
