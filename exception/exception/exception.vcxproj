@@ -82,6 +82,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="chain_template.h" />
     <ClInclude Include="sync.h" />
     <ClInclude Include="network.h" />
     <ClInclude Include="SHA1.h" />
