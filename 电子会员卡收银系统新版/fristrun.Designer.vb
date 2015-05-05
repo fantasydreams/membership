@@ -129,6 +129,7 @@ Partial Class fristrun
         Me.Controls.Add(Me.close_window)
         Me.DoubleBuffered = True
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None
+        Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
         Me.KeyPreview = True
         Me.Name = "fristrun"
         Me.ShowInTaskbar = False

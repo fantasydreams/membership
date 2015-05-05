@@ -378,6 +378,7 @@ Partial Class balance
         Me.Controls.Add(Me.column)
         Me.DoubleBuffered = True
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None
+        Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
         Me.KeyPreview = True
         Me.Name = "balance"
         Me.ShowInTaskbar = False

@@ -22,6 +22,7 @@ Partial Class background
     '不要使用代码编辑器修改它。
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
+        Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(background))
         Me.SuspendLayout()
         '
         'background
@@ -32,6 +33,7 @@ Partial Class background
         Me.ClientSize = New System.Drawing.Size(1366, 768)
         Me.DoubleBuffered = True
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None
+        Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
         Me.Name = "background"
         Me.Opacity = 0.5R
         Me.Text = "background"
