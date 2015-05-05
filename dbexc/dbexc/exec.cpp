@@ -35,12 +35,18 @@ bool dbexec::connect()
 //创建数据库表格
 bool dbexec::createTable()
 {
-	if (sqlite3_exec(conn, "CREATE TABLE shop('id'  INTEGER NOT NULL,'name'  TEXT(20) NOT NULL,PRIMARY KEY('id'));", NULL, NULL, &errmsg) != SQLITE_OK)
+	if (sqlite3_exec(conn, "CREATE TABLE shop\
+							('id'  INTEGER NOT NULL,\
+							'name'  TEXT(20) NOT NULL,\
+							PRIMARY KEY('id'));", NULL, NULL, &errmsg) != SQLITE_OK)
 	{
 		std::cout << errmsg;
 		return false;
 	}
-	if (sqlite3_exec(conn, "CREATE TABLE casher('id'  INTEGER NOT NULL,'shop_id'  INTEGER NOT NULL,'password'  TEXT(20) NOT NULL,PRIMARY KEY('id' ASC, 'shop_id' ASC),FOREIGN KEY('shop_id') REFERENCES 'shop' ('id')	); ",NULL,NULL,&errmsg))
+	if (sqlite3_exec(conn, "CREATE TABLE casher\
+						   ('id'  INTEGER NOT NULL,'shop_id'  INTEGER NOT NULL,\
+						   'password'  TEXT(20) NOT NULL,PRIMARY KEY('id' ASC, 'shop_id' ASC),\
+						   FOREIGN KEY('shop_id') REFERENCES 'shop' ('id')	); ",NULL,NULL,&errmsg))
 	{
 		std::cout << errmsg;
 		return false;
@@ -89,30 +95,39 @@ bool dbexec::createTable()
 		return false;
 	}
 	if (sqlite3_exec(conn, "CREATE TABLE utos (\
-		'user_id'  INTEGER NOT NULL,\
-		'shop_id'  INTEGER NOT NULL,\
-		'balance'  REAL(5, 2) NOT NULL DEFAULT 0,\
-		'usable'  INTEGER NOT NULL DEFAULT 1,\
-		PRIMARY KEY('user_id' ASC),\
-		CONSTRAINT 'fkey0' FOREIGN KEY('user_id') REFERENCES 'user' ('id'),\
-		CONSTRAINT 'fkey1' FOREIGN KEY('shop_id') REFERENCES 'shop' ('id'));\
-		CREATE TRIGGER 'utostrigger' after insert on 'utos' for each row begin insert into utos_insert(user_id, shop_id) values(new.user_id, new.shop_id);\
-		end; ",NULL,NULL,&errmsg)!=SQLITE_OK)
+							'user_id'  INTEGER NOT NULL,\
+							'shop_id'  INTEGER NOT NULL,\
+							'balance'  REAL(5, 2) NOT NULL DEFAULT 0,\
+							'usable'  INTEGER NOT NULL DEFAULT 1,\
+							PRIMARY KEY('user_id' ASC),\
+							CONSTRAINT 'fkey0' FOREIGN KEY('user_id') REFERENCES 'user' ('id'),\
+							CONSTRAINT 'fkey1' FOREIGN KEY('shop_id') REFERENCES 'shop' ('id'));\
+							CREATE TRIGGER 'utostrigger' after insert on 'utos' for each row\
+							begin insert into utos_insert(user_id, shop_id) values(new.user_id, new.shop_id);\
+							end; ",NULL,NULL,&errmsg)!=SQLITE_OK)
 	{
 		std::cout << errmsg;
 		return false;
 	}
 	if (sqlite3_exec(conn, "CREATE TABLE utos_insert(\
-		'user_id'  INTEGER NOT NULL,\
-		'shop_id'  INTEGER NOT NULL\
-		); ", NULL, NULL, &errmsg) != SQLITE_OK)
+							'user_id'  INTEGER NOT NULL,\
+							'shop_id'  INTEGER NOT NULL\
+							); ", NULL, NULL, &errmsg) != SQLITE_OK)
 	{
 		std::cout << errmsg;
 		return false;
 	}
-	if (sqlite3_exec(conn, "CREATE TABLE sync_time (\
-		'shop_lasttime'  TEXT(20),\
-		'null_lasttime'  TEXT(20)); ", NULL, NULL, &errmsg) != SQLITE_OK)
+	if (sqlite3_exec(conn, "CREATE TABLE 'sync_time' (\
+							'id'  INTEGER NOT NULL,\
+							'shop_lasttime'  TEXT(20),\
+							'null_lasttime'  TEXT(20),\
+							PRIMARY KEY('id')\
+							); ", NULL, NULL, &errmsg) != SQLITE_OK)
+	{
+		std::cout << errmsg;
+		return false;
+	}
+	if (sqlite3_exec(conn, "insert into sync_time(id)values(1)",NULL,NULL,&errmsg) != SQLITE_OK)
 	{
 		std::cout << errmsg;
 		return false;

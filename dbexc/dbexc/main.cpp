@@ -2,7 +2,7 @@
 
 
 #include "exec.h"
-//#pragma comment( linker, "/subsystem:\"windows\" /entry:\"mainCRTStartup\"" )//不显示控制台
+#pragma comment( linker, "/subsystem:\"windows\" /entry:\"mainCRTStartup\"" )//不显示控制台
 using namespace std;
 
 
@@ -12,12 +12,15 @@ int main()
 	if (exec.execute())
 	{
 		//std::cout << "yes";
+		//system("pause");
 		return true;
 	}
 	else
 	{
 		//std::cout << "no";
+		//system("pause");
 		return false;
 	}
+	
 }
 
