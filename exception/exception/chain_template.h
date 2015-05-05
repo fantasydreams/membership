@@ -5,7 +5,7 @@ powered by Carol(luoshengwen)
 date : 2015 - 5 - 4 
 
 =====================================================*/
-#include <iostream>
+//#include <iostream>
 #ifndef _chain_template //
 #define _chain_template
 template <typename T>struct element
@@ -60,10 +60,10 @@ template <class type> void chain_table<type>::push_back(type ele)
 //得到当前元素值
 template<class type>type chain_table<type>::getelement()
 {
-	if (last)
+	if (record)
 	{
-		type ele = last->ele;
-		last = last->next;
+		type ele = record->ele;
+		record = record->next;
 		return ele;
 	}
 	else

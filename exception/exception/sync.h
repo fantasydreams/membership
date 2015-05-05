@@ -1,6 +1,14 @@
+/*=====================================================
+
+powered by Carol(luoshengwen)
+date : 2015 - 5 - 4
+
+=====================================================*/
 #ifndef SQLITE_HAS_CODEC   
 #define SQLITE_HAS_CODEC //define HAS_CODE
 #endif
+
+#define utf8
 
 #include "include\mysql.h"
 #include "network.h"
@@ -45,7 +53,7 @@ class MysqlServer :protected  network
 public:
 	MysqlServer();
 	~MysqlServer();
-	void sync(const char *);//执行同步并创建多线程函数
+	void sync(const char *,const char *);//执行同步并创建多线程函数
 private:
 	char value = 1,value1 = 1;
 	const char * shop_id = NULL;
@@ -88,6 +96,7 @@ private:
 	//bool shopupdate(MYSQL *mysql, const MYSQL_ROW);//shop表格更新
 	bool userupdate(MYSQL *mysql, const MYSQL_ROW);  //user表格更新
 	bool userinfoupdate(MYSQL *mysql, const MYSQL_ROW);//userinfo 表格更新
+	bool fristrun(); //第一次运行程序，同步数据
 	friend int sqlite3_exec_callback(void *data, int nColumn, char **colValues, char **colNames);//callback function must be static or overall function
 	friend int sqlite3_exec_callback_utos(void *data, int nColumn, char **colValues, char **colNames);
 };

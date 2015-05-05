@@ -46,15 +46,15 @@ bool dbexec::createTable()
 		return false;
 	}
 	if (sqlite3_exec(conn, "CREATE TABLE goods (\
-						   	'shop_id'  INTEGER NOT NULL,\
+						   	'goods_id'  TEXT(30) NOT NULL,\
+							'shop_id'  INTEGER NOT NULL,\
 							'code'  TEXT(50) NOT NULL,\
 							'name'  TEXT(30) NOT NULL,\
 							'price'  REAL(6, 2) NOT NULL,\
 							'score'  INTEGER NOT NULL,\
 							'discount'  REAL(3, 2) NOT NULL,\
 							'brand'  TEXT(20) NOT NULL,\
-							PRIMARY KEY('shop_id', 'code')\
-							); ", NULL, NULL, &errmsg) != SQLITE_OK)
+							PRIMARY KEY('goods_id', 'shop_id' ASC, 'code' ASC)); ", NULL, NULL, &errmsg) != SQLITE_OK)
 	{
 		std::cout << errmsg;
 		return false;
@@ -110,7 +110,6 @@ bool dbexec::createTable()
 		std::cout << errmsg;
 		return false;
 	}
-
 	if (sqlite3_exec(conn, "CREATE TABLE sync_time (\
 		'shop_lasttime'  TEXT(20),\
 		'null_lasttime'  TEXT(20)); ", NULL, NULL, &errmsg) != SQLITE_OK)
