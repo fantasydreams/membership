@@ -35,6 +35,7 @@ bool dbexec::connect()
 //创建数据库表格
 bool dbexec::createTable()
 {
+	//shop table
 	if (sqlite3_exec(conn, "CREATE TABLE shop\
 							('id'  INTEGER NOT NULL,\
 							'name'  TEXT(20) NOT NULL,\
@@ -43,6 +44,7 @@ bool dbexec::createTable()
 		std::cout << errmsg;
 		return false;
 	}
+	//casher table
 	if (sqlite3_exec(conn, "CREATE TABLE casher\
 						   ('id'  INTEGER NOT NULL,'shop_id'  INTEGER NOT NULL,\
 						   'password'  TEXT(20) NOT NULL,PRIMARY KEY('id' ASC, 'shop_id' ASC),\
@@ -51,6 +53,7 @@ bool dbexec::createTable()
 		std::cout << errmsg;
 		return false;
 	}
+	//goods table
 	if (sqlite3_exec(conn, "CREATE TABLE goods (\
 						   	'goods_id'  TEXT(30) NOT NULL,\
 							'shop_id'  INTEGER NOT NULL,\
@@ -65,6 +68,7 @@ bool dbexec::createTable()
 		std::cout << errmsg;
 		return false;
 	}
+	//sync table
 	if (sqlite3_exec(conn, "CREATE TABLE sync (\
 						   	'shop_id'  INTEGER NOT NULL,\
 							'user_id'  INTEGER NOT NULL,\
@@ -76,6 +80,7 @@ bool dbexec::createTable()
 		std::cout << errmsg;
 		return false;
 	}
+	//user table
 	if (sqlite3_exec(conn, "CREATE TABLE 'user' (\
 						   	'id'  INTEGER NOT NULL,\
 							PRIMARY KEY('id')\
@@ -84,6 +89,7 @@ bool dbexec::createTable()
 		std::cout << errmsg;
 		return false;
 	}
+	//userinfo table
 	if (sqlite3_exec(conn, "CREATE TABLE userinfo (\
 							'user_id'  INTEGER NOT NULL,\
 							'name'  TEXT(16) NOT NULL,\
@@ -94,21 +100,20 @@ bool dbexec::createTable()
 		std::cout << errmsg;
 		return false;
 	}
+	//utos table
 	if (sqlite3_exec(conn, "CREATE TABLE utos (\
 							'user_id'  INTEGER NOT NULL,\
 							'shop_id'  INTEGER NOT NULL,\
 							'balance'  REAL(5, 2) NOT NULL DEFAULT 0,\
 							'usable'  INTEGER NOT NULL DEFAULT 1,\
-							PRIMARY KEY('user_id' ASC),\
+							PRIMARY KEY('user_id' ASC, 'shop_id'),\
 							CONSTRAINT 'fkey0' FOREIGN KEY('user_id') REFERENCES 'user' ('id'),\
-							CONSTRAINT 'fkey1' FOREIGN KEY('shop_id') REFERENCES 'shop' ('id'));\
-							CREATE TRIGGER 'utostrigger' after insert on 'utos' for each row\
-							begin insert into utos_insert(user_id, shop_id) values(new.user_id, new.shop_id);\
-							end; ",NULL,NULL,&errmsg)!=SQLITE_OK)
+							CONSTRAINT 'fkey1' FOREIGN KEY('shop_id') REFERENCES 'shop' ('id'));",NULL,NULL,&errmsg)!=SQLITE_OK)
 	{
 		std::cout << errmsg;
 		return false;
 	}
+	//utos_insert table
 	if (sqlite3_exec(conn, "CREATE TABLE utos_insert(\
 							'user_id'  INTEGER NOT NULL,\
 							'shop_id'  INTEGER NOT NULL\
@@ -117,6 +122,7 @@ bool dbexec::createTable()
 		std::cout << errmsg;
 		return false;
 	}
+	//sync_time table
 	if (sqlite3_exec(conn, "CREATE TABLE 'sync_time' (\
 							'id'  INTEGER NOT NULL,\
 							'shop_lasttime'  TEXT(20),\
@@ -127,7 +133,22 @@ bool dbexec::createTable()
 		std::cout << errmsg;
 		return false;
 	}
+	//frist_run table
+	if (sqlite3_exec(conn, "CREATE TABLE frist_run (\
+						   	'id'  INTEGER NOT NULL,\
+							'frist_result'  INTEGER,\
+							PRIMARY KEY('id')); ", NULL, NULL, &errmsg))
+	{
+		std::cout << errmsg;
+		return false;
+	}
+	//insert a record into sync_time table
 	if (sqlite3_exec(conn, "insert into sync_time(id)values(1)",NULL,NULL,&errmsg) != SQLITE_OK)
+	{
+		std::cout << errmsg;
+		return false;
+	}
+	if (sqlite3_exec(conn, "insert into frist_run(id)values(1)", NULL, NULL, &errmsg) != SQLITE_OK)
 	{
 		std::cout << errmsg;
 		return false;

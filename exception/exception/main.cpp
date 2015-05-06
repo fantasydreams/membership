@@ -20,7 +20,7 @@ int main(char argc,char *argv[]) //传参数
 		while (true)
 			Sleep(100000000);//等同让主线程一直休眠
 	}
-	Sql.sync("101");
+	Sql.sync("101","0");
 	while (true)
 		Sleep(100000000);//等同让主线程一直休眠
 	return 0;

@@ -97,6 +97,12 @@ private:
 	bool userupdate(MYSQL *mysql, const MYSQL_ROW);  //user表格更新
 	bool userinfoupdate(MYSQL *mysql, const MYSQL_ROW);//userinfo 表格更新
 	bool fristrun(); //第一次运行程序，同步数据
+	bool sqliteBeginTransaction();//sqlite 开始执行事务
+	bool sqliteCommitTransaction();//sqlite提交事务
+	bool sqliteRollbackTransaction();//sqlite回滚事务
+	bool mysqlBeginTransaction(MYSQL *);//mysql开始执行事务
+	bool mysqlCommitTransaction(MYSQL *);//mysql 提交事务
+	bool mysalRollbackTransaction(MYSQL *);//mysql 回滚事务
 	friend int sqlite3_exec_callback(void *data, int nColumn, char **colValues, char **colNames);//callback function must be static or overall function
 	friend int sqlite3_exec_callback_utos(void *data, int nColumn, char **colValues, char **colNames);
 };

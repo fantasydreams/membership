@@ -29,6 +29,17 @@ Public Class Login
 
     Dim temp As Object
 
+    Dim win_form As Form
+    Dim win_form_laod As Boolean = False
+
+    '收银窗口预加载
+    Delegate Sub w_load()
+    Private Sub w_f_load()
+        Dim cash_form As New cash
+        cash_form.Hide()
+        win_form = cash_form
+    End Sub
+
     '检测程序是否在运行
     Private Function CheckApplicationIsRun(ByVal exeFileName As String) As Boolean
         On Error GoTo Err
@@ -131,7 +142,9 @@ Err:
             End If
         End If
     End Sub
-    Private Sub Login_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+
+    Delegate Sub win_load()
+    Private Sub windows_load()
         sqliteconn.ConnectionString = "Data Source = " & db
         Me.BackColor = Color.FromArgb(&HFFFAFAFA)
         'Me.BackColor = Color.Blue
@@ -148,8 +161,10 @@ Err:
         sqliteconn.ConnectionString = "Data Source= " & db
         GHWindowSize()
         shopGet()  'getshop info
+    End Sub
+    Private Sub Login_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         'cash.Show()
-
+        BeginInvoke(New win_load(AddressOf windows_load))
         'MsgBox(Int(Double.Parse("5.6")))
     End Sub
 
@@ -168,11 +183,26 @@ Err:
         End If
     End Sub
 
+    Private Sub ID_text_changed(sender As Object, e As KeyEventArgs) Handles ID.KeyDown
+        If ID.Text = "请输入账号" Then
+            ID.Text = ""
+        End If
+    End Sub
+
+    Private Sub id_getfocus(sender As Object, e As EventArgs) Handles ID.GotFocus
+        If ID.Text = "请输入账号" Then
+            ID.Text = ""
+        End If
+    End Sub
+
     Private Sub ID_TextChange(sender As Object, e As EventArgs) Handles ID.LostFocus
         If ID.Text = "" Then
             ID.Text = "请输入账号"
         End If
-
+        If Not win_form_laod Then
+            win_form_laod = True
+            BeginInvoke(New win_load(AddressOf w_f_load))
+        End If
     End Sub
 
     Private Sub key_MouseCaptureChanged(sender As Object, e As EventArgs) Handles key.MouseCaptureChanged
@@ -200,7 +230,6 @@ Err:
     Private Sub btnThread_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles loginButton.Click
         invo()
     End Sub
-
 
     'invo
     Private Sub invo()
@@ -275,7 +304,7 @@ Err:
     Private Sub CashLogin1()
         If CasherLogin() = True Then
             Me.Hide()
-            cash.Show()
+            win_form.Show()
         Else  'when login error
             'Dim form As New MSG
             'form.head.Text = "登录失败"
@@ -414,7 +443,7 @@ Err:
             shopreset = True
             Dim reset As New fristrun
             reset.notice.Text = "您好，请重新选择店铺或者输入店铺编号："
-            reset.Show()
+            reset.Show(Me)
         End If
     End Sub
 
@@ -441,8 +470,7 @@ Err:
         End If
 
         'MsgBox(formmsg.yes.Location.X & "   " & formmsg.yes.Location.Y)
-        MsgboxNotice = formmsg.ShowDialog(e)
-
+        Return formmsg.ShowDialog(e)
     End Function
 
     '向文件写错误日志
@@ -460,4 +488,5 @@ Err:
         fsw.WriteLine(time & ":(window_" & window & ",func_" & func & ")" & errmsg)
         fsw.Close()
     End Sub
+
 End Class

@@ -7,8 +7,11 @@ Public Class cash
     'score table
     Public scoreTable As New DataTable
     'Private cancleFlag(21) As Integer '用来记录上次的操作的情况
-    Private Sub cash_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        'System.Windows.Forms.Control.CheckForIllegalCrossThreadCalls = False
+
+    Delegate Sub windows_load()
+    Private Sub windowsLoad_invo()
+        'Me.SuspendLayout()
+        Me.SetStyle(ControlStyles.DoubleBuffer Or ControlStyles.AllPaintingInWmPaint, True)
         Me.Size = New Size(Login.ScreenWidth, Login.ScreenHeight)
         Me.BackColor = Color.FromArgb(&HFFF1F1F1)
         'Me.Visible = True
@@ -16,6 +19,13 @@ Public Class cash
         F4.Parent = column
         F5.Parent = column
         about.Parent = column
+        Line_num.Parent = column1
+        Buy_ID.Parent = column1
+        P_Name_.Parent = column1
+        p_Unit.Parent = column1
+        P_NUM.Parent = column1
+        P_Price.Parent = column1
+        P_Mon.Parent = column1
 
         ALL_M_Back.BackColor = Color.FromArgb(&HFFD7D7D7)
         ALL_M_Back.Size = New Size(230, 65)
@@ -74,27 +84,22 @@ Public Class cash
         Line.BackColor = Color.FromArgb(&HFFD48181)
         Line.Width = Login.ScreenWidth
 
-        Line_num.Parent = column1
-        Buy_ID.Parent = column1
-        P_Name_.Parent = column1
-        p_Unit.Parent = column1
-        P_NUM.Parent = column1
-        P_Price.Parent = column1
-        P_Mon.Parent = column1
-
         Data.Size = New Size(Login.ScreenWidth, Login.ScreenHeight - 176)
         Data.BackgroundColor = Color.White
-        Data.Show()
-
+        'Data.Show()
         SetLableAndDataGridViewWith()
-
+        Me.ResumeLayout()
+        Me.PerformLayout()
+    End Sub
+    Public Sub cash_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        'System.Windows.Forms.Control.CheckForIllegalCrossThreadCalls = False
         'Data.Rows.Add()
         'Data.Rows(0).Cells(0).Value = 1
         'Data.Columns(0).Width = 90
         'Data.Rows(0).Height = 45
         'Data.Rows(0).DefaultCellStyle.BackColor = Color.FromArgb(&HFFF7F7F7)
         'scoreTable.Columns.Add(1)
-
+        BeginInvoke(New windows_load(AddressOf windowsLoad_invo))
     End Sub
 
     Private Sub Esc_Click(sender As Object, e As EventArgs) Handles Esc.Click

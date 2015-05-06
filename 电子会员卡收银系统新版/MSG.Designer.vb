@@ -37,6 +37,7 @@ Partial Class MSG
         CType(Me.no, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.yes, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
+
         '
         'msgP
         '

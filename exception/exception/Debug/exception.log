@@ -1,4 +1,4 @@
-﻿生成启动时间为 2015/5/6 0:13:02。
+﻿生成启动时间为 2015/5/6 18:37:22。
      1>项目“F:\github\membership\exception\exception\exception.vcxproj”在节点 2 上(Build 个目标)。
      1>ClCompile:
          D:\Program Files (x86)\Microsoft Visual Studio\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _LIB /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /FR"Debug\\" /Gd /TP /analyze- /errorReport:prompt sync.cpp
@@ -6,7 +6,7 @@
      1>d:\program files (x86)\microsoft visual studio\vc\include\fstream(543): warning C4244: “参数”: 从“__int64”转换到“long”，可能丢失数据
                  d:\program files (x86)\microsoft visual studio\vc\include\fstream(533): 编译类 模板 成员函数“std::fpos<_Mbstatet> std::basic_filebuf<char,std::char_traits<char>>::seekoff(__int64,std::ios_base::seekdir,std::ios_base::openmode)”时
                  d:\program files (x86)\microsoft visual studio\vc\include\fstream(904): 参见对正在编译的类 模板 实例化“std::basic_filebuf<char,std::char_traits<char>>”的引用
-                 f:\github\membership\exception\exception\sync.cpp(939): 参见对正在编译的类 模板 实例化“std::basic_ifstream<char,std::char_traits<char>>”的引用
+                 f:\github\membership\exception\exception\sync.cpp(1037): 参见对正在编译的类 模板 实例化“std::basic_ifstream<char,std::char_traits<char>>”的引用
      1>d:\program files (x86)\microsoft visual studio\vc\include\fstream(561): warning C4244: “参数”: 从“__int64”转换到“long”，可能丢失数据
                  d:\program files (x86)\microsoft visual studio\vc\include\fstream(555): 编译类 模板 成员函数“std::fpos<_Mbstatet> std::basic_filebuf<char,std::char_traits<char>>::seekpos(std::fpos<_Mbstatet>,std::ios_base::openmode)”时
        Link:
@@ -22,4 +22,4 @@
 
 生成成功。
 
-已用时间 00:00:06.11
+已用时间 00:00:06.85

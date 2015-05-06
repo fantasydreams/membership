@@ -200,3 +200,22 @@ no such table: casher
 no such column: 请输入账号
 2015_05_01 10:23:40:(window_Login,func_CasherLogin)SQL logic error or missing database
 no such column: 请输入账号
+2015_05_06 09:59:31:(window_fristrun,func_connect)无法获取信息，请检查网络连接！
+2015_05_06 09:59:35:(window_fristrun,func_connect)无法获取信息，请检查网络连接！
+2015_05_06 09:59:37:(window_fristrun,func_connect)无法获取信息，请检查网络连接！
+2015_05_06 09:59:38:(window_fristrun,func_connect)无法获取信息，请检查网络连接！
+2015_05_06 09:59:38:(window_fristrun,func_connect)无法获取信息，请检查网络连接！
+2015_05_06 09:59:39:(window_fristrun,func_connect)无法获取信息，请检查网络连接！
+2015_05_06 09:59:40:(window_fristrun,func_connect)无法获取信息，请检查网络连接！
+2015_05_06 09:59:40:(window_fristrun,func_connect)无法获取信息，请检查网络连接！
+2015_05_06 09:59:41:(window_fristrun,func_connect)无法获取信息，请检查网络连接！
+2015_05_06 09:59:41:(window_fristrun,func_connect)无法获取信息，请检查网络连接！
+2015_05_06 09:59:42:(window_fristrun,func_connect)无法获取信息，请检查网络连接！
+2015_05_06 09:59:43:(window_fristrun,func_connect)无法获取信息，请检查网络连接！
+2015_05_06 09:59:57:(window_fristrun,func_getshopNameandId)Fatal error encountered during command execution.
+2015_05_06 10:19:18:(window_fristrun,func_connect)无法获取信息，请检查网络连接！
+2015_05_06 10:22:36:(window_fristrun,func_connect)无法获取信息，请检查网络连接！
+2015_05_06 10:22:38:(window_fristrun,func_connect)无法获取信息，请检查网络连接！
+2015_05_06 10:22:45:(window_fristrun,func_connect)无法获取信息，请检查网络连接！
+2015_05_06 11:36:45:(window_Login,func_CasherLogin)SQL logic error or missing database
+unrecognized token: "1请输入账号"

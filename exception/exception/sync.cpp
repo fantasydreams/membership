@@ -10,12 +10,13 @@ date : 2015 - 5 - 4
 
 MysqlServer Sql;
 
-//fristrun function
+//fristrun function  Has passed the test
 bool MysqlServer::fristrun()
 {
 	MYSQL_ROW record;
 	MYSQL_RES *res = NULL;
 	std::string sql = "select id,name from shop;", temp , s_id = shop_id;
+	sqliteBeginTransaction();//开始事务
 	if (!mysql_query(mysql,sql.c_str()))
 	{
 		chain_table<MYSQL_ROW> result;
@@ -35,6 +36,7 @@ bool MysqlServer::fristrun()
 	}
 	else
 	{
+		sqliteRollbackTransaction();//回滚事务
 		std::cout << mysql_error(mysql);
 		return false;
 	}
@@ -45,6 +47,7 @@ bool MysqlServer::fristrun()
 		res = mysql_store_result(mysql);
 		while (record = mysql_fetch_row(res))
 			result.push_back(record);
+		//sqlite3_exec(conn, "begin;", 0, 0, &err_msg);
 		while (record = result.getelement())
 		{
 			temp = record[0];
@@ -53,11 +56,13 @@ bool MysqlServer::fristrun()
 			sql += temp + ");";
 			SqliteNoCallbackQuery(conn, sql.c_str());
 		}
+		//sqlite3_exec(conn, "commit;", 0, 0, &err_msg);
 		if (res)
 			mysql_free_result(res);
 	}
 	else
 	{
+		sqliteRollbackTransaction();//回滚事务
 		std::cout << mysql_error(mysql);
 		return false;
 	}
@@ -68,6 +73,7 @@ bool MysqlServer::fristrun()
 		res = mysql_store_result(mysql);
 		while (record = mysql_fetch_row(res))
 			result.push_back(record);
+		//sqlite3_exec(conn, "begin;", 0, 0, &err_msg);
 		while (record = result.getelement())
 		{
 			temp = record[0];
@@ -86,11 +92,13 @@ bool MysqlServer::fristrun()
 			sql += temp + "')";
 			SqliteNoCallbackQuery(conn, sql.c_str());
 		}
+		//sqlite3_exec(conn, "commit;", 0, 0, &err_msg);
 		if (res)
 			mysql_free_result(res);
 	}
 	else
 	{
+		sqliteRollbackTransaction();//回滚事务
 		std::cout << mysql_error(mysql);
 		return false;
 	}
@@ -101,17 +109,20 @@ bool MysqlServer::fristrun()
 		chain_table<MYSQL_ROW>result;
 		while (record = mysql_fetch_row(res))
 			result.push_back(record);
+		//sqlite3_exec(conn, "begin;", 0, 0, &err_msg);
 		while (record = result.getelement())
 		{
 			temp = record[0];
 			sql = "insert into user(id)values(" + temp +")";
 			SqliteNoCallbackQuery(conn, sql.c_str());
 		}
+		//sqlite3_exec(conn, "commit;", 0, 0, &err_msg);
 		if (res)
 			mysql_free_result(res);
 	}
 	else
 	{
+		sqliteRollbackTransaction();//回滚事务
 		std::cout << mysql_error(mysql);
 		return false;
 	}
@@ -122,6 +133,7 @@ bool MysqlServer::fristrun()
 		chain_table<MYSQL_ROW>result;
 		while (record = mysql_fetch_row(res))
 			result.push_back(record);
+		//sqlite3_exec(conn, "begin;", 0, 0, &err_msg);
 		while (record = result.getelement())
 		{
 			temp = record[0];
@@ -135,11 +147,13 @@ bool MysqlServer::fristrun()
 				sql += "');";
 			SqliteNoCallbackQuery(conn, sql.c_str());
 		}
+		//sqlite3_exec(conn, "commit;", 0, 0, &err_msg);
 		if (res)
 			mysql_free_result(res);
 	}
 	else
 	{
+		sqliteRollbackTransaction();//回滚事务
 		std::cout << mysql_error(mysql);
 		return false;
 	}
@@ -150,6 +164,7 @@ bool MysqlServer::fristrun()
 		chain_table<MYSQL_ROW>result;
 		while (record = mysql_fetch_row(res))
 			result.push_back(record);
+		//sqlite3_exec(conn, "begin;", 0, 0, &err_msg);
 		while (record = result.getelement())
 		{
 			temp = record[0];
@@ -160,14 +175,17 @@ bool MysqlServer::fristrun()
 			sql += temp + ")";
 			SqliteNoCallbackQuery(conn, sql.c_str());
 		}
+		//sqlite3_exec(conn, "commit;", 0, 0, &err_msg);
 		if (res)
 			mysql_free_result(res);
 	}
 	else
 	{
+		sqliteRollbackTransaction();//回滚事务
 		std::cout << mysql_error(mysql);
 		return false;
 	}
+	sqliteCommitTransaction();//提交事务
 	return true;
 }
 
@@ -181,12 +199,10 @@ void MysqlServer::sync(const char * id,const char * frist_run)
 	//std::string fristrun_flag = id[2];
 	if (!strcmp(frist_run, "1"))
 		while (!fristrun());//第一次运行，同步云端所有数据
-	//std::thread uploadUpdate(&MysqlServer::uploadToMysql,this); //更新mysql服务器线程
-	//uploadUpdate.detach();
-	//std::thread downloadUpdate(&MysqlServer::downloadToSqlite,this); //更新本地数据库线程
-	//downloadUpdate.detach();
-		//uploadToMysql();
-	//std::thread Mysql_update;
+	std::thread uploadUpdate(&MysqlServer::uploadToMysql,this); //更新mysql服务器线程
+	uploadUpdate.detach();
+	std::thread downloadUpdate(&MysqlServer::downloadToSqlite,this); //更新本地数据库线程
+	downloadUpdate.detach();
 }
 void MysqlServer::downloadToSqlite()
 {
@@ -282,12 +298,12 @@ bool MysqlServer::DownloadMysqlQuery(MYSQL * mysql,const char * sql)
 //	return false;
 //}
 
-
 //仍有bug存在，尚未找到解决方案
 bool MysqlServer::utosupdate(MYSQL *mysql,const MYSQL_ROW record)
 {
 	std::string id = this->shop_id, sql, temp = record[0]; //id:shop_id,sql :sql query , temp : id  //这里的temp就是utos中的user_id
 	std::string tmp; //存储临时信息
+	//sqliteBeginTransaction();
 	if (!strcmp("insert", record[2]))	//insert method  
 	{
 		sql = "select balance,usable from utos where shop_id = " + id + " and user_id = " + temp + ";";
@@ -311,6 +327,7 @@ bool MysqlServer::utosupdate(MYSQL *mysql,const MYSQL_ROW record)
 			}
 			if (res)
 				mysql_free_result(res);
+			//sqliteCommitTransaction();
 			return true;
 		}
 	}
@@ -318,6 +335,7 @@ bool MysqlServer::utosupdate(MYSQL *mysql,const MYSQL_ROW record)
 	{
 		sql = "delete form utos where shop_id = " + id + " and user_id = " + temp + ";";
 		SqliteNoCallbackQuery(conn, sql.c_str());
+		//sqliteCommitTransaction();
 		return true;
 	}
 	if (!strcmp("update", record[2]))//update method
@@ -334,13 +352,22 @@ bool MysqlServer::utosupdate(MYSQL *mysql,const MYSQL_ROW record)
 				sql += tmp + ", usable = ";
 				tmp = record[1];
 				sql += tmp + " where shop_id = " + id + " and user_id = " + temp + ";";
+				std::cout << sql << std::endl;
 				SqliteNoCallbackQuery(conn, sql.c_str());//执行本地sql database操作语句
+				/*if(sqlite3_exec(conn, sql.c_str(), NULL, NULL, &err_msg)!=SQLITE_OK)
+				{
+					std::cout << err_msg << std::endl;
+					sqlite3_free(err_msg);
+				};*/
+				
 			}
 			if (res)
 				mysql_free_result(res);
+			//sqliteCommitTransaction();
 			return true;
 		}
 	}
+	//sqliteRollbackTransaction();
 	return false;
 }
 
@@ -348,6 +375,7 @@ bool MysqlServer::utosupdate(MYSQL *mysql,const MYSQL_ROW record)
 bool MysqlServer::goodsupdate(MYSQL *mysql, const MYSQL_ROW record) 
 {
 	std::string id = this->shop_id, sql, temp = record[0]; //id:shop_id,sql :sql query , temp : id
+	//sqliteBeginTransaction();
 	if (!strcmp("update", record[2]))//update method          Has passed the test
 	{
 		sql = "select code,name,price,score,discount,brand from goods where id = " + temp + ";";
@@ -378,6 +406,7 @@ bool MysqlServer::goodsupdate(MYSQL *mysql, const MYSQL_ROW record)
 			if (res)//释放查询资源
 				mysql_free_result(res);
 		}
+		//sqliteCommitTransaction();
 		return true;
 	}
 	if (!(strcmp("insert", record[2])))//insert method       Has passed the test
@@ -410,14 +439,17 @@ bool MysqlServer::goodsupdate(MYSQL *mysql, const MYSQL_ROW record)
 			if (res)//释放查询资源
 				mysql_free_result(res);
 		}
+		//sqliteCommitTransaction();
 		return true;
 	}
 	if (!strcmp("delete", record[2]))//delete method       Has passed the test
 	{
 		sql = "delete from goods where goods_id = '" + temp + "';";
 		SqliteNoCallbackQuery(conn, sql.c_str());//执行成功
+		//sqliteCommitTransaction();
 		return true;
 	}
+	//sqliteRollbackTransaction();
 	return false;
 }
 
@@ -425,6 +457,7 @@ bool MysqlServer::goodsupdate(MYSQL *mysql, const MYSQL_ROW record)
 bool MysqlServer::casherupdate(MYSQL *mysql,MYSQL_ROW record)
 {
 	std::string id = this->shop_id , sql,temp = record[0];
+	//sqliteBeginTransaction();
 	if (!strcmp("update", record[2]))//update method   //Has passed the test
 	{
 		sql = "select password from casher where shop_id = " + id;
@@ -444,6 +477,7 @@ bool MysqlServer::casherupdate(MYSQL *mysql,MYSQL_ROW record)
 		}
 		else
 			std::cout << mysql_error(mysql);
+		//sqliteCommitTransaction();
 		return true;
 	}
 	if (!strcmp("insert", record[2]))//insert method   //Has passed the test
@@ -459,19 +493,24 @@ bool MysqlServer::casherupdate(MYSQL *mysql,MYSQL_ROW record)
 				sql = "insert into casher(id,shop_id,password) values( " + temp + "," + shop_id + ",'" + passwd + "');";
 				SqliteNoCallbackQuery(conn, sql.c_str());//执行成功
 			}
+			if (res)
+				mysql_free_result(res);
 		}
 		else
 			std::cout << mysql_error(mysql)<<std::endl;
 		if (res)//释放查询资源
 			mysql_free_result(res);
+		//sqliteCommitTransaction();
 		return true;
 	}
 	if (!strcmp("delete", record[2]))//delete method         Has passed the test
 	{
 		sql = "delete from casher where shop_id = " + id + " and id = " + temp + ";";
 		SqliteNoCallbackQuery(conn, sql.c_str());//执行成功
+		//sqliteCommitTransaction();
 		return true;
 	}
+	//sqliteRollbackTransaction();
 	return false;
 }
 
@@ -532,10 +571,12 @@ bool MysqlServer::DownloadMysqlQuery1(MYSQL *mysql, const char *sql)
 bool MysqlServer::userinfoupdate(MYSQL *mysql, const MYSQL_ROW record)
 {
 	std::string sql,temp = record[0]; //temp is user_id
+	//sqliteBeginTransaction();
 	if (!strcmp("delete",record[2]))//delete method      //Has passed the test
 	{
 		sql = "delete from userinfo where user_id = " + temp + ";";
 		SqliteNoCallbackQuery(conn, sql.c_str());
+		//sqliteCommitTransaction();
 		return true;
 	}
 	if (!strcmp("insert", record[2]))//insert method    //Has passed the test
@@ -550,8 +591,10 @@ bool MysqlServer::userinfoupdate(MYSQL *mysql, const MYSQL_ROW record)
 			SqliteNoCallbackQuery(conn, sql.c_str());
 			if (res)
 				mysql_free_result(res);
+			//sqliteCommitTransaction();
 			return true;
 		}
+		//sqliteRollbackTransaction();
 		return false;
 	}
 	if (!strcmp("update", record[2]))//update method        //已通过测试
@@ -579,10 +622,13 @@ bool MysqlServer::userinfoupdate(MYSQL *mysql, const MYSQL_ROW record)
 			}
 			if (res)
 				mysql_free_result(res);
+			//sqliteCommitTransaction();
 			return true;
 		}
+		//sqliteRollbackTransaction();
 		return false;
 	}
+	//sqliteRollbackTransaction();
 	return false;
 }
 
@@ -590,18 +636,22 @@ bool MysqlServer::userinfoupdate(MYSQL *mysql, const MYSQL_ROW record)
 bool MysqlServer::userupdate(MYSQL *mysql, const MYSQL_ROW record)
 {
 	std::string sql ,temp = record[0];//temp is user_id
+	//sqliteBeginTransaction();
 	if (!strcmp("delete", record[2]))//delete method
 	{
 		sql = "delete from user where id = " + temp + ";";
 		SqliteNoCallbackQuery(conn, sql.c_str());
+		//sqliteCommitTransaction();
 		return true;
 	}
 	if (!strcmp("insert", record[2]))//insert method
 	{
 		sql = "insert into user(id) values(" + temp + ")";
 		SqliteNoCallbackQuery(conn, sql.c_str());
+		//sqliteCommitTransaction();
 		return true;
 	}
+	//sqliteRollbackTransaction();
 	return false;
 }
 
@@ -659,11 +709,13 @@ MysqlServer::~MysqlServer()
 	if (mysql)
 		mysql_close(mysql);		//关闭mysql连接
 	if (mysql1)
-		mysql_close(mysql1);
+		mysql_close(mysql1);   
 	if (key)
 		delete[] key;
 	if (sha1)
 		delete[]sha1;
+	if (conn)              //释放sqlite连接
+		sqlite3_close(conn);
 }
 
 bool MysqlServer::conncetsql()
@@ -840,8 +892,10 @@ int sqlite3_exec_callback(void *data, int nColumn, char **colValues, char **colN
 				sql += temp + ";";
 				strcpy(buffer, sql.c_str());
 				std::cout << sql<<std::endl;
+				Sql.sqliteBeginTransaction();
 				while (!Sql.SqliteNoCallbackQuery(Sql.conn, buffer))
 					Sleep(2000);
+				Sql.sqliteCommitTransaction();
 			}
 		}
 	}
@@ -871,12 +925,20 @@ int sqlite3_exec_callback_utos(void *data, int nColumn, char **colValues, char *
 			record = mysql_fetch_row(res);
 			if (!record)//如果没有得到查询结果
 			{
+				Sql.mysqlBeginTransaction(Sql.mysql);
 				sql = "insert into utos(user_id,shop_id) values(" + user_id + "," + shop_id + ");";
 				if (!mysql_query(Sql.mysql, sql.c_str()))//执行失败
+				{
+					Sql.mysalRollbackTransaction(Sql.mysql);
 					return 1;
+				}
+				Sql.mysqlCommitTransaction(Sql.mysql);
+
 			}
+			Sql.sqliteBeginTransaction();
 			sql = "delete from utos where shop_id = " + shop_id + " and user_id = " + user_id + ";";
 			Sql.SqliteNoCallbackQuery(Sql.conn, sql.c_str());//删除本地记录
+			Sql.sqliteCommitTransaction();
 		}
 	}
 	return 0;
@@ -885,7 +947,10 @@ int sqlite3_exec_callback_utos(void *data, int nColumn, char **colValues, char *
 inline void MysqlServer::query_utos_insert(sqlite3 * sqlite, const char * sql)
 {
 	if (sqlite3_exec(sqlite, sql, &sqlite3_exec_callback_utos, NULL, &err_msg) != SQLITE_OK)
-		std::cout << err_msg <<std::endl;
+	{
+		std::cout << err_msg << std::endl;
+		sqlite3_free(err_msg);
+	}
 }
 
 inline bool MysqlServer::SqliteNoCallbackQuery(sqlite3 * sqlite, const char * sql)
@@ -898,6 +963,7 @@ inline bool MysqlServer::SqliteNoCallbackQuery(sqlite3 * sqlite, const char * sq
 	else
 	{
 		std::cout << errmsg<<std::endl;
+		sqlite3_free(errmsg);
 		return false;
 	}
 	
@@ -905,16 +971,26 @@ inline bool MysqlServer::SqliteNoCallbackQuery(sqlite3 * sqlite, const char * sq
 
 inline bool MysqlServer::Mysqlupdatequery(MYSQL * mysql, const char *sql)
 {
+	mysqlBeginTransaction(mysql);
 	if (!mysql_query(mysql, sql))
+	{
+		mysqlCommitTransaction(mysql);
 		return true;
+	}
 	else
+	{
+		mysalRollbackTransaction(mysql);
 		return false;
+	}
 }
 
 inline void MysqlServer::query(sqlite3 * sqlite,const char * sql)
 {
 	if (sqlite3_exec(sqlite, sql, &sqlite3_exec_callback, NULL, &err_msg) != SQLITE_OK)
+	{
 		std::cout << "err_msg:" << err_msg << std::endl;
+		sqlite3_free(err_msg);
+	}
 }
 
 void MysqlServer::ConvertCharToTCHAR(char * Char)
@@ -1039,4 +1115,75 @@ bool MysqlServer::getFilesha1(char * name)
 	}
 	else
 		return false;
+}
+
+bool MysqlServer::sqliteBeginTransaction()
+{
+	char * errmsg;
+	if (sqlite3_exec(conn, "begin transaction", NULL, NULL, &errmsg) != SQLITE_OK)
+	{
+		std::cout << "begin transaction failed ：" << errmsg << std::endl;
+		sqlite3_free(errmsg);
+		return false;
+	}
+	return true;
+}
+
+bool MysqlServer::sqliteCommitTransaction()
+{
+	char * errmsg;
+	if (sqlite3_exec(conn, "commit transaction", NULL, NULL, &errmsg) != SQLITE_OK)
+	{
+		std::cout << "commit transaction failed ：" << errmsg << std::endl;
+		sqlite3_free(errmsg);
+		if (sqlite3_exec(conn, "rollback transaction", NULL, NULL, &errmsg) != SQLITE_OK)
+		{
+			std::cout << "rollback transaction failed ：" << errmsg << std::endl;
+			sqlite3_free(errmsg);
+		}
+		return false;
+	}
+	return true;
+}
+
+bool MysqlServer::sqliteRollbackTransaction()
+{
+	char * errmsg = NULL;
+	if (sqlite3_exec(conn, "rollback transaction", NULL, NULL, &errmsg))
+	{
+		std::cout << "rollback transaction failed ：" << errmsg << std::endl;
+		sqlite3_free(errmsg);
+		return false;
+	}
+	return true;
+}
+
+bool MysqlServer::mysqlBeginTransaction(MYSQL *mysql)
+{
+	if (!mysql_query(mysql, "begin transaction;"))
+	{
+		std::cout <<"begin transaction failed:"<< mysql_error(mysql);
+		return false;
+	}
+	return true;
+}
+
+bool MysqlServer::mysqlCommitTransaction(MYSQL * mysql)
+{
+	if (!mysql_query(mysql, "commit transaction;"))
+	{
+		std::cout << "commit transaction failed:" << mysql_error(mysql);
+		return false;
+	}
+	return true;
+}
+
+bool MysqlServer::mysalRollbackTransaction(MYSQL * mysql)
+{
+	if (!mysql_query(mysql, "rollback transaction;"))
+	{
+		std::cout << "rollback transaction failed:" << mysql_error(mysql);
+		return false;
+	}
+	return true;
 }
