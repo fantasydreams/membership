@@ -7,28 +7,25 @@ Imports System.Security.Cryptography
 Imports System.Text
 'Imports Finisar.SQLite
 
-
-
 Public Class Login
     Dim db As String = ".\DB\data.db"
-    Public sqliteconn As New SQLiteConnection
+    Public Shared sqliteconn As New SQLiteConnection  '用于线程间的数据共享通信
     'Dim sqliteThisModule As String = "SQLite3"
     Public shopreset As Boolean = False
     '定义显示器的高宽度
     Public ScreenHeight, ScreenWidth As Integer
-
-    Public User, Password As String
+    Private User, Password As String
     'Public conn As New MySqlConnection
     Dim flag As Boolean
     Public data As String
     Dim Sqlconnect As Boolean = False
-    '    Dim runThread As Thread
+    'Dim runThread As Thread
     'Dim KeepSqlAliveThread As Thread
-    Public shopID As Long = 0
+    Public Shared shopID As Long = 0
     Dim temp As Object
     Dim win_form As Form
     Dim win_form_laod As Boolean = False
-
+    Dim thread_load_flag As Boolean = False  '连接线程
     '收银窗口预加载
     Delegate Sub w_load()
     Private Sub w_f_load()
@@ -110,22 +107,25 @@ Err:
     '主界面的加载
 
     'sqlite连接
-    Private Sub connect()
+    Public Sub connect()
+        sqliteconn.ConnectionString = "Data Source = " & db
+        thread_load_flag = True
         If IO.File.Exists(".\DB\data.db") Then
             Try
                 'sqliteConn.SetPassword("sql")
                 sqliteconn.Open()
                 Sqlconnect = True
                 CashLogin1()
-                'sqliteConn.SetPassword("sql")
+                    'sqliteConn.SetPassword("sql")
             Catch ex As Exception
-                write_errmsg(ex.Message, Me.Name, "connect", Me)
+                'write_errmsg(ex.Message, Me.Name, "connect", Me)
+                BeginInvoke(New write_err_msg(AddressOf Write_Err_Msg_Invo), ex.Message, Me.Name, "connect", Me)
             End Try
         Else
-            MsgboxNotice("文件丢失，正在修复中，请耐心等待...", "错误", False, False, Nothing, Me, False, False)
+            'MsgboxNotice("文件丢失，正在修复中，请耐心等待...", "错误", False, False, Nothing, Me, False, False)
+            BeginInvoke(New msgbox_de(AddressOf msgbox_invo), "文件丢失，正在修复中，请耐心等待...", "错误", False, False, Nothing, Me, False, False)
             If filemd5(Application.StartupPath & "\dbexc.exe") = "CD427B59D20227D35639C8C0AAF9D9EA" Then
                 If Not CheckApplicationIsRun("dbexc.exe") Then
-
                     Dim pro As Process = Process.Start(Application.StartupPath & "\dbexc.exe")
                     pro.WaitForExit()
                     If pro.ExitCode().ToString() = "1" Then
@@ -135,15 +135,16 @@ Err:
                     End If
                 End If
             Else
-                write_errmsg("系统文件被篡改或者丢失，请重新安装程序！", Me.Name, "filemd5", Me)
+                'write_errmsg("系统文件被篡改或者丢失，请重新安装程序！", Me.Name, "filemd5", Me)
+                BeginInvoke(New write_err_msg(AddressOf Write_Err_Msg_Invo), "系统文件被篡改或者丢失，请重新安装程序！", Me.Name, "filemd5", Me)
             End If
         End If
+        thread_load_flag = False
     End Sub
 
     Delegate Sub win_load()
     Private Sub windows_load()
         Me.SuspendLayout()
-        sqliteconn.ConnectionString = "Data Source = " & db
         Me.BackColor = Color.FromArgb(&HFFFAFAFA)
         'Me.BackColor = Color.Blue
         'Me.TransparencyKey = Me.BackColor
@@ -157,9 +158,11 @@ Err:
         Me.ResumeLayout()
         '.Show()
         'System.Windows.Forms.Control.CheckForIllegalCrossThreadCalls = False
-        sqliteconn.ConnectionString = "Data Source= " & db
+        'sqliteconn.ConnectionString = "Data Source= " & db
         GHWindowSize()
         shopGet()  'getshop info
+        'Dim shop_get_thread As New Thread(AddressOf shopGet)
+        'shop_get_thread.Start()
     End Sub
     Private Sub Login_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         'cash.Show()
@@ -227,7 +230,11 @@ Err:
 
     '创建连接数据库的线程
     Private Sub btnThread_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles loginButton.Click
-        invo()
+        If Not thread_load_flag Then
+            Dim login_thread As New Thread(AddressOf invo)
+            login_thread.Start()
+            'invo()
+        End If
     End Sub
 
     'invo
@@ -235,9 +242,9 @@ Err:
         If Sqlconnect = False Then
             'runThread = New Thread(AddressOf connect)
             'runThread.Start()
-            BeginInvoke(New eventhandler(AddressOf connect), Nothing)
+            connect()
         Else
-            BeginInvoke(New EventHandler(AddressOf CashLogin1), Nothing)
+            CashLogin1()
         End If
     End Sub
     '保持数据库连接的线程
@@ -245,15 +252,11 @@ Err:
     '    KeepSqlAliveThread = New Thread(AddressOf connect)
     '    KeepSqlAliveThread.Start()
     'End Sub
-
-
     '获取显示屏的高宽度
     Private Sub GHWindowSize()
         ScreenHeight = Screen.PrimaryScreen.Bounds.Height
         ScreenWidth = Screen.PrimaryScreen.Bounds.Width
     End Sub
-
-
     '
     Private Function CasherLogin()
         'Dim str As String = "select id from casher where password = '" + key.Text.ToString() + "' and id = " + ID.Text.ToString + " and shop_id = " + shopID.ToString + ";"
@@ -292,34 +295,44 @@ Err:
                 CasherLogin = False
             Catch ex As Exception
                 CasherLogin = False
-                write_errmsg(ex.Message, Me.Name, "CasherLogin", Me)
+                'write_errmsg(ex.Message, Me.Name, "CasherLogin", Me)
+                BeginInvoke(New write_err_msg(AddressOf Write_Err_Msg_Invo), ex.Message, Me.Name, "CasherLogin", Me)
             End Try
         Else
             CasherLogin = False
         End If
     End Function
 
-
     Private Sub CashLogin1()
         If CasherLogin() = True Then
-            Me.Hide()
-            win_form.Show()
+            'Me.Hide()
+            'win_form.Show()
+            BeginInvoke(New windows_hide(AddressOf win_hide), Me)
+            BeginInvoke(New windows_show(AddressOf win_show), win_form, Nothing)
+            '调试代码
+            'If sqliteconn.State = ConnectionState.Open Then
+            '    MsgBox("yes")
+            'Else
+            '    MsgBox("No")
+            'End If
         Else  'when login error
             'Dim form As New MSG
             'form.head.Text = "登录失败"
             'form.msgP.Text = "请检查你的用户名密码"
             'form.Show()
-            MsgboxNotice("请检查你的用户名密码", "登录失败", False, False, Nothing, Me, True, False)
+            'MsgboxNotice("请检查你的用户名密码", "登录失败", False, False, Nothing, Me, True, False)
+            BeginInvoke(New msgbox_de(AddressOf msgbox_invo), "请检查你的用户名密码", "登录失败", False, False, Nothing, Me, True, False)
         End If
     End Sub
 
 
     Private Sub key_Keypress(sender As Object, e As KeyPressEventArgs) Handles key.KeyPress
-        If e.KeyChar = ChrW(13) Then
-            invo()
+        If e.KeyChar = ChrW(13) And Not thread_load_flag Then
+            Dim login_thread As New Thread(AddressOf invo)
+            login_thread.Start()
+            'invo()
         End If
     End Sub
-
 
     'Public Function ConcectDataIfBreak()
     '    Dim connStr As String
@@ -360,8 +373,6 @@ Err:
 
     'shopid base64 encryption
 
-
-
     'this function design to get shop id and name and save it into config data
     Private Sub shopGet()
         Dim fristrunflag As Boolean = False
@@ -384,7 +395,6 @@ Err:
             My.Computer.FileSystem.CreateDirectory(".\config")
             IO.File.Create(".\config\data.ini").Close()
             IO.File.Create(".\config\readme.txt").Close()
-
             Dim fsw As New StreamWriter(".\config\readme.txt")
             fsw.WriteLine("this folder for the application configuration,don't move or delete or rewite")
             fsw.Close()
@@ -399,9 +409,6 @@ Err:
             Dim flag As String = ""
             flag = fristrunfl.ReadLine()
             fristrunfl.Close()
-            Dim fristrewrite As New StreamWriter(".\config\fristrun.ini") '重写配置文件
-            fristrewrite.WriteLine("0")
-            fristrewrite.Close()
 
             Dim fsr As New StreamReader(".\config\data.ini")
             Dim IDtemp As String = ""
@@ -418,10 +425,14 @@ Err:
                     Msgform.msgP.Text = "配置文件丢失，请重新配置"
                     fristrunWindow.notice.Text = "您好，请选择店铺或者输入店铺编号："
                     Msgform.ShowDialog(Me)
+                    'BeginInvoke(New msgbox_de(AddressOf msgbox_invo), "配置文件丢失，请重新配置", "错误", False, True, Nothing, Me, True, False)
+                    'BeginInvoke(New Label_text(AddressOf Label_text_invo), fristrunWindow.notice, "您好，请选择店铺或者输入店铺编号：")
                 Else
                     fristrunWindow.notice.Text = "您好，这是您第一次登录，请选择店铺或者输入店铺编号："
+                    'BeginInvoke(New Label_text(AddressOf Label_text_invo), fristrunWindow.notice, "您好，这是您第一次登录，请选择店铺或者输入店铺编号：")
                 End If
                 fristrunWindow.Show(Me)
+                'BeginInvoke(New windows_show(AddressOf win_show), fristrunWindow, Me)
             Else
                 shopID = Long.Parse(IDtemp)
                 'shopname
@@ -434,6 +445,8 @@ Err:
             Dim fristrun As New fristrun
             fristrun.notice.Text = "您好，请选择店铺或者输入店铺编号："
             fristrun.Show(Me)
+            'BeginInvoke(New Label_text(AddressOf Label_text_invo), fristrun.notice, "您好，请选择店铺或者输入店铺编号：")
+            'BeginInvoke(New windows_show(AddressOf win_show), Me, Nothing)
         End If
     End Sub
 
@@ -491,7 +504,7 @@ Err:
 
     'invo_msgbox
     Public Delegate Sub msgbox_de(meg As String, content As String, No_visible As Boolean, Yes_visible As Boolean, cancelText As String, e As Form, info As Boolean, factory As Boolean)
-    Public Sub megbox_invo(meg As String, content As String, No_visible As Boolean, Yes_visible As Boolean, cancelText As String, e As Form, info As Boolean, factory As Boolean)
+    Public Sub msgbox_invo(meg As String, content As String, No_visible As Boolean, Yes_visible As Boolean, cancelText As String, e As Form, info As Boolean, factory As Boolean)
         MsgboxNotice(meg, content, No_visible, Yes_visible, cancelText, e, info, factory)
     End Sub
 
@@ -500,4 +513,33 @@ Err:
     Public Sub Write_Err_Msg_Invo(str As String, strName As String, method As String, e As Form)
         write_errmsg(str, strName, method, e)
     End Sub
+
+    '重写  label 值
+    Public Delegate Sub Label_text(mycontrol As Label, str As String)
+    Public Sub Label_text_invo(mycontrol As Label, str As String)
+        mycontrol.Text = str
+    End Sub
+
+    '重写 textbox 值
+    Public Delegate Sub TextBox_text(mycontrol As TextBox, str As String)
+    Public Sub TextBox_text_invo(mycontrol As TextBox, str As String)
+        mycontrol.Text = str
+    End Sub
+    '在cla窗体上显示e  invo方法
+    Delegate Sub windows_show(e As Form, cla As Form)
+    Public Sub win_show(e As Form, cla As Form)
+        e.Show(cla)
+    End Sub
+    '关闭e 窗体 invo方法
+    Delegate Sub windows_close(e As Form)
+    Public Sub win_close(e As Form)
+        e.Close()
+    End Sub
+
+    '隐藏 窗体 invo方法
+    Delegate Sub windows_hide(e As Form)
+    Public Sub win_hide(e As Form)
+        e.Hide()
+    End Sub
+
 End Class

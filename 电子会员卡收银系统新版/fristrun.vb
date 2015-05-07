@@ -33,18 +33,7 @@ Public Class fristrun
             End If
         Next
         Return False
-    End Function
-
-    Private Function msgbox_net()
-        Return Login.MsgboxNotice("无法从服务器获取信息，请检查网络连接！", "提示", False, False, Nothing, Me, True, False)
-    End Function
-    Private Sub msgbox_net_write()
-        Login.write_errmsg("无法获取信息，请检查网络连接！", Me.Name, "connect", Me)
-    End Sub
-    Delegate Sub shopexwrite(ex As Exception)
-    Private Sub getid_write(ex As Exception)
-        Login.write_errmsg(ex.Message.ToString, Me.Name, "getshopNameandId", Me)
-    End Sub
+    End Function 'shopName method
 
     Private Sub writeshopmsg()
         If Login.MsgboxNotice("您的店铺ID为：" & shop_id_in.Text + vbCrLf + "您的店铺名称为：" & shop_list.Text, "消息", True, True, "重新选择", Me, True, True) = Windows.Forms.DialogResult.OK Then
@@ -90,7 +79,7 @@ Public Class fristrun
                     getshopNameandId()
                 Else
                     'Login.MsgboxNotice("无法从服务器获取信息，请检查网络连接！", "提示", False, False, Nothing, Me, True, False)
-                    BeginInvoke(New EventHandler(AddressOf msgbox_net))
+                    BeginInvoke(New Login.msgbox_de(AddressOf Login.msgbox_invo), "无法从服务器获取信息，请检查网络连接！", "提示", False, False, Nothing, Me, True, False)
                 End If
                 '    MsgBox("开")
                 'Else
@@ -101,11 +90,15 @@ Public Class fristrun
                     Exit Sub
                 End If
             Next I
-            conn.Close()
+            If conn.State = ConnectionState.Open Then
+                conn.Close()
+            End If
         Catch ex As Exception
-            conn.Close()
+            If conn.State = ConnectionState.Open Then
+                conn.Close()
+            End If
             connectting_run = False
-            BeginInvoke(New EventHandler(AddressOf msgbox_net_write))
+            BeginInvoke(New Login.write_err_msg(AddressOf Login.Write_Err_Msg_Invo), "获取信息失败，请检查网络是否畅通...", Me.Name, "connect", Me)
         End Try
         connectting_run = False
     End Sub
@@ -128,7 +121,7 @@ Public Class fristrun
             BeginInvoke(New MyDelegate(AddressOf DelegateMethod), datatable)
         Catch ex As Exception
             'Login.write_errmsg(ex.Message.ToString, Me.Name, "getshopNameandId", Me)
-            BeginInvoke(New shopexwrite(AddressOf getid_write), ex)
+            BeginInvoke(New Login.write_err_msg(AddressOf Login.Write_Err_Msg_Invo), ex.Message, Me.Name, "getshopNameandId", Me)
         End Try
 
     End Sub
@@ -194,7 +187,6 @@ Public Class fristrun
             End If
         Next
     End Sub
-
 
     Private Sub Yes_Button_Click(sender As Object, e As EventArgs) Handles Yes_Button.Click
         'Dim formmsg As New MSG

@@ -359,7 +359,6 @@ bool MysqlServer::utosupdate(MYSQL *mysql,const MYSQL_ROW record)
 					std::cout << err_msg << std::endl;
 					sqlite3_free(err_msg);
 				};*/
-				
 			}
 			if (res)
 				mysql_free_result(res);

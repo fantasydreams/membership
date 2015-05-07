@@ -1,10 +1,6 @@
 ﻿Imports MySql.Data.MySqlClient
 Imports System.Security.Cryptography
 Public Class IDScan
-
-
-
-
     Dim sureUserInfo As Boolean = False
     Dim GetUserInfoFlag As Boolean = False
     Private Sub IDScan_Load(sender As Object, e As EventArgs) Handles MyBase.Load
@@ -22,9 +18,12 @@ Public Class IDScan
             If e.KeyChar = ChrW(13) Then
                 If ID_I.Text = "" Then
                     Me.Close()
-                    balance.ALL_M_P.Text = cash.ALL_M_P.Text
-                    balance.VIP_M_P.Text = balance.ALL_M_P.Text
-                    balance.Pack_M.Text = "0"
+                    'balance.ALL_M_P.Text = cash.ALL_M_P.Text
+                    'balance.VIP_M_P.Text = balance.ALL_M_P.Text
+                    'balance.Pack_M.Text = "0"
+                    BeginInvoke(New Login.Label_text(AddressOf Login.Label_text_invo), balance.ALL_M_P, cash.ALL_M_P.Text)
+                    BeginInvoke(New Login.Label_text(AddressOf Login.Label_text_invo), balance.VIP_M_P, balance.ALL_M_P.Text)
+                    BeginInvoke(New Login.Label_text(AddressOf Login.Label_text_invo), balance.Pack_M, "0")
                     balance.Show(background)
                 Else
                     If sureUserInfo = True Then
@@ -42,12 +41,10 @@ Public Class IDScan
                                 sureUserInfo = True
                             End If
                         Else
-                            'Dim form As New MSG
-                            'form.head.Text = "error"
-                            'form.msgP.Text = "没有此会员信息！"
-                            'form.Show()
-                            Login.MsgboxNotice("没有此会员信息！", "消息", False, False, Nothing, Me, True, False)
-                            ID_I.Text = ""
+                            'Login.MsgboxNotice("没有此会员信息！", "消息", False, False, Nothing, Me, True, False)
+                            BeginInvoke(New Login.msgbox_de(AddressOf Login.msgbox_invo), "没有此会员信息！", "消息", False, False, Nothing, Me, True, False)
+                            'ID_I.Text = ""
+                            BeginInvoke(New Login.TextBox_text(AddressOf Login.TextBox_text_invo), ID_I.Text, "")
                         End If
 
                     End If
@@ -62,14 +59,10 @@ Public Class IDScan
     Public Sub CalculateVipMon()
         Dim Money As Double = 0
         Dim TableData As New DataTable
-        'Dim sqlcmd As New SQLite.SQLiteCommand
-        'sqlcmd.Connection = Login.sqliteconn
-        'sqlcmd.CommandType = CommandType.Text
         Dim sqlda As SQLite.SQLiteDataAdapter
         For i = 0 To cash.Data.Rows.Count - 1
             Dim str As String = "select discount from goods where code = '" + cash.Data.Rows(i).Cells(1).Value.ToString + "' and shop_id = " + Login.shopID.ToString
             TableData.Reset()
-            'sqlcmd.CommandText = str
             sqlda = New SQLite.SQLiteDataAdapter(str, Login.sqliteconn)
             sqlda.Fill(TableData)
             If TableData.Rows.Count() Then
@@ -78,22 +71,19 @@ Public Class IDScan
                 Money += Double.Parse(cash.Data.Rows(i).Cells(6).Value.ToString())
             End If
         Next
-        balance.VIP_M_P.Text = Money
-        balance.ALL_M_P.Text = cash.ALL_M_P.Text
+        'balance.VIP_M_P.Text = Money
+        'balance.ALL_M_P.Text = cash.ALL_M_P.Text
+        BeginInvoke(New Login.Label_text(AddressOf Login.Label_text_invo), balance.VIP_M_P, Money.ToString)
+        BeginInvoke(New Login.Label_text(AddressOf Login.Label_text_invo), balance.ALL_M_P, cash.ALL_M_P.Text)
         balance.flag = True
     End Sub
 
 
     Private Function chooseDatabase()
         Dim str As String = "select balance from utos where user_id = " + ID_I.Text
-        'Dim Dr As MySqlCommand = New MySqlCommand(str, Login.conn)
-        'Dim scm As New SQLite.SQLiteCommand(str, Login.sqliteconn)
-        'scm.CommandType = CommandType.Text
         Dim sqliteadpater As SQLite.SQLiteDataAdapter
         Dim tableData As New DataTable
         Try
-            'Dim MR As MySqlDataReader
-            'MR = Dr.ExecuteReader()
             sqliteadpater = New SQLite.SQLiteDataAdapter(str, Login.sqliteconn)
             tableData.Reset()
             sqliteadpater.Fill(tableData)
@@ -102,7 +92,8 @@ Public Class IDScan
                 'balance.score = Double.Parse(MR.Item(2).ToString) + cash.score
                 '积分
 
-                balance.Pack_M.Text = tableData.Rows.Item(0).Item(0)
+                'balance.Pack_M.Text = tableData.Rows.Item(0).Item(0)
+                BeginInvoke(New Login.Label_text(AddressOf Login.Label_text_invo), balance.Pack_M, tableData.Rows.Item(0).Item(0).ToString)
                 'balance.oldPMP = Double.Parse(tableData.Rows.Item(0).Item(0))
                 balance.NumId = ID_I.Text.ToString()
                 chooseDatabase = True
@@ -121,17 +112,18 @@ Public Class IDScan
                     'form.msgP.Text = "会员未完善信息，请提醒会员完善信息..."
                     'form.Show()
                     balance.NumId = ID_I.Text.ToString()
-                    Login.MsgboxNotice("会员未完善信息" + vbCrLf + "请提醒会员完善信息...", "提示", False, False, Nothing, Me, True, False)
+                    ' Login.MsgboxNotice("会员未完善信息" + vbCrLf + "请提醒会员完善信息...", "提示", False, False, Nothing, Me, True, False)
+                    BeginInvoke(New Login.msgbox_de(AddressOf Login.msgbox_invo), "会员未完善信息" + vbCrLf + "请提醒会员完善信息...", "提示", False, False, Nothing, Me, True, False)
                     GetUserInfoFlag = True
                     chooseDatabase = True
                 Else
                     chooseDatabase = False
                 End If
-
             End If
         Catch ex As Exception
             chooseDatabase = False
-            Login.write_errmsg(ex.Message, "发生了一个错误", "chooseDatabase", Me)
+            'Login.write_errmsg(ex.Message, "发生了一个错误", "chooseDatabase", Me)
+            BeginInvoke(New Login.write_err_msg(AddressOf Login.Write_Err_Msg_Invo), ex.Message, "发生了一个错误", "chooseDatabase", Me)
         End Try
     End Function
 
@@ -165,16 +157,19 @@ Public Class IDScan
             sqliteadapter.Fill(tabledata)
             If tabledata.Rows.Count Then
                 If Not tabledata.Rows.Item(0).Item(0).ToString = "" Then
-                    User_name.Text = tabledata.Rows.Item(0).Item(0).ToString
+                    'User_name.Text = tabledata.Rows.Item(0).Item(0).ToString
+                    BeginInvoke(New Login.Label_text(AddressOf Login.Label_text_invo), User_name, tabledata.Rows.Item(0).Item(0).ToString)
                     GetUserInfoFlag = True
                     Exit Sub
                 Else
-                    Login.MsgboxNotice("此会员没有完善信息！提醒会员完善信息！", "消息", False, False, Nothing, Me, True, False)
+                    'Login.MsgboxNotice("此会员没有完善信息！提醒会员完善信息！", "消息", False, False, Nothing, Me, True, False)
+                    BeginInvoke(New Login.msgbox_de(AddressOf Login.msgbox_invo), "会员未完善信息" + vbCrLf + "请提醒会员完善信息...", "提示", False, False, Nothing, Me, True, False)
                     GetUserInfoFlag = True
                 End If
                 
             Else
-                Login.MsgboxNotice("此会员没有完善信息！提醒会员完善信息！", "消息", False, False, Nothing, Me, True, False)
+                'Login.MsgboxNotice("此会员没有完善信息！提醒会员完善信息！", "消息", False, False, Nothing, Me, True, False)
+                BeginInvoke(New Login.msgbox_de(AddressOf Login.msgbox_invo), "会员未完善信息" + vbCrLf + "请提醒会员完善信息...", "提示", False, False, Nothing, Me, True, False)
                 GetUserInfoFlag = True
                 '这里填写未找到相关会员的信息
                 'MsgBox("未找到相关会员！")
@@ -200,7 +195,8 @@ Public Class IDScan
             End If
         Catch ex As Exception
             'MsgBox(ex.ToString)
-            Login.write_errmsg(ex.Message, Me.Name, "getInfoFromDatabase", Me)
+            'Login.write_errmsg(ex.Message, Me.Name, "getInfoFromDatabase", Me)
+            BeginInvoke(New Login.write_err_msg(AddressOf Login.Write_Err_Msg_Invo), ex.Message, Me.Name, "getInfoFromDatabase", Me)
         End Try
     End Sub
 
@@ -220,7 +216,8 @@ Public Class IDScan
 
     Private Sub ID_I_TextChanged(sender As Object, e As EventArgs) Handles ID_I.TextChanged
         If Not User_name.Text = "" Then
-            User_name.Text = ""
+            'User_name.Text = ""
+            BeginInvoke(New Login.Label_text(AddressOf Login.Label_text_invo), User_name, "")
         End If
     End Sub
 
@@ -230,7 +227,8 @@ Public Class IDScan
             background.Close()
         End If
         If e.KeyCode = Keys.F4 Then
-            ID_I.Text = ""
+            'ID_I.Text = ""
+            BeginInvoke(New Login.Label_text(AddressOf Login.Label_text_invo), ID_I, "")
         End If
     End Sub
 
