@@ -9,6 +9,22 @@ Public Class cash
     'Private cancleFlag(21) As Integer '用来记录上次的操作的情况
 
     Delegate Sub windows_load()
+    Private Sub thread(func As String)
+        Dim func_thread As Threading.Thread
+        Select Case func
+            Case "calculatescore"
+                func_thread = New Threading.Thread(AddressOf calculatescore)
+            Case "selectData"
+                func_thread = New Threading.Thread(AddressOf selectData)
+            Case "clear"
+                func_thread = New Threading.Thread(AddressOf clear)
+            Case "cancleLastStep"
+                func_thread = New Threading.Thread(AddressOf cancleLastStep)
+            Case Else
+                Exit Sub
+        End Select
+        func_thread.Start()
+    End Sub
     Private Sub windowsLoad_invo()
         'Me.SuspendLayout()
         Me.SetStyle(ControlStyles.DoubleBuffer Or ControlStyles.AllPaintingInWmPaint, True)
@@ -100,6 +116,7 @@ Public Class cash
         'Data.Rows(0).DefaultCellStyle.BackColor = Color.FromArgb(&HFFF7F7F7)
         'scoreTable.Columns.Add(1)
         BeginInvoke(New windows_load(AddressOf windowsLoad_invo))
+        'thread("windowsLoad_invo")
     End Sub
 
     Private Sub Esc_Click(sender As Object, e As EventArgs) Handles Esc.Click
@@ -111,7 +128,7 @@ Public Class cash
 
 
     Private Sub F4_Click(sender As Object, e As EventArgs) Handles F4.Click
-        clear()
+        thread("clear")
     End Sub
 
     '设置data以及对应的列标签的宽度
@@ -158,10 +175,10 @@ Public Class cash
                     If Not ALL_N_P.Text = "0" Then
                         background.Show(Me)
                         IDScan.Show(background)
-                        calculatescore()
+                        thread("calculatescore")
                     End If
                 Else
-                    selectData()
+                    thread("selectData")
                 End If
             End If
         Else
@@ -169,7 +186,16 @@ Public Class cash
         End If
     End Sub
 
-
+    '更改label控件的值
+    Delegate Sub Label_change(mycontrol As Label, str As String)
+    Private Sub Label_TEXT(mycontrol As Label, str As String)
+        ID_P_A_I.Text = str
+    End Sub
+    '更改textbox的值
+    Delegate Sub Text_box_change(mysqlTextBox As TextBox, str As String)
+    Private Sub text_box_text(mysqlTextBox As TextBox, str As String)
+        mysqlTextBox.Text = str
+    End Sub
     Private Sub selectData()
         For i = 0 To Data.Rows.Count - 1
             If Data.Rows(i).Cells(1).Value.ToString() = ID_P_A_I.Text.ToString() Then
@@ -180,7 +206,7 @@ Public Class cash
                 'P_NUM.Text = Data.Rows(i).Cells(4).Value
                 changeMoney()
                 calculatePronum()
-                ID_P_A_I.Text = ""
+                BeginInvoke(New Text_box_change(AddressOf text_box_text), ID_P_A_I, "")
                 Exit Sub
             End If
         Next
@@ -193,7 +219,7 @@ Public Class cash
         For i = 0 To Data.Rows.Count - 1
             money += Double.Parse(Data.Rows(i).Cells(6).Value)
         Next
-        ALL_M_P.Text = money
+        BeginInvoke(New Label_change(AddressOf Label_TEXT), ALL_M_P, money.ToString)
     End Sub
 
     '重新计算商品数量
@@ -202,7 +228,23 @@ Public Class cash
         For i = 0 To Data.Rows.Count - 1
             Num += Data.Rows(i).Cells(4).Value
         Next
-        ALL_N_P.Text = Num
+        BeginInvoke(New Label_change(AddressOf Label_TEXT), ALL_N_P, Num.ToString)
+        'ALL_N_P.Text = Num
+    End Sub
+
+    Private Delegate Sub setData(table As DataTable)
+    Private Sub setData_data(table As DataTable)
+        Data.Rows.Add()
+        Data.Rows(Data.Rows.Count - 1).Height = 45
+        Data.Rows(lineNum - 1).Cells(0).Value = lineNum
+        Data.Rows(lineNum - 1).Cells(1).Value = ID_P_A_I.Text.ToString()
+        Data.Rows(lineNum - 1).Cells(2).Value = table.Rows.Item(0).Item(0)
+        Data.Rows(lineNum - 1).Cells(4).Value = 1
+        Data.Rows(lineNum - 1).Cells(5).Value = table.Rows.Item(0).Item(2)
+        Data.Rows(lineNum - 1).Cells(6).Value = table.Rows.Item(0).Item(2)
+        'balance.score += Double.Parse(table.Rows.Item(0).Item(3).ToString())   'calculate goods scores
+        scoreTable.Rows.Add()
+        scoreTable.Rows.Item(scoreTable.Rows.Count - 1).Item(0) = Double.Parse(table.Rows.Item(0).Item(3).ToString()) 'calculate goods scores
     End Sub
 
     '从数据库得到数据
@@ -215,6 +257,14 @@ Public Class cash
                 End If
                 Dim str As String = "select name ,shop_id,price,score from goods where code = " + ID_P_A_I.Text.ToString()
                 Dim sqliteadapter As New SQLite.SQLiteDataAdapter(str, Login.sqliteconn)
+
+                '调试代码
+                'If Login.sqliteconn.State = ConnectionState.Open Then
+                '    MsgBox("yes")
+                'Else
+                '    MsgBox("No")
+                'End If
+
                 Dim table As New DataTable
                 table.Reset()
                 sqliteadapter.Fill(table)
@@ -224,49 +274,57 @@ Public Class cash
                     flag = True
                     'cancleFlag(cancleFlag(0) + 1) = 0  '记录步骤
                     'cancleFlag(0) += 1
-                    Data.Rows.Add()
-                    Data.Rows(Data.Rows.Count - 1).Height = 45
-                    Data.Rows(lineNum - 1).Cells(0).Value = lineNum
-                    Data.Rows(lineNum - 1).Cells(1).Value = ID_P_A_I.Text.ToString()
-                    Data.Rows(lineNum - 1).Cells(2).Value = table.Rows.Item(0).Item(0)
-                    Data.Rows(lineNum - 1).Cells(4).Value = 1
-                    Data.Rows(lineNum - 1).Cells(5).Value = table.Rows.Item(0).Item(2)
-                    Data.Rows(lineNum - 1).Cells(6).Value = table.Rows.Item(0).Item(2)
-                    'balance.score += Double.Parse(table.Rows.Item(0).Item(3).ToString())   'calculate goods scores
-                    scoreTable.Rows.Add()
-                    scoreTable.Rows.Item(scoreTable.Rows.Count - 1).Item(0) = Double.Parse(table.Rows.Item(0).Item(3).ToString()) 'calculate goods scores
                     'p_id_p.Text = Data.Rows(lineNum - 1).Cells(1).Value
                     'P_Name.Text = Data.Rows(lineNum - 1).Cells(2).Value
                     'P_NUM.Text = Data.Rows(lineNum - 1).Cells(4).Value
-
+                    BeginInvoke(New setData(AddressOf setData_data), table)
                     If Data.Rows.Count Mod 2 = 0 Then
-                        Data.Rows(Data.Rows.Count - 1).DefaultCellStyle.BackColor = Color.FromArgb(&HFFF7F7F7)
+                        'Data.Rows(Data.Rows.Count - 1).DefaultCellStyle.BackColor = Color.FromArgb(&HFFF7F7F7)
+                        BeginInvoke(New set_data_back_color(AddressOf set_Data_BK_color), Data.Rows.Count - 1, Color.FromArgb(&HFFF7F7F7))
                     Else
-                        Data.Rows(Data.Rows.Count - 1).DefaultCellStyle.BackColor = Color.White
+                        'Data.Rows(Data.Rows.Count - 1).DefaultCellStyle.BackColor = Color.White
+                        BeginInvoke(New set_data_back_color(AddressOf set_Data_BK_color), Data.Rows.Count - 1, Color.White)
                     End If
 
                     temp = table.Rows.Item(0).Item(1)
                     lineNum += 1
-                    ID_P_A_I.Text = ""
+                    'ID_P_A_I.Text = ""
+                    BeginInvoke(New Text_box_change(AddressOf text_box_text), ID_P_A_I, "")
                 Else  'print the error msg
                     'Dim form As New MSG
                     'form.head.Text = "提示"
                     'form.msgP.Text = "仓库不存在此商品"
                     'form.Show()
-                    Login.MsgboxNotice("仓库不存在此商品", "提示", False, False, Nothing, Me, True, False)
-                    ID_P_A_I.Text = ""
+                    'Login.MsgboxNotice("仓库不存在此商品", "提示", False, False, Nothing, Me, True, False)
+                    BeginInvoke(New Login.msgbox_de(AddressOf Login.megbox_invo), "仓库不存在此商品", "提示", False, False, Nothing, Me, True, False)
+                    'ID_P_A_I.Text = ""
+                    BeginInvoke(New Text_box_change(AddressOf text_box_text), ID_P_A_I, "")
                 End If
                 If flag = True Then
-                    Data.Rows(lineNum - 2).Cells(3).Value = getshopName(temp) '名称
+                    'Data.Rows(lineNum - 2).Cells(3).Value = getshopName(temp) '名称
+                    BeginInvoke(New set_data_cell_value(AddressOf set_date_cell_value_invo), lineNum - 2, 3, getshopName(temp))
                     changeMoney()
                     calculatePronum()
                 End If
             End If
         Catch ex As Exception
-            Login.write_errmsg(ex.Message, Me.Name, "selectFromBaseData", Me)
+            'Login.write_errmsg(ex.Message, Me.Name, "selectFromBaseData", Me)
+            BeginInvoke(New Login.write_err_msg(AddressOf Login.Write_Err_Msg_Invo), ex.Message, Me.Name, "selectFromBaseData", Me)
         End Try
 
     End Sub
+    '设置data某个元素的值
+    Delegate Sub set_data_cell_value(line As Integer, column As Integer, value As String)
+    Private Sub set_date_cell_value_invo(line As Integer, column As Integer, value As String)
+        Data.Rows(line).Cells(column).Value = value
+    End Sub
+
+    '设置data背景颜色
+    Delegate Sub set_data_back_color(line As Integer, color As Color)
+    Private Sub set_Data_BK_color(line As Integer, color As Color)
+        Data.Rows(line).DefaultCellStyle.BackColor = color
+    End Sub
+
 
     'calculatescore
     Private Sub calculatescore()
@@ -277,7 +335,8 @@ Public Class cash
             Next
             balance.score = score
         Catch ex As Exception
-            Login.write_errmsg(ex.Message, Me.Name, "calculatescore", Me)
+            ' Login.write_errmsg(ex.Message, Me.Name, "calculatescore", Me)
+            BeginInvoke(New Login.write_err_msg(AddressOf Login.Write_Err_Msg_Invo), ex.Message, Me.Name, "calculatescore", Me)
         End Try
     End Sub
 
@@ -287,9 +346,11 @@ Public Class cash
         If int >= 1 Then
             For i = int To Data.Rows.Count - 1
                 If i Mod 2 = 0 Then
-                    Data.Rows(Data.Rows.Count - 1).DefaultCellStyle.BackColor = Color.FromArgb(&HFFF7F7F7)
+                    'Data.Rows(Data.Rows.Count - 1).DefaultCellStyle.BackColor = Color.FromArgb(&HFFF7F7F7)
+                    BeginInvoke(New set_data_back_color(AddressOf set_Data_BK_color), Data.Rows.Count - 1, Color.FromArgb(&HFFF7F7F7))
                 Else
-                    Data.Rows(Data.Rows.Count - 1).DefaultCellStyle.BackColor = Color.White
+                    ' Data.Rows(Data.Rows.Count - 1).DefaultCellStyle.BackColor = Color.White
+                    BeginInvoke(New set_data_back_color(AddressOf set_Data_BK_color), Data.Rows.Count - 1, Color.White)
                 End If
             Next
         End If
@@ -302,7 +363,7 @@ Public Class cash
         'Dr.CommandType = CommandType.Text
         'Dim MR As MySqlDataReader
         'MR = Dr.ExecuteReader()
-        Dim sqliteadater As New SQLite.SQLiteDataAdapter(str, Login.sqliteconn)
+        Dim sqliteadater As New SQLite.SQLiteDataAdapter(Str, Login.sqliteconn)
         Dim table As New DataTable
         table.Reset()
         sqliteadater.Fill(table)
@@ -313,22 +374,25 @@ Public Class cash
         End If
     End Function
 
-
     Private Sub Data_CellContentClick(sender As Object, e As MouseEventArgs) Handles Data.MouseClick
         If Data.Rows.Count Then
             If Data.CurrentCell.ColumnIndex = 4 Then
                 Select Case e.Button
                     Case Windows.Forms.MouseButtons.Left
-                        Data.Rows(Data.CurrentCell.RowIndex).Cells(4).Value += 1
-                        Data.Rows(Data.CurrentCell.RowIndex).Cells(6).Value = Double.Parse(Data.Rows(Data.CurrentCell.RowIndex).Cells(5).Value) * Double.Parse(Data.Rows(Data.CurrentCell.RowIndex).Cells(4).Value)
+                        'Data.Rows(Data.CurrentCell.RowIndex).Cells(4).Value += 1
+                        'Data.Rows(Data.CurrentCell.RowIndex).Cells(6).Value = Double.Parse(Data.Rows(Data.CurrentCell.RowIndex).Cells(5).Value) * Double.Parse(Data.Rows(Data.CurrentCell.RowIndex).Cells(4).Value)
+                        BeginInvoke(New set_data_cell_value(AddressOf set_date_cell_value_invo), Data.CurrentCell.RowIndex, 4, Data.Rows(Data.CurrentCell.RowIndex).Cells(4).Value + 1)
+                        BeginInvoke(New set_data_cell_value(AddressOf set_date_cell_value_invo), Data.CurrentCell.RowIndex, 6, Double.Parse(Data.Rows(Data.CurrentCell.RowIndex).Cells(5).Value) * Double.Parse(Data.Rows(Data.CurrentCell.RowIndex).Cells(4).Value))
                         changeMoney()
                         calculatePronum()
                         ' cancleFlag(0) += 1
                         'cancleFlag(cancleFlag(0)) = 1
                     Case Windows.Forms.MouseButtons.Right
                         If Data.Rows(Data.CurrentCell.RowIndex).Cells(4).Value >= 2 Then
-                            Data.Rows(Data.CurrentCell.RowIndex).Cells(4).Value -= 1
-                            Data.Rows(Data.CurrentCell.RowIndex).Cells(6).Value = Double.Parse(Data.Rows(Data.CurrentCell.RowIndex).Cells(5).Value) * Double.Parse(Data.Rows(Data.CurrentCell.RowIndex).Cells(4).Value)
+                            'Data.Rows(Data.CurrentCell.RowIndex).Cells(4).Value -= 1
+                            'Data.Rows(Data.CurrentCell.RowIndex).Cells(6).Value = Double.Parse(Data.Rows(Data.CurrentCell.RowIndex).Cells(5).Value) * Double.Parse(Data.Rows(Data.CurrentCell.RowIndex).Cells(4).Value)
+                            BeginInvoke(New set_data_cell_value(AddressOf set_date_cell_value_invo), Data.CurrentCell.RowIndex, 4, Data.Rows(Data.CurrentCell.RowIndex).Cells(4).Value - 1)
+                            BeginInvoke(New set_data_cell_value(AddressOf set_date_cell_value_invo), Data.CurrentCell.RowIndex, 6, Double.Parse(Data.Rows(Data.CurrentCell.RowIndex).Cells(5).Value) * Double.Parse(Data.Rows(Data.CurrentCell.RowIndex).Cells(4).Value))
                             changeMoney()
                             calculatePronum()
                             'cancleFlag(0) += 1
@@ -337,11 +401,13 @@ Public Class cash
                         End If
                         If Data.Rows(Data.CurrentCell.RowIndex).Cells(4).Value = 1 Then
                             ExchageBackColor(Data.CurrentCell.RowIndex)
-                            Data.Rows.RemoveAt(Data.CurrentCell.RowIndex)
+                            'Data.Rows.RemoveAt(Data.CurrentCell.RowIndex)
+                            BeginInvoke(New Data_RemoveAt(AddressOf Data_RemoveAt_Invo), Data.CurrentCell.RowIndex)
                             lineNum -= 1
                             changeMoney()
                             calculatePronum()
-                            scoreTable.Rows.RemoveAt(Data.CurrentCell.RowIndex)
+                            'scoreTable.Rows.RemoveAt(Data.CurrentCell.RowIndex)
+                            BeginInvoke(New dataTable_RemoveAt(AddressOf dataTable_RemoveAt_invo), scoreTable, Data.CurrentCell.RowIndex)
                             ' cancleFlag(0) += 1
                             'cancleFlag(cancleFlag(0)) = 0
                         End If
@@ -349,10 +415,15 @@ Public Class cash
             End If
         End If
     End Sub
+    'datatable removeAt
+    Delegate Sub dataTable_RemoveAt(da As DataTable, line As Integer)
+    Private Sub dataTable_RemoveAt_invo(da As DataTable, line As Integer)
+        da.Rows.RemoveAt(line)
+    End Sub
 
     'form keypress detect
     Private Sub form_keypress(sender As Object, e As KeyEventArgs) Handles Me.KeyDown
-        If e.keycode = Keys.Escape Then
+        If e.KeyCode = Keys.Escape Then
             'Dim messge As New MSG
             'messge.head.Text = "即将退出系统"
             'messge.msgP.Text = "按下enter退出系统，esc返回..."
@@ -385,14 +456,17 @@ Public Class cash
 
     '重置函数
     Private Sub clear()
-        ID_P_A_I.Text = ""
-        ALL_N_P.Text = "0"
-        ALL_M_P.Text = "0"
+        'ID_P_A_I.Text = ""
+        BeginInvoke(New Text_box_change(AddressOf text_box_text), ID_P_A_I, "")
+        'ALL_N_P.Text = "0"
+        'ALL_M_P.Text = "0"
+        BeginInvoke(New Label_change(AddressOf Label_TEXT), ALL_N_P, "0")
+        BeginInvoke(New Label_change(AddressOf Label_TEXT), ALL_M_P, "0")
         For i = Data.Rows.Count - 1 To 0 Step -1
             If i < 0 Then
                 Exit For
             End If
-            Data.Rows.RemoveAt(i)
+            BeginInvoke(New Data_RemoveAt(AddressOf Data_RemoveAt_Invo), Data.Rows.Count() - 1)
         Next i
         lineNum = 1
         scoreTable.Reset()
@@ -428,7 +502,8 @@ Public Class cash
         'End Try
 
         If Data.Rows.Count Then
-            Data.Rows.RemoveAt(Data.Rows.Count() - 1)
+            'Data.Rows.RemoveAt(Data.Rows.Count() - 1)
+            BeginInvoke(New Data_RemoveAt(AddressOf Data_RemoveAt_Invo), Data.Rows.Count() - 1)
             lineNum -= 1
             changeMoney()
             calculatePronum()
@@ -436,14 +511,20 @@ Public Class cash
 
     End Sub
 
+    Delegate Sub Data_RemoveAt(line As Integer)
+    Private Sub Data_RemoveAt_Invo(line As Integer)
+        Data.Rows.RemoveAt(line)
+    End Sub
+
     Private Sub F5_Click(sender As Object, e As EventArgs) Handles F5.Click
-        cancleLastStep()
+        'cancleLastStep()
+        thread("cancleLastStep")
     End Sub
 
     Private Sub about_Click(sender As Object, e As EventArgs) Handles about.Click
         If Login.MsgboxNotice("版本：1.3" + vbCrLf + "2015年5月更新。", "版本信息", True, True, "检查更新", Me, True, False) = DialogResult.Cancel Then
             '这里加更新代码
-            MsgBox("更新...")
+            Login.MsgboxNotice("攻城师正在努力完善代码中，敬请期待...", "提示", False, True, Nothing, Me, True, False)
         End If
     End Sub
 End Class

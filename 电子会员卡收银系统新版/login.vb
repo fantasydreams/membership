@@ -25,10 +25,7 @@ Public Class Login
     '    Dim runThread As Thread
     'Dim KeepSqlAliveThread As Thread
     Public shopID As Long = 0
-
-
     Dim temp As Object
-
     Dim win_form As Form
     Dim win_form_laod As Boolean = False
 
@@ -145,6 +142,7 @@ Err:
 
     Delegate Sub win_load()
     Private Sub windows_load()
+        Me.SuspendLayout()
         sqliteconn.ConnectionString = "Data Source = " & db
         Me.BackColor = Color.FromArgb(&HFFFAFAFA)
         'Me.BackColor = Color.Blue
@@ -156,6 +154,7 @@ Err:
         ID.Text = "请输入账号"
         key.BackColor = Color.FromArgb(&HFFF6F6F6)
         key.Text = "请输入密码"
+        Me.ResumeLayout()
         '.Show()
         'System.Windows.Forms.Control.CheckForIllegalCrossThreadCalls = False
         sqliteconn.ConnectionString = "Data Source= " & db
@@ -489,4 +488,16 @@ Err:
         fsw.Close()
     End Sub
 
+
+    'invo_msgbox
+    Public Delegate Sub msgbox_de(meg As String, content As String, No_visible As Boolean, Yes_visible As Boolean, cancelText As String, e As Form, info As Boolean, factory As Boolean)
+    Public Sub megbox_invo(meg As String, content As String, No_visible As Boolean, Yes_visible As Boolean, cancelText As String, e As Form, info As Boolean, factory As Boolean)
+        MsgboxNotice(meg, content, No_visible, Yes_visible, cancelText, e, info, factory)
+    End Sub
+
+    'invoke writeerror_msg
+    Public Delegate Sub write_err_msg(str As String, strName As String, method As String, e As Form)
+    Public Sub Write_Err_Msg_Invo(str As String, strName As String, method As String, e As Form)
+        write_errmsg(str, strName, method, e)
+    End Sub
 End Class
