@@ -36,6 +36,7 @@ Partial Class background
         Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
         Me.Name = "background"
         Me.Opacity = 0.5R
+        Me.ShowInTaskbar = False
         Me.Text = "background"
         Me.ResumeLayout(False)
 

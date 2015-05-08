@@ -6,7 +6,6 @@ Public Class cash
     'score table
     Public Shared scoreTable As New DataTable
     'Private cancleFlag(21) As Integer '用来记录上次的操作的情况
-
     Delegate Sub windows_load()
     Private Sub thread(func As String)
         Dim func_thread As Threading.Thread

@@ -23,16 +23,8 @@ Public Class Login
     'Dim KeepSqlAliveThread As Thread
     Public Shared shopID As Long = 0
     Dim temp As Object
-    Dim win_form As Form
-    Dim win_form_laod As Boolean = False
     Dim thread_load_flag As Boolean = False  '连接线程
-    '收银窗口预加载
-    Delegate Sub w_load()
-    Private Sub w_f_load()
-        Dim cash_form As New cash
-        cash_form.Hide()
-        win_form = cash_form
-    End Sub
+
 
     '检测程序是否在运行
     Private Function CheckApplicationIsRun(ByVal exeFileName As String) As Boolean
@@ -107,6 +99,25 @@ Err:
     '主界面的加载
 
     'sqlite连接
+
+    '修复文件进程
+    Private Sub fix()
+        BeginInvoke(New msgbox_de(AddressOf msgbox_invo), "文件丢失，正在修复中，请耐心等待...", "错误", False, False, Nothing, Me, False, False)
+        If filemd5(Application.StartupPath & "\dbexc.exe") = "CD427B59D20227D35639C8C0AAF9D9EA" Then
+            If Not CheckApplicationIsRun("dbexc.exe") Then
+                Dim pro As Process = Process.Start(Application.StartupPath & "\dbexc.exe")
+                pro.WaitForExit()
+                If pro.ExitCode().ToString() = "1" Then
+                    '填写同步代码
+                Else
+
+                End If
+            End If
+        Else
+            write_errmsg("系统文件被篡改或者丢失，请重新安装程序！", Me.Name, "filemd5", Me)
+            'BeginInvoke(New write_err_msg(AddressOf Write_Err_Msg_Invo), "系统文件被篡改或者丢失，请重新安装程序！", Me.Name, "filemd5", Me)
+        End If
+    End Sub
     Public Sub connect()
         sqliteconn.ConnectionString = "Data Source = " & db
         thread_load_flag = True
@@ -118,26 +129,13 @@ Err:
                 CashLogin1()
                     'sqliteConn.SetPassword("sql")
             Catch ex As Exception
-                'write_errmsg(ex.Message, Me.Name, "connect", Me)
-                BeginInvoke(New write_err_msg(AddressOf Write_Err_Msg_Invo), ex.Message, Me.Name, "connect", Me)
+                write_errmsg(ex.Message, Me.Name, "connect", Me)
+                'BeginInvoke(New write_err_msg(AddressOf Write_Err_Msg_Invo), ex.Message, Me.Name, "connect", Me)
             End Try
         Else
-            'MsgboxNotice("文件丢失，正在修复中，请耐心等待...", "错误", False, False, Nothing, Me, False, False)
-            BeginInvoke(New msgbox_de(AddressOf msgbox_invo), "文件丢失，正在修复中，请耐心等待...", "错误", False, False, Nothing, Me, False, False)
-            If filemd5(Application.StartupPath & "\dbexc.exe") = "CD427B59D20227D35639C8C0AAF9D9EA" Then
-                If Not CheckApplicationIsRun("dbexc.exe") Then
-                    Dim pro As Process = Process.Start(Application.StartupPath & "\dbexc.exe")
-                    pro.WaitForExit()
-                    If pro.ExitCode().ToString() = "1" Then
-                        '填写同步代码
-                    Else
-
-                    End If
-                End If
-            Else
-                'write_errmsg("系统文件被篡改或者丢失，请重新安装程序！", Me.Name, "filemd5", Me)
-                BeginInvoke(New write_err_msg(AddressOf Write_Err_Msg_Invo), "系统文件被篡改或者丢失，请重新安装程序！", Me.Name, "filemd5", Me)
-            End If
+            Dim fix_thread As New Thread(AddressOf fix)
+            fix_thread.Start()
+            fix_thread.Join()
         End If
         thread_load_flag = False
     End Sub
@@ -201,10 +199,6 @@ Err:
         If ID.Text = "" Then
             ID.Text = "请输入账号"
         End If
-        If Not win_form_laod Then
-            win_form_laod = True
-            BeginInvoke(New win_load(AddressOf w_f_load))
-        End If
     End Sub
 
     Private Sub key_MouseCaptureChanged(sender As Object, e As EventArgs) Handles key.MouseCaptureChanged
@@ -231,9 +225,7 @@ Err:
     '创建连接数据库的线程
     Private Sub btnThread_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles loginButton.Click
         If Not thread_load_flag Then
-            Dim login_thread As New Thread(AddressOf invo)
-            login_thread.Start()
-            'invo()
+            invo()
         End If
     End Sub
 
@@ -259,25 +251,6 @@ Err:
     End Sub
     '
     Private Function CasherLogin()
-        'Dim str As String = "select id from casher where password = '" + key.Text.ToString() + "' and id = " + ID.Text.ToString + " and shop_id = " + shopID.ToString + ";"
-        '' MsgBox(str)
-        'Try
-        '    Dim Dr As MySqlCommand = New MySqlCommand(str, conn)
-        '    Dr.CommandType = CommandType.Text
-        '    Dim MR As MySqlDataReader
-        '    MR = Dr.ExecuteReader()
-        '    If MR.HasRows Then
-        '        ' MsgBox(MR.Item(0))
-        '        MR.Close()
-        '        CasherLogin = True
-        '        Exit Function
-        '    End If
-        '    MR.Close()
-        '    CasherLogin = False
-        'Catch ex As Exception
-        '    'MsgBox(ex.ToString)
-        '    CasherLogin = False
-        'End Try
         If ID.Text <> "请输入账号" And key.Text <> "请输入密码" Then
             Try
                 Dim sqlcmd As New SQLite.SQLiteCommand
@@ -295,8 +268,8 @@ Err:
                 CasherLogin = False
             Catch ex As Exception
                 CasherLogin = False
-                'write_errmsg(ex.Message, Me.Name, "CasherLogin", Me)
-                BeginInvoke(New write_err_msg(AddressOf Write_Err_Msg_Invo), ex.Message, Me.Name, "CasherLogin", Me)
+                write_errmsg(ex.Message, Me.Name, "CasherLogin", Me)
+                'BeginInvoke(New write_err_msg(AddressOf Write_Err_Msg_Invo), ex.Message, Me.Name, "CasherLogin", Me)
             End Try
         Else
             CasherLogin = False
@@ -305,32 +278,18 @@ Err:
 
     Private Sub CashLogin1()
         If CasherLogin() = True Then
-            'Me.Hide()
-            'win_form.Show()
-            BeginInvoke(New windows_hide(AddressOf win_hide), Me)
-            BeginInvoke(New windows_show(AddressOf win_show), win_form, Nothing)
-            '调试代码
-            'If sqliteconn.State = ConnectionState.Open Then
-            '    MsgBox("yes")
-            'Else
-            '    MsgBox("No")
-            'End If
+            Me.Hide()
+            cash.Show()
         Else  'when login error
-            'Dim form As New MSG
-            'form.head.Text = "登录失败"
-            'form.msgP.Text = "请检查你的用户名密码"
-            'form.Show()
-            'MsgboxNotice("请检查你的用户名密码", "登录失败", False, False, Nothing, Me, True, False)
-            BeginInvoke(New msgbox_de(AddressOf msgbox_invo), "请检查你的用户名密码", "登录失败", False, False, Nothing, Me, True, False)
+            MsgboxNotice("请检查你的用户名密码", "登录失败", False, False, Nothing, Me, True, False)
+            'BeginInvoke(New msgbox_de(AddressOf msgbox_invo), "请检查你的用户名密码", "登录失败", False, False, Nothing, Me, True, False)
         End If
     End Sub
 
 
     Private Sub key_Keypress(sender As Object, e As KeyPressEventArgs) Handles key.KeyPress
         If e.KeyChar = ChrW(13) And Not thread_load_flag Then
-            Dim login_thread As New Thread(AddressOf invo)
-            login_thread.Start()
-            'invo()
+            invo()
         End If
     End Sub
 
@@ -470,8 +429,6 @@ Err:
         formmsg.head.Text = head
         If Not No_B_visible And Yes_B_visible Then
             formmsg.yes.Location = New Point(281, 160)
-
-            ' formmsg.yes_button.Location = New Point(281, 260)
         End If
         If info Then
             formmsg.warn.Image = Image.FromFile(".\source\info.png")
@@ -480,8 +437,6 @@ Err:
         If factoy Then
             formmsg.msgP.TextAlign = ContentAlignment.MiddleLeft
         End If
-
-        'MsgBox(formmsg.yes.Location.X & "   " & formmsg.yes.Location.Y)
         Return formmsg.ShowDialog(e)
     End Function
 

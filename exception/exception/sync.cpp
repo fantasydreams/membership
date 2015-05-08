@@ -855,52 +855,90 @@ int sqlite3_exec_callback(void *data, int nColumn, char **colValues, char **colN
 	//}
 	//std::cout << std::endl;
 	std::string sql, temp;
+	bool stock_flag = false;
 	//首先查找是否在服务器上存在相关信息
-	sql = "select user_id from utos where shop_id = ";
-	temp = colValues[0];
-	sql += temp + " and user_id = ";
-	temp = colValues[1];
-	sql += temp + ";";
-	//std::cout << sql << std::endl;
+	if (!strcmp(colValues[2], "stock"))
+	{
+		stock_flag = true;
+		sql = "select id from goods where id = ";
+		temp = colValues[1];
+		sql += temp + ";";
+	}
+	else
+	{
+		sql = "select user_id from utos where shop_id = ";
+		temp = colValues[0];
+		sql += temp + " and user_id = ";
+		temp = colValues[1];
+		sql += temp + ";";
+		//std::cout << sql << std::endl;
+	}
 	point:if (!mysql_query(Sql.mysql, sql.c_str()))//查询成功
 	{
+		//std::cout << sql << std::endl;
 		Sql.res = mysql_store_result(Sql.mysql);
 		if (Sql.record1 = mysql_fetch_row(Sql.res)) //数据存在
 		{
-			sql = "update utos set ";
-			temp = colValues[2];
-			sql += temp + " = ";
-			sql += temp + " ";
-			temp = colValues[3];
-			sql += temp + " ";
-			temp = colValues[4];
-			sql += temp + " where shop_id = ";
-			temp = colValues[0];
-			sql += temp + " and user_id = ";
-			temp = colValues[1];
-			sql += temp + ";";
+			if (stock_flag)
+			{
+				sql = "update goods set soldtimes = soldtimes ";
+				temp = colValues[3];
+				sql += temp + " ";
+				temp = colValues[4];
+				sql += temp + " where id = ";
+				temp = colValues[1];
+				sql += temp + ";";
+				while (!Sql.Mysqlupdatequery(Sql.mysql, sql.c_str())) //更新soldtimes
+				{
+					//std::cout << mysql_error(Sql.mysql);
+					Sleep(2000);
+				}
+
+				sql = "update goods set stock = stock ";
+				temp = colValues[3];
+				sql += temp + " ";
+				temp = colValues[4];
+				sql += temp + "where id = ";
+				temp = colValues[1];
+				sql += temp + ";";
+			}
+			else
+			{
+				sql = "update utos set ";
+				temp = colValues[2];
+				sql += temp + " = ";
+				sql += temp + " ";
+				temp = colValues[3];
+				sql += temp + " ";
+				temp = colValues[4];
+				sql += temp + " where shop_id = ";
+				temp = colValues[0];
+				sql += temp + " and user_id = ";
+				temp = colValues[1];
+				sql += temp + ";";
+			}
 			//std::cout << sql << std::endl;
-			char buffer[512];
-			strcpy(buffer,sql.c_str());
-			if (Sql.Mysqlupdatequery(Sql.mysql, buffer))
+			if (Sql.Mysqlupdatequery(Sql.mysql, sql.c_str()))
 			{
 				sql = "delete from sync where shop_id = ";
 				temp = colValues[0];
 				sql += temp + " and user_id = ";
 				temp = colValues[1];
 				sql += temp + ";";
-				strcpy(buffer, sql.c_str());
-				std::cout << sql<<std::endl;
+				//std::cout << sql<<std::endl;
 				Sql.sqliteBeginTransaction();
-				while (!Sql.SqliteNoCallbackQuery(Sql.conn, buffer))
+				while (!Sql.SqliteNoCallbackQuery(Sql.conn, sql.c_str()))
 					Sleep(2000);
 				Sql.sqliteCommitTransaction();
 			}
 		}
+		else
+			std::cout << mysql_error(Sql.mysql);
 	}
 	else
 	{
 		//while (!mysql_options(Sql.mysql, MYSQL_OPT_RECONNECT, NULL)) //尝试重新连接数据库
+		
 		mysql_ping(Sql.mysql1);
 		Sleep(6000);//休眠6S
 		goto point;
@@ -973,8 +1011,10 @@ inline bool MysqlServer::Mysqlupdatequery(MYSQL * mysql, const char *sql)
 	mysqlBeginTransaction(mysql);
 	if (!mysql_query(mysql, sql))
 	{
-		mysqlCommitTransaction(mysql);
-		return true;
+		if (mysqlCommitTransaction(mysql))
+			return true;
+		else
+			return false;
 	}
 	else
 	{
@@ -1148,7 +1188,7 @@ bool MysqlServer::sqliteCommitTransaction()
 bool MysqlServer::sqliteRollbackTransaction()
 {
 	char * errmsg = NULL;
-	if (sqlite3_exec(conn, "rollback transaction", NULL, NULL, &errmsg))
+	if (sqlite3_exec(conn, "rollback;", NULL, NULL, &errmsg))
 	{
 		std::cout << "rollback transaction failed ：" << errmsg << std::endl;
 		sqlite3_free(errmsg);
@@ -1159,7 +1199,7 @@ bool MysqlServer::sqliteRollbackTransaction()
 
 bool MysqlServer::mysqlBeginTransaction(MYSQL *mysql)
 {
-	if (!mysql_query(mysql, "begin transaction;"))
+	if (mysql_query(mysql, "start transaction;"))
 	{
 		std::cout <<"begin transaction failed:"<< mysql_error(mysql);
 		return false;
@@ -1169,7 +1209,7 @@ bool MysqlServer::mysqlBeginTransaction(MYSQL *mysql)
 
 bool MysqlServer::mysqlCommitTransaction(MYSQL * mysql)
 {
-	if (!mysql_query(mysql, "commit transaction;"))
+	if (mysql_query(mysql, "commit;"))
 	{
 		std::cout << "commit transaction failed:" << mysql_error(mysql);
 		return false;
@@ -1179,7 +1219,7 @@ bool MysqlServer::mysqlCommitTransaction(MYSQL * mysql)
 
 bool MysqlServer::mysalRollbackTransaction(MYSQL * mysql)
 {
-	if (!mysql_query(mysql, "rollback transaction;"))
+	if (mysql_query(mysql, "rollback transaction;"))
 	{
 		std::cout << "rollback transaction failed:" << mysql_error(mysql);
 		return false;

@@ -277,3 +277,4 @@ unrecognized token: "1请输入账号"
 2015_05_08 12:23:23:(window_cash,func_selectFromBaseData)Invalid ConnectionString format, cannot parse: string value to split cannot be null
 2015_05_08 12:23:24:(window_cash,func_selectFromBaseData)Invalid ConnectionString format, cannot parse: string value to split cannot be null
 2015_05_08 12:28:46:(window_cash,func_selectFromBaseData)Invalid ConnectionString format, cannot parse: string value to split cannot be null
+2015_05_08 04:52:16:(window_Login,func_connect)线程间操作无效: 从不是创建控件“Login”的线程访问它。
