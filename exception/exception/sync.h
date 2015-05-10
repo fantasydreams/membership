@@ -1,7 +1,7 @@
 /*=====================================================
 
-powered by Carol(luoshengwen)
-date : 2015 - 5 - 4
+powered by Carol
+date : 2015 - 5 - 1
 
 =====================================================*/
 #ifndef SQLITE_HAS_CODEC   
@@ -47,6 +47,8 @@ date : 2015 - 5 - 4
 
 int sqlite3_exec_callback_utos(void *data, int nColumn, char **colValues, char **colNames);
 int sqlite3_exec_callback(void *data, int nColumn, char **colValues, char **colNames);//callback function must be static or overall function
+int sqlite3_exec_shop_time(void *data, int nColumn, char **colValues, char **colNames);
+int sqlite3_exec_null_time(void *data, int nColumn, char **colValues, char **colNames);
 
 class MysqlServer :protected  network
 {
@@ -65,6 +67,8 @@ private:
 	int bit;     //the bit of key
 	char * key;  //key of database
 	TCHAR * sha1; //sha1 地址
+	std::string shop_lasttime = "0";  //shop最新时间
+	std::string null_lasttime = "0"; //null最新时间
 	bool connectdata(); //连接本地sql_database
 	void makekey();   //produce key
 	int ramdom(int, int);  //produce ramdom number
@@ -103,8 +107,12 @@ private:
 	bool mysqlBeginTransaction(MYSQL *);//mysql开始执行事务
 	bool mysqlCommitTransaction(MYSQL *);//mysql 提交事务
 	bool mysalRollbackTransaction(MYSQL *);//mysql 回滚事务
+	bool get_upload_time();  //从sqlite数据库得到upload_time
+	bool get_download_time();//从sqlite数据库得到download_time
 	friend int sqlite3_exec_callback(void *data, int nColumn, char **colValues, char **colNames);//callback function must be static or overall function
 	friend int sqlite3_exec_callback_utos(void *data, int nColumn, char **colValues, char **colNames);
+	friend int sqlite3_exec_shop_time(void *data, int nColumn, char **colValues, char **colNames);
+	friend int sqlite3_exec_null_time(void *data, int nColumn, char **colValues, char **colNames);
 };
 #endif
 

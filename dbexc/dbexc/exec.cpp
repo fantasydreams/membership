@@ -105,6 +105,7 @@ bool dbexec::createTable()
 							'user_id'  INTEGER NOT NULL,\
 							'shop_id'  INTEGER NOT NULL,\
 							'balance'  REAL(5, 2) NOT NULL DEFAULT 0,\
+							'changesLimit'  REAL(5,2) NOT NULL,\
 							'usable'  INTEGER NOT NULL DEFAULT 1,\
 							PRIMARY KEY('user_id' ASC, 'shop_id'),\
 							CONSTRAINT 'fkey0' FOREIGN KEY('user_id') REFERENCES 'user' ('id'),\
@@ -143,7 +144,7 @@ bool dbexec::createTable()
 		return false;
 	}
 	//insert a record into sync_time table
-	if (sqlite3_exec(conn, "insert into sync_time(id)values(1)",NULL,NULL,&errmsg) != SQLITE_OK)
+	if (sqlite3_exec(conn, "insert into sync_time(id,shop_lasttime,null_lasttime)values(1,0,0)",NULL,NULL,&errmsg) != SQLITE_OK)
 	{
 		std::cout << errmsg;
 		return false;
@@ -153,6 +154,11 @@ bool dbexec::createTable()
 		std::cout << errmsg;
 		return false;
 	}
+	//if (sqlite3_exec(conn, "insert into utos(shop_id, user_id, balance, changesLimit, usable) values(0, 0, 0, 0, 0); ", NULL, NULL, &errmsg))
+	//{
+	//	std::cout << errmsg;
+	//	return false;
+	//}
 	return true;
 }
 //检测文件和文件夹是否存在

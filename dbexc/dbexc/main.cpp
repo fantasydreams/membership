@@ -21,6 +21,5 @@ int main()
 		//system("pause");
 		return false;
 	}
-	
 }
 
