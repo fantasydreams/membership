@@ -210,24 +210,24 @@ Public Class balance
 
 
     Private Sub me_key(sender As Object, e As KeyEventArgs) Handles Me.KeyDown
-        If e.KeyCode = Keys.Escape Then
-            Me.Hide()
-            IDScan.Show(background)
-            IDScan.ID_I.Text = user_id
-            IDScan.User_name.Text = user_name
-            AC_P_I.Text = ""
-            ALL_M_P.Text = "0"
-            VIP_M_P.Text = "0"
-            Pack_M.Text = "0"
-            PA_BACK_P.Text = "0"
-            flag = False
-            cash.ALL_M_P.Text = ""
-            cash.ALL_N_P.Text = ""
-        End If
-        If e.KeyCode = Keys.F4 Then
-            AC_P_I.Text = ""
-            PA_BACK_P.Text = "0"
-        End If
+        Select Case e.KeyCode
+            Case Keys.Escape
+                Me.Hide()
+                IDScan.Show(background)
+                IDScan.ID_I.Text = user_id
+                IDScan.User_name.Text = user_name
+                AC_P_I.Text = ""
+                ALL_M_P.Text = "0"
+                VIP_M_P.Text = "0"
+                Pack_M.Text = "0"
+                PA_BACK_P.Text = "0"
+                flag = False
+                cash.ALL_M_P.Text = ""
+                cash.ALL_N_P.Text = ""
+            Case Keys.F4
+                AC_P_I.Text = ""
+                PA_BACK_P.Text = "0"
+        End Select
     End Sub
 
 

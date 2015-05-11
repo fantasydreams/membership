@@ -138,6 +138,12 @@
     <Compile Include="IDScan.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="load_tip.Designer.vb">
+      <DependentUpon>load_tip.vb</DependentUpon>
+    </Compile>
+    <Compile Include="load_tip.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="login.vb">
       <SubType>Form</SubType>
     </Compile>
@@ -182,6 +188,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="IDScan.resx">
       <DependentUpon>IDScan.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="load_tip.resx">
+      <DependentUpon>load_tip.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="login.resx">
       <DependentUpon>login.vb</DependentUpon>

@@ -37,6 +37,7 @@ Partial Class background
         Me.Name = "background"
         Me.Opacity = 0.5R
         Me.ShowInTaskbar = False
+        Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         Me.Text = "background"
         Me.ResumeLayout(False)
 

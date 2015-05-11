@@ -19,15 +19,13 @@ Public Class Login
     Dim flag As Boolean
     Public data As String
     Dim Sqlconnect As Boolean = False
-    'Dim runThread As Thread
-    'Dim KeepSqlAliveThread As Thread
     Public Shared shopID As Long = 0
     Dim temp As Object
     Dim thread_load_flag As Boolean = False  '连接线程
 
 
     '检测程序是否在运行
-    Private Function CheckApplicationIsRun(ByVal exeFileName As String) As Boolean
+    Public Function CheckApplicationIsRun(ByVal exeFileName As String) As Boolean
         On Error GoTo Err
         Dim WMI
         Dim Obj
@@ -144,23 +142,14 @@ Err:
     Private Sub windows_load()
         Me.SuspendLayout()
         Me.BackColor = Color.FromArgb(&HFFFAFAFA)
-        'Me.BackColor = Color.Blue
-        'Me.TransparencyKey = Me.BackColor
-        ' Me.BackColor = Me.BackColor
         loginButton.BackColor = Color.FromArgb(&HFF72B9E2)
-        'key.BackColor = System.Drawing.Color.Transparent
         ID.BackColor = Color.FromArgb(&HFFF6F6F6)
         ID.Text = "请输入账号"
         key.BackColor = Color.FromArgb(&HFFF6F6F6)
         key.Text = "请输入密码"
         Me.ResumeLayout()
-        '.Show()
-        'System.Windows.Forms.Control.CheckForIllegalCrossThreadCalls = False
-        'sqliteconn.ConnectionString = "Data Source= " & db
         GHWindowSize()
         shopGet()  'getshop info
-        'Dim shop_get_thread As New Thread(AddressOf shopGet)
-        'shop_get_thread.Start()
     End Sub
     Private Sub Login_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         'cash.Show()
@@ -253,12 +242,9 @@ Err:
     Private Function CasherLogin()
         If ID.Text <> "请输入账号" And key.Text <> "请输入密码" Then
             Try
-                Dim sqlcmd As New SQLite.SQLiteCommand
-                sqlcmd.Connection = sqliteconn
-                sqlcmd.CommandType = CommandType.Text
-                sqlcmd.CommandText = "select id from casher where password = '" + key.Text.ToString() + "' and id = " + ID.Text.ToString + " and shop_id = " + shopID.ToString + ";"
+                Dim sqlstr = "select id from casher where password = '" + key.Text.ToString() + "' and id = " + ID.Text.ToString + " and shop_id = " + shopID.ToString + ";"
                 Dim sqlda As SQLite.SQLiteDataAdapter
-                sqlda = New SQLite.SQLiteDataAdapter(sqlcmd.CommandText, sqliteconn)
+                sqlda = New SQLite.SQLiteDataAdapter(sqlstr, sqliteconn)
                 Dim tableData As New DataTable
                 sqlda.Fill(tableData)
                 If tableData.Rows.Count() Then

@@ -157,7 +157,7 @@ bool MysqlServer::fristrun()
 		std::cout << mysql_error(mysql);
 		return false;
 	}
-	sql = "select user_id,balance,usable from utos where shop_id = " + s_id + ";";
+	sql = "select user_id,balance,usable,changesLimit from utos where shop_id = " + s_id + ";";
 	if (!mysql_query(mysql, sql.c_str()))
 	{
 		res = mysql_store_result(mysql);
@@ -168,11 +168,13 @@ bool MysqlServer::fristrun()
 		while (record = result.getelement())
 		{
 			temp = record[0];
-			sql = "insert into utos(user_id,shop_id,balance,usable)values(" + temp + "," + s_id + ",";
+			sql = "insert into utos(user_id,shop_id,balance,usable,changesLimit )values(" + temp + "," + s_id + ",";
 			temp = record[1];
 			sql += temp + ",";
 			temp = record[2];
-			sql += temp + ")";
+			sql += temp + ",";
+			temp = record[3];
+			sql += temp + ");";
 			SqliteNoCallbackQuery(conn, sql.c_str());
 		}
 		//sqlite3_exec(conn, "commit;", 0, 0, &err_msg);
@@ -183,6 +185,14 @@ bool MysqlServer::fristrun()
 	{
 		sqliteRollbackTransaction();//回滚事务
 		std::cout << mysql_error(mysql);
+		return false;
+	}
+
+	if (sqlite3_exec(conn, "update frist_run set frist_result = 1 where id = 1;", NULL, NULL, &err_msg)!=SQLITE_OK)
+	{
+		std::cout << err_msg;
+		sqlite3_free(err_msg);
+		sqliteRollbackTransaction();//回滚事务
 		return false;
 	}
 	sqliteCommitTransaction();//提交事务

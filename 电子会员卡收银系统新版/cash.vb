@@ -27,12 +27,24 @@ Public Class cash
         'Me.SuspendLayout()
         Me.SetStyle(ControlStyles.DoubleBuffer Or ControlStyles.AllPaintingInWmPaint, True)
         Me.Size = New Size(Login.ScreenWidth, Login.ScreenHeight)
+        Me.Location = New Point(0, 0)
+        'MsgBox(Login.ScreenWidth.ToString + "    " + Login.ScreenHeight.ToString)
         Me.BackColor = Color.FromArgb(&HFFF1F1F1)
         'Me.Visible = True
+
+        column.Size = New Size(Login.ScreenWidth, 40)
+        'column.Location = New Point(0, 0)
+
         Esc.Parent = column
         F4.Parent = column
         F5.Parent = column
+        Cancellation.Parent = column
         about.Parent = column
+
+        'column1
+        'column1.Location = New Point(0, 136)
+        column1.Size = New Size(Login.ScreenWidth, 40)
+
         Line_num.Parent = column1
         Buy_ID.Parent = column1
         P_Name_.Parent = column1
@@ -41,11 +53,11 @@ Public Class cash
         P_Price.Parent = column1
         P_Mon.Parent = column1
 
+
         ALL_M_Back.BackColor = Color.FromArgb(&HFFD7D7D7)
         ALL_M_Back.Size = New Size(230, 65)
         ALL_M_Back.Location = New Point(Me.Width - ALL_M_Back.Width - 10, 56)
         'Me.BackColor = Color.Red
-        column.Size = New Size(Me.Width, 40)
 
         ALLN_Back.BackColor = Color.FromArgb(&HFFD7D7D7)
         ALLN_Back.Size = ALL_M_Back.Size
@@ -364,34 +376,18 @@ Public Class cash
 
     'form keypress detect
     Private Sub form_keypress(sender As Object, e As KeyEventArgs) Handles Me.KeyDown
-        If e.KeyCode = Keys.Escape Then
-            'Dim messge As New MSG
-            'messge.head.Text = "即将退出系统"
-            'messge.msgP.Text = "按下enter退出系统，esc返回..."
-            'messge.Show()
-            Esc_Click(Me, Nothing)
-        End If
-        If e.KeyCode = Keys.F4 Then
-            clear()
-            'Dim messge As New MSG
-            'messge.head.Text = "F4"
-            'messge.msgP.Text = "你按下了F4"
-            'messge.Show()
-
-
-        End If
-        If e.KeyCode = Keys.F5 Then
-            'Dim messge As New MSG
-            'messge.head.Text = "F5"
-            'messge.msgP.Text = "你按下了F5"
-            'messge.Show()
-            cancleLastStep()
-
-        End If
-
-        If e.KeyCode = Keys.F6 Then
-            about_Click(Me, Nothing)
-        End If
+        Select Case e.KeyCode
+            Case Keys.Escape
+                Esc_Click(Me, Nothing)
+            Case Keys.F4
+                clear()
+            Case Keys.F5
+                cancleLastStep()
+            Case Keys.F6
+                Cancellation_Click(Me, Nothing)
+            Case Keys.F8
+                about_Click(Me, Nothing)
+        End Select
     End Sub
 
     '重置函数
@@ -468,4 +464,15 @@ Public Class cash
             Login.MsgboxNotice("攻城师正在努力完善代码中，敬请期待...", "提示", False, True, Nothing, Me, True, False)
         End If
     End Sub
+
+    Private Sub Cancellation_Click(sender As Object, e As EventArgs) Handles Cancellation.Click
+        Login.key.Text = "请输入密码"
+        Login.key.PasswordChar = ""
+        Login.ID.Text = "请输入账号"
+        Login.ID.Focus()
+        Login.ActiveControl = Login.ID
+        Login.Show()
+        Me.Close()
+    End Sub
+
 End Class

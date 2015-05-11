@@ -67,6 +67,7 @@ Partial Class cash
         Me.P_Mon = New System.Windows.Forms.Label()
         Me.Line = New System.Windows.Forms.Label()
         Me.about = New System.Windows.Forms.Label()
+        Me.Cancellation = New System.Windows.Forms.Label()
         CType(Me.column, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.column1, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.Data, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -79,7 +80,7 @@ Partial Class cash
         Me.column.Location = New System.Drawing.Point(0, 0)
         Me.column.Name = "column"
         Me.column.Size = New System.Drawing.Size(1366, 40)
-        Me.column.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom
+        Me.column.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage
         Me.column.TabIndex = 0
         Me.column.TabStop = False
         '
@@ -250,7 +251,7 @@ Partial Class cash
         Me.column1.Location = New System.Drawing.Point(0, 136)
         Me.column1.Name = "column1"
         Me.column1.Size = New System.Drawing.Size(1366, 40)
-        Me.column1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom
+        Me.column1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage
         Me.column1.TabIndex = 20
         Me.column1.TabStop = False
         '
@@ -453,12 +454,24 @@ Partial Class cash
         Me.about.BackColor = System.Drawing.Color.Transparent
         Me.about.Font = New System.Drawing.Font("幼圆", 15.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(134, Byte))
         Me.about.ForeColor = System.Drawing.SystemColors.ControlDarkDark
-        Me.about.Location = New System.Drawing.Point(380, 0)
+        Me.about.Location = New System.Drawing.Point(500, 0)
         Me.about.Name = "about"
         Me.about.Size = New System.Drawing.Size(100, 40)
         Me.about.TabIndex = 30
-        Me.about.Text = "F6关于"
+        Me.about.Text = "F8关于"
         Me.about.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        '
+        'Cancellation
+        '
+        Me.Cancellation.BackColor = System.Drawing.Color.Transparent
+        Me.Cancellation.Font = New System.Drawing.Font("幼圆", 15.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(134, Byte))
+        Me.Cancellation.ForeColor = System.Drawing.SystemColors.ControlDarkDark
+        Me.Cancellation.Location = New System.Drawing.Point(380, 0)
+        Me.Cancellation.Name = "Cancellation"
+        Me.Cancellation.Size = New System.Drawing.Size(100, 40)
+        Me.Cancellation.TabIndex = 31
+        Me.Cancellation.Text = "F6注销"
+        Me.Cancellation.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
         '
         'cash
         '
@@ -466,6 +479,7 @@ Partial Class cash
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(1366, 726)
         Me.ControlBox = False
+        Me.Controls.Add(Me.Cancellation)
         Me.Controls.Add(Me.about)
         Me.Controls.Add(Me.Line)
         Me.Controls.Add(Me.P_Mon)
@@ -500,6 +514,7 @@ Partial Class cash
         Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
         Me.KeyPreview = True
         Me.Name = "cash"
+        Me.RightToLeftLayout = True
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         Me.Text = "cash"
         CType(Me.column, System.ComponentModel.ISupportInitialize).EndInit()
@@ -545,4 +560,5 @@ Partial Class cash
     Friend WithEvents P_Mon As System.Windows.Forms.Label
     Friend WithEvents Line As System.Windows.Forms.Label
     Friend WithEvents about As System.Windows.Forms.Label
+    Friend WithEvents Cancellation As System.Windows.Forms.Label
 End Class

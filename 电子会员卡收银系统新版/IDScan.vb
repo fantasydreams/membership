@@ -188,15 +188,14 @@ Public Class IDScan
     End Sub
 
     Private Sub me_key(sender As Object, e As KeyEventArgs) Handles Me.KeyDown
-        If e.KeyCode = Keys.Escape Then
-            Me.Hide()
-            background.Hide()
-            ID_I.Text = ""
-        End If
-        If e.KeyCode = Keys.F4 Then
-            ID_I.Text = ""
-            'BeginInvoke(New Login.Label_text(AddressOf Login.Label_text_invo), ID_I, "")
-        End If
+        Select Case e.KeyCode
+            Case Keys.Escape
+                Me.Hide()
+                background.Hide()
+                ID_I.Text = ""
+            Case Keys.F4
+                ID_I.Text = ""
+        End Select
     End Sub
 
 End Class

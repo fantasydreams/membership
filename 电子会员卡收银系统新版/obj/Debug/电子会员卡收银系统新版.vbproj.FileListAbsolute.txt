@@ -36,4 +36,4 @@ F:\github\membership\电子会员卡收银系统新版\obj\Debug\电子会员卡
 F:\github\membership\电子会员卡收银系统新版\obj\Debug\电子会员卡收银系统新版.vbproj.GenerateResource.Cache
 F:\github\membership\电子会员卡收银系统新版\obj\Debug\电子会员卡收银系统新版.fristrun.resources
 F:\github\membership\电子会员卡收银系统新版\bin\Debug\SQLite.NET.dll
-F:\github\membership\电子会员卡收银系统新版\bin\Debug\System.Data.SQLite.dll
+F:\github\membership\电子会员卡收银系统新版\obj\Debug\电子会员卡收银系统新版.load_tip.resources

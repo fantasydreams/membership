@@ -35,15 +35,64 @@ Public Class fristrun
         Return False
     End Function 'shopName method
 
+    Private Sub Load_Data()
+        Dim fsr As New StreamWriter(".\config\data.ini")  '向文件中写入配置信息
+        fsr.WriteLine(shop_id_in.Text)
+        fsr.WriteLine(shop_list.Text)
+        fsr.Close()
+        If Login.CheckApplicationIsRun(Application.StartupPath + "./membersync.exe") Then '如果同步程序在运行，则杀死进程
+            Dim myprocess() As Process
+            Dim p As New System.Diagnostics.Process
+            Dim inst As Process
+            Try
+                myprocess = System.Diagnostics.Process.GetProcessesByName("membersync")
+                For Each inst In myprocess
+                    p = System.Diagnostics.Process.GetProcessById(inst.Id)
+                    p.Kill()
+                Next
+            Catch ex As Exception
+
+            End Try
+        End If
+        Dim pro As Process = Process.Start(Application.StartupPath + "./sync.exe", shop_id_in.Text + " 1") '启动外部同步程序
+        Dim str As String = "select frist_result from frist_run where id = 1"
+        Dim table As New DataTable
+        If Login.sqliteconn.State <> ConnectionState.Open Then
+            Login.connect()
+        End If
+        While True   '等连接成功后向下执行
+            If Login.sqliteconn.State <> ConnectionState.Open Then
+                Exit While
+            End If
+            Thread.Sleep(100)  '线程休眠100ms
+        End While
+
+        Dim cmd As New SQLite.SQLiteCommand
+        cmd.Connection = Login.sqliteconn
+        cmd.CommandType = CommandType.Text
+        cmd.CommandText = "update frist_run set frist_result = 0 where id = 1"
+        cmd.ExecuteNonQuery()
+
+        While True  '同步完成后向下执行
+            Dim da As New SQLite.SQLiteDataAdapter(str, Login.sqliteconn)
+            table.Reset()
+            da.Fill(table)
+            If (table.Rows.Item(0).Item(0).ToString <> "0") Then
+                Exit While
+            End If
+            Thread.Sleep(100)  '线程休眠100ms
+        End While
+        conn.Close() '关闭sql连接
+    End Sub
+
     Private Sub writeshopmsg()
         If Login.MsgboxNotice("您的店铺ID为：" & shop_id_in.Text + vbCrLf + "您的店铺名称为：" & shop_list.Text, "消息", True, True, "重新选择", Me, True, True) = Windows.Forms.DialogResult.OK Then
-            Dim fsr As New StreamWriter(".\config\data.ini")  '向文件中写入配置信息
-            fsr.WriteLine(shop_id_in.Text)
-            fsr.WriteLine(shop_list.Text)
-            fsr.Close()
-            conn.Close() '关闭sql连接
+            Dim tip As New load_tip
+            BeginInvoke(New Login.windows_show(AddressOf Login.win_show), tip, Me)
+
+            
             Login.shopID = Long.Parse(shop_id_in.Text)
-            'MsgBox(Login.shopID)
+            BeginInvoke(New Login.windows_hide(AddressOf Login.win_close), tip)
             Me.Close() '关闭本窗口
         End If
     End Sub
@@ -51,7 +100,6 @@ Public Class fristrun
     Private Sub invo()
         Dim connectThread As New Thread(AddressOf connect)
         connectThread.Start() '开始连接线程
-        'BeginInvoke(New eventhandler(AddressOf connect), Nothing)
     End Sub
 
     Public Sub connect()
@@ -76,7 +124,9 @@ Public Class fristrun
                 conn.Open()
                 If conn.State = ConnectionState.Open Then
                     connectflag = True
-                    getshopNameandId()
+                    Dim tip As New load_tip
+                    BeginInvoke(New Login.windows_show(AddressOf Login.win_show), tip, Nothing)
+                    getshopNameandId(tip)
                 Else
                     'Login.MsgboxNotice("无法从服务器获取信息，请检查网络连接！", "提示", False, False, Nothing, Me, True, False)
                     BeginInvoke(New Login.msgbox_de(AddressOf Login.msgbox_invo), "无法从服务器获取信息，请检查网络连接！", "提示", False, False, Nothing, Me, True, False)
@@ -110,7 +160,7 @@ Public Class fristrun
         invo() '开始异步线程
     End Sub
     '获取商家名称和ID
-    Private Sub getshopNameandId()
+    Private Sub getshopNameandId(tips As Form)
         Try
             datatable.Reset()
             Dim da As MySqlDataAdapter
@@ -118,7 +168,9 @@ Public Class fristrun
             da = New MySqlDataAdapter("select id,name from shop;", conn)
             cb = New MySqlCommandBuilder(da)
             da.Fill(datatable)
-            BeginInvoke(New MyDelegate(AddressOf DelegateMethod), datatable)
+            Dim result As IAsyncResult = BeginInvoke(New MyDelegate(AddressOf DelegateMethod), datatable)
+            EndInvoke(result)
+            BeginInvoke(New Login.windows_close(AddressOf Login.win_close), tips)
         Catch ex As Exception
             'Login.write_errmsg(ex.Message.ToString, Me.Name, "getshopNameandId", Me)
             BeginInvoke(New Login.write_err_msg(AddressOf Login.Write_Err_Msg_Invo), ex.Message, Me.Name, "getshopNameandId", Me)
@@ -140,18 +192,7 @@ Public Class fristrun
             e.Handled = True
         End If
         If e.KeyChar = Chr(Keys.Enter) And connectflag Then
-            'For i = 0 To datatable.Rows.Count() - 1
-            '    If shop_id_in.Text = datatable.Rows.Item(i).Item(0) Then
-            '        shop_list.Text = datatable.Rows.Item(i).Item(1)
-            '        Exit Sub
-            '    End If
-            'Next
-
             Dim result As IAsyncResult = BeginInvoke(New idtoshop_name(AddressOf shopNamemethod))
-            'Dim msgform As New MSG
-            'msgform.msgP.Text = "没有以编号为：" & shop_id_in.Text & "的超市！请检查编号是否准确。"
-            'msgform.head.Text = "提示"
-            'msgform.Show()
             If Not EndInvoke(result) Then
                 Login.MsgboxNotice("没有以编号为：" & shop_id_in.Text & "的超市！" + vbCrLf + "请检查编号是否准确。", "提示", False, False, Nothing, Me, True, False)
             End If
@@ -159,7 +200,6 @@ Public Class fristrun
         If connectflag = False Then
             Login.MsgboxNotice("无法获取信息，请检查网络连接！", "提示", False, False, Nothing, Me, True, False)
         End If
-
     End Sub
 
     '不处理选择框中的任何输入
@@ -173,7 +213,6 @@ Public Class fristrun
         End If
         Me.Close()
     End Sub
-
 
     Private Sub shop_list_SelectedIndexChanged(sender As Object, e As EventArgs) Handles shop_list.SelectedIndexChanged
         BeginInvoke(New EventHandler(AddressOf shop_Select_index_c_invo))
@@ -189,17 +228,9 @@ Public Class fristrun
     End Sub
 
     Private Sub Yes_Button_Click(sender As Object, e As EventArgs) Handles Yes_Button.Click
-        'Dim formmsg As New MSG
-        'formmsg.msgP.Text = "您的店铺ID为：" & shop_id_in.Text + vbCrLf + "您的店铺名称为：" & shop_list.Text
-        'formmsg.head.Text = "消息"
-        'formmsg.yes.Visible = True
-        'formmsg.yes_button.Visible = True
-        'formmsg.no.Visible = True
-        'formmsg.no_button.Visible = True
         If shop Then
             BeginInvoke(New EventHandler(AddressOf writeshopmsg))
         End If
-
     End Sub
 
     Private Sub me_key_down(sender As Object, e As KeyEventArgs) Handles Me.KeyDown
